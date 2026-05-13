@@ -9,8 +9,27 @@ import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ecom Plus Gabon",
-  description: "Plateforme de Sourcing Chine-Gabon",
+  title: {
+    default: "Ecom Plus Gabon — Sourcing Chine-Gabon",
+    template: "%s | Ecom Plus Gabon"
+  },
+  description: "La plateforme PWA n°1 pour sourcer vos produits en Chine et les faire livrer au Gabon en toute sécurité.",
+  manifest: "/manifest.json",
+  themeColor: "#2563eb",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ecom Plus",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Ecom Plus Gabon",
+    title: "Ecom Plus Gabon — Sourcing Chine-Gabon",
+    description: "Sourcez vos produits en Chine et suivez vos colis jusqu'à Libreville.",
+  },
 };
 
 export default function RootLayout({
