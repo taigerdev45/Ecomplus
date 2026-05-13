@@ -9,6 +9,7 @@ const router = Router();
 router.get('/', productController.getProducts);
 router.get('/categories', productController.getCategories);
 router.get('/rate', productController.getExchangeRate);
+router.get('/settings', productController.getPublicSettings);
 router.get('/:id', productController.getProductById);
 
 // Admin routes

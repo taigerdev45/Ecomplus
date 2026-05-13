@@ -144,3 +144,23 @@ export const getExchangeRate = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getPublicSettings = async (req: Request, res: Response) => {
+  try {
+    const { data, error } = await supabase
+      .from('configuration')
+      .select('cle, valeur')
+      .in('cle', ['WHATSAPP_SERVICE_CLIENT', 'SITE_LOGO', 'SITE_NAME']);
+
+    if (error) throw error;
+    
+    const settings = data.reduce((acc: any, item) => {
+      acc[item.cle] = item.valeur;
+      return acc;
+    }, {});
+
+    res.json(settings);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("./queues/pdf.queue");
+require("./queues/whatsapp.queue");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
@@ -13,6 +14,8 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const product_routes_1 = __importDefault(require("./routes/product.routes"));
 const order_routes_1 = __importDefault(require("./routes/order.routes"));
+const whatsapp_routes_1 = __importDefault(require("./routes/whatsapp.routes"));
+const error_middleware_1 = require("./middlewares/error.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 4000;
@@ -28,6 +31,9 @@ app.use((0, cookie_parser_1.default)());
 app.use('/api/v1/auth', auth_routes_1.default);
 app.use('/api/v1/products', product_routes_1.default);
 app.use('/api/v1/orders', order_routes_1.default);
+app.use('/api/v1/webhooks/whatsapp', whatsapp_routes_1.default);
+// Error Handling
+app.use(error_middleware_1.errorHandler);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });

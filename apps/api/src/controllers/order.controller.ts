@@ -76,7 +76,8 @@ export const submitQuoteRequest = async (req: Request, res: Response) => {
     await pdfQueue.add('generate-pdf', {
       type: 'DEVIS',
       data: devis,
-      clientName: (req as any).user.nom
+      clientName: (req as any).user.nom,
+      whatsapp: validatedData.whatsapp
     });
 
     res.status(201).json({ 

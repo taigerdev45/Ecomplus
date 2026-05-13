@@ -3,13 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useProduct } from '@/store/useProduct';
+import { useCart } from '@/store/useCart';
 import { Product } from '@ecom/types';
 import { Loader2, MessageCircle, ShoppingBag, ArrowLeft, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
-  const { getProduct, exchangeRate, fetchExchangeRate } = useProduct();
+  const { getProduct, exchangeRate, fetchExchangeRate, settings, fetchSettings } = useProduct();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
@@ -17,7 +20,7 @@ export default function ProductDetailsPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        await fetchExchangeRate();
+        await Promise.all([fetchExchangeRate(), fetchSettings()]);
         const data = await getProduct(id as string);
         setProduct(data);
       } catch (error) {
@@ -27,7 +30,7 @@ export default function ProductDetailsPage() {
       }
     };
     load();
-  }, [id, getProduct, fetchExchangeRate]);
+  }, [id, getProduct, fetchExchangeRate, fetchSettings]);
 
   if (loading) {
     return (
@@ -47,8 +50,15 @@ export default function ProductDetailsPage() {
   }
 
   const prixXaf = Math.round((product.prix_cny / 100) * exchangeRate);
-  const whatsappUrl = `https://wa.me/24100000000?text=${encodeURIComponent(
-    `Bonjour, je suis intéressé par le produit : ${product.nom} (${window.location.href}). Prix : ${prixXaf} F CFA.`
+  
+  const handleAddToCart = () => {
+    addItem(product);
+    toast.success(`${product.nom} ajouté au panier`);
+  };
+
+  const whatsappNumber = settings.WHATSAPP_SERVICE_CLIENT || '24100000000';
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(
+    `Bonjour, je suis intéressé par le produit : ${product.nom}.\n\nPrix : ${prixXaf.toLocaleString()} F CFA\nLien : ${window.location.origin}/produit/${product.id}`
   )}`;
 
   return (
@@ -132,7 +142,10 @@ export default function ProductDetailsPage() {
               </div>
 
               <div className="flex flex-col gap-4 pt-8 sm:flex-row">
-                <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 font-bold text-white transition-all hover:bg-primary/90">
+                <button 
+                  onClick={handleAddToCart}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 font-bold text-white transition-all hover:bg-primary/90"
+                >
                   <ShoppingBag className="h-5 w-5" /> Ajouter au panier
                 </button>
                 <a

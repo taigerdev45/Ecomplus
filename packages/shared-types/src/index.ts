@@ -111,3 +111,18 @@ export interface DevisPreview {
   shipping: ShippingInfo;
   total_ttc: number;
 }
+
+export type WhatsAppMessageType = 'DEVIS_READY' | 'ORDER_CONFIRMED' | 'STATUS_UPDATE';
+
+export interface WhatsAppPayload {
+  to: string;
+  type: WhatsAppMessageType;
+  data: {
+    clientName: string;
+    reference?: string;
+    trackingNumber?: string;
+    amount?: number;
+    link?: string;
+    status?: string;
+  };
+}

@@ -7,11 +7,13 @@ interface ProductState {
   categories: Category[];
   totalProducts: number;
   exchangeRate: number;
+  settings: Record<string, string>;
   isLoading: boolean;
   
   fetchProducts: (filters?: ProductFilters) => Promise<void>;
   fetchCategories: () => Promise<void>;
   fetchExchangeRate: () => Promise<void>;
+  fetchSettings: () => Promise<void>;
   getProduct: (id: string) => Promise<Product>;
   createProduct: (data: FormData) => Promise<void>;
   updateProduct: (id: string, data: FormData) => Promise<void>;
@@ -23,6 +25,7 @@ export const useProduct = create<ProductState>((set) => ({
   categories: [],
   totalProducts: 0,
   exchangeRate: 95, // Default
+  settings: {},
   isLoading: false,
 
   fetchProducts: async (filters) => {
@@ -50,6 +53,13 @@ export const useProduct = create<ProductState>((set) => ({
     try {
       const res = await api.get<{ rate: number }>('/products/rate');
       set({ exchangeRate: res.data.rate });
+    } catch (error) {}
+  },
+
+  fetchSettings: async () => {
+    try {
+      const res = await api.get<Record<string, string>>('/products/settings');
+      set({ settings: res.data });
     } catch (error) {}
   },
 

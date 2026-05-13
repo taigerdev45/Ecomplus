@@ -1,4 +1,5 @@
 import './queues/pdf.queue';
+import './queues/whatsapp.queue';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -8,6 +9,8 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
 import orderRoutes from './routes/order.routes';
+import whatsappRoutes from './routes/whatsapp.routes';
+import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
 
@@ -27,6 +30,10 @@ app.use(cookieParser());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/webhooks/whatsapp', whatsappRoutes);
+
+// Error Handling
+app.use(errorHandler);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

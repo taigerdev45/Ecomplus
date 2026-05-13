@@ -3,6 +3,8 @@ import redisConnection from '../lib/redis';
 import * as pdfService from '../services/pdf.service';
 import { supabase } from '../lib/supabase';
 
+import { whatsappQueue } from './whatsapp.queue';
+
 export const pdfQueue = new Queue('pdf-generation', { connection: redisConnection });
 
 export const pdfWorker = new Worker('pdf-generation', async (job) => {
@@ -28,8 +30,20 @@ export const pdfWorker = new Worker('pdf-generation', async (job) => {
         .eq('id', data.id);
     }
     
-    // In Phase 8, trigger WhatsApp notification here
-    console.log(`PDF Generated: ${pdfUrl}`);
+    // Trigger WhatsApp notification
+    await whatsappQueue.add('send-notification', {
+      to: job.data.whatsapp,
+      type: type === 'DEVIS' ? 'DEVIS_READY' : 'ORDER_CONFIRMED',
+      data: {
+        clientName,
+        reference: data.reference,
+        trackingNumber: data.tracking_number,
+        amount: data.total_ttc,
+        link: pdfUrl
+      }
+    });
+
+    console.log(`PDF Generated & WhatsApp Triggered: ${pdfUrl}`);
     return pdfUrl;
   } catch (error) {
     console.error(`Error in PDF worker:`, error);
