@@ -1,12 +1,15 @@
 import { CommissionInfo, Devis, ShippingMethod, ShippingInfo, CartItem, DevisPreview } from '@ecom/types';
 
 export const calculateCommission = (subtotal: number): CommissionInfo => {
+  // Tranche 1: < 350 000 FCFA -> 10%
   if (subtotal < 350000) {
     return { taux: 10, montant: Math.round(subtotal * 0.10) };
   }
-  if (subtotal < 1000000) {
+  // Tranche 2: 350 000 - 1 000 000 FCFA -> 15%
+  if (subtotal >= 350000 && subtotal < 1000000) {
     return { taux: 15, montant: Math.round(subtotal * 0.15) };
   }
+  // Tranche 3: >= 1 000 000 FCFA -> 20%
   return { taux: 20, montant: Math.round(subtotal * 0.20) };
 };
 

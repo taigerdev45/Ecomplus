@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
   const challenge = req.query['hub.challenge'];
 
   if (mode === 'subscribe' && token === WEBHOOK_VERIFY_TOKEN) {
-    console.log('WhatsApp Webhook Verified');
+    // console.log('WhatsApp Webhook Verified');
     return res.status(200).send(challenge);
   }
   

@@ -17,7 +17,7 @@ export const whatsappQueue = new Queue('whatsapp-sender', {
 export const whatsappWorker = new Worker('whatsapp-sender', async (job) => {
   const payload: WhatsAppPayload = job.data;
   
-  console.log(`Processing WhatsApp message for job ${job.id} (${payload.type})`);
+  // console.log(`Processing WhatsApp message for job ${job.id} (${payload.type})`);
 
   const result = (await whatsappService.sendMessage(payload)) as any;
   
@@ -26,7 +26,7 @@ export const whatsappWorker = new Worker('whatsapp-sender', async (job) => {
   }
 
   if (result.fallback) {
-    console.info(`WhatsApp API fallback generated for job ${job.id}: ${result.fallback}`);
+    // console.log(`WhatsApp API fallback generated for job ${job.id}: ${result.fallback}`);
   }
 
   return result;

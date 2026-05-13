@@ -10,7 +10,7 @@ export const pdfQueue = new Queue('pdf-generation', { connection: redisConnectio
 export const pdfWorker = new Worker('pdf-generation', async (job) => {
   const { type, data, clientName } = job.data;
   
-  console.log(`Processing PDF generation for job ${job.id} (${type})`);
+  // console.log(`Processing PDF generation for job ${job.id} (${type})`);
 
   try {
     let pdfUrl = '';
