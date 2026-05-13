@@ -86,7 +86,26 @@ export interface ShippingInfo {
   delai: string;
 }
 
-export interface Devis {
+export interface Devis extends DevisPreview {
+  id: string;
+  reference: string;
+  client_id: string;
+  items: CartItem[];
+  status: 'PENDING' | 'VALIDATED' | 'CANCELLED' | 'EXPIRED';
+  pdf_url?: string;
+  created_at: string;
+}
+
+export interface Receipt {
+  id: string;
+  reference: string;
+  order_id: string;
+  tracking_number: string;
+  pdf_url: string;
+  created_at: string;
+}
+
+export interface DevisPreview {
   subtotal_products: number;
   commission: CommissionInfo;
   shipping: ShippingInfo;

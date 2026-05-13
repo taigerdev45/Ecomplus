@@ -4,12 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from '@/store/useCart';
 import { useProduct } from '@/store/useProduct';
 import { Devis, ShippingMethod } from '@ecom/types';
-import { Trash2, Plus, Minus, Calculator, Send, Truck, Info, Loader2 } from 'lucide-react';
+import { Trash2, Plus, Minus, Calculator, Send, Truck, Info, Loader2, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getQuotePreview, getTotalPrice } = useCart();
+  const { items, updateQuantity, removeItem, getQuotePreview, getTotalPrice, submitQuoteRequest } = useCart();
   const { exchangeRate, fetchExchangeRate } = useProduct();
   
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('AIR');
@@ -36,6 +36,24 @@ export default function CartPage() {
       toast.success('Devis mis à jour');
     } catch (error) {
       toast.error('Erreur lors du calcul du devis');
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  const handleSubmitQuote = async () => {
+    if (!address || !city || !whatsapp) {
+      toast.error('Veuillez remplir toutes les coordonnées de livraison');
+      return;
+    }
+
+    setIsCalculating(true);
+    try {
+      const res = await submitQuoteRequest(shippingMethod, address, city, whatsapp);
+      toast.success(res.message);
+      setQuote(null); // Clear local quote after submission
+    } catch (error) {
+      toast.error('Erreur lors de l\'envoi de la demande');
     } finally {
       setIsCalculating(false);
     }
@@ -204,8 +222,13 @@ export default function CartPage() {
                   
                   <p className="text-[10px] text-slate-400 italic">Délai estimé : {quote.shipping.delai}</p>
 
-                  <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-4 font-bold text-white transition-all hover:bg-green-700 shadow-lg shadow-green-500/20 mt-6">
-                    <Send className="h-5 w-5" /> Envoyer la demande de devis
+                  <button 
+                    onClick={handleSubmitQuote}
+                    disabled={isCalculating}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-4 font-bold text-white transition-all hover:bg-green-700 shadow-lg shadow-green-500/20 mt-6 disabled:opacity-50"
+                  >
+                    {isCalculating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                    Envoyer la demande de devis
                   </button>
                 </div>
               )}
@@ -216,6 +239,3 @@ export default function CartPage() {
     </div>
   );
 }
-
-// Missing import added
-import { ShoppingBag } from 'lucide-react';

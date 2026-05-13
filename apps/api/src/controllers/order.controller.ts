@@ -28,7 +28,62 @@ export const getQuotePreview = async (req: Request, res: Response) => {
   }
 };
 
+import { pdfQueue } from '../queues/pdf.queue';
+
 export const submitQuoteRequest = async (req: Request, res: Response) => {
-  // Logic to save quote to DB and trigger WhatsApp notification will go here in Phase 4
-  res.status(501).json({ message: 'Not implemented yet' });
+  try {
+    const validatedData = quoteRequestSchema.parse(req.body);
+    const userId = (req as any).user.id;
+
+    // 1. Get exchange rate
+    const { data: rateData } = await supabase
+      .from('configuration')
+      .select('valeur')
+      .eq('cle', 'TAUX_CHANGE_CNY_XAF')
+      .single();
+    const exchangeRate = rateData ? Number(rateData.valeur) : 95;
+
+    // 2. Calculate totals
+    const quoteData = orderService.calculateQuote(
+      validatedData.items,
+      validatedData.shippingMethod,
+      exchangeRate
+    );
+
+    // 3. Save to DB
+    const reference = `DEV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    const { data: devis, error } = await supabase
+      .from('devis')
+      .insert({
+        client_id: userId,
+        reference,
+        items: validatedData.items,
+        subtotal_products: quoteData.subtotal_products,
+        commission_taux: quoteData.commission.taux,
+        commission_montant: quoteData.commission.montant,
+        shipping_method: quoteData.shipping.method,
+        shipping_montant: quoteData.shipping.montant,
+        total_ttc: quoteData.total_ttc,
+        status: 'PENDING'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // 4. Trigger PDF Generation in background
+    await pdfQueue.add('generate-pdf', {
+      type: 'DEVIS',
+      data: devis,
+      clientName: (req as any).user.nom
+    });
+
+    res.status(201).json({ 
+      message: 'Demande de devis enregistrée. Votre PDF sera prêt dans quelques instants.',
+      devis 
+    });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
 };

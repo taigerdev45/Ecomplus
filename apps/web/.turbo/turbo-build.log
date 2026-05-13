@@ -7,22 +7,51 @@
    Creating an optimized production build ...
  ✓ Compiled successfully
    Linting and checking validity of types ...
-Failed to compile.
 
-./src/components/Navbar.tsx:10:25
-Type error: Property 'isAuth' does not exist on type 'AuthState'.
+./src/app/admin/products/page.tsx
+76:31  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-[0m [90m  8 |[39m[0m
-[0m [90m  9 |[39m [36mexport[39m [36mfunction[39m [33mNavbar[39m() {[0m
-[0m[31m[1m>[22m[39m[90m 10 |[39m   [36mconst[39m { user[33m,[39m logout[33m,[39m isAuth } [33m=[39m useAuth()[33m;[39m[0m
-[0m [90m    |[39m                         [31m[1m^[22m[39m[0m
-[0m [90m 11 |[39m   [36mconst[39m { getTotalItems } [33m=[39m useCart()[33m;[39m[0m
-[0m [90m 12 |[39m   [36mconst[39m cartCount [33m=[39m getTotalItems()[33m;[39m[0m
-[0m [90m 13 |[39m[0m
-npm error Lifecycle script `build` failed with error:
-npm error code 1
-npm error path C:\Users\taige\Downloads\mes_projetsv1\Ecomplus\apps\web
-npm error workspace web@0.1.0
-npm error location C:\Users\taige\Downloads\mes_projetsv1\Ecomplus\apps\web
-npm error command failed
-npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build
+./src/app/panier/page.tsx
+93:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/produit/[id]/page.tsx
+65:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+81:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/auth/AuthGuard.tsx
+16:6  Warning: React Hook useEffect has a missing dependency: 'checkAuth'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/ProductCard.tsx
+26:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/11) ...
+   Generating static pages (2/11) 
+   Generating static pages (5/11) 
+   Generating static pages (8/11) 
+ ✓ Generating static pages (11/11)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    138 B          87.2 kB
+├ ○ /_not-found                          873 B          87.9 kB
+├ ○ /admin                               1.33 kB         112 kB
+├ ○ /admin/products                      3.63 kB         123 kB
+├ ○ /catalogue                           2.44 kB         131 kB
+├ ○ /login                               2.29 kB         129 kB
+├ ○ /panier                              5.3 kB          132 kB
+├ ƒ /produit/[id]                        2.96 kB         121 kB
+└ ○ /register                            2.68 kB         130 kB
++ First Load JS shared by all            87 kB
+  ├ chunks/1dd3208c-23faa8f08caf5a77.js  53.6 kB
+  ├ chunks/286-3a6f1460299133ed.js       31.5 kB
+  └ other shared chunks (total)          1.95 kB
+
+
+ƒ Middleware                             27.1 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

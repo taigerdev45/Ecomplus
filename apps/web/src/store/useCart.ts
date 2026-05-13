@@ -12,6 +12,7 @@ interface CartState {
   getTotalPrice: (exchangeRate: number) => number;
   getTotalItems: () => number;
   getQuotePreview: (shippingMethod: ShippingMethod, address: string, city: string, whatsapp: string) => Promise<Devis>;
+  submitQuoteRequest: (shippingMethod: ShippingMethod, address: string, city: string, whatsapp: string) => Promise<{ message: string, devis: Devis }>;
 }
 
 export const useCart = create<CartState>()(
@@ -73,6 +74,18 @@ export const useCart = create<CartState>()(
           city,
           whatsapp,
         });
+        return res.data;
+      },
+
+      submitQuoteRequest: async (shippingMethod, address, city, whatsapp) => {
+        const res = await api.post<{ message: string, devis: Devis }>('/orders/quote-request', {
+          items: get().items,
+          shippingMethod,
+          address,
+          city,
+          whatsapp,
+        });
+        get().clearCart();
         return res.data;
       },
     }),

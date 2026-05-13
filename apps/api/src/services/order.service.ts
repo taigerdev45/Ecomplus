@@ -1,4 +1,4 @@
-import { CommissionInfo, Devis, ShippingMethod, ShippingInfo, CartItem } from '@ecom/types';
+import { CommissionInfo, Devis, ShippingMethod, ShippingInfo, CartItem, DevisPreview } from '@ecom/types';
 
 export const calculateCommission = (subtotal: number): CommissionInfo => {
   if (subtotal < 350000) {
@@ -26,7 +26,7 @@ export const calculateQuote = (
   items: { product: { prix_cny: number, poids_kg: number }, quantity: number }[], 
   method: ShippingMethod, 
   exchangeRate: number
-): Devis => {
+): DevisPreview => {
   // 1. Sous-total produits en XAF
   const subtotalProducts = items.reduce((acc, item) => {
     const priceXaf = (item.product.prix_cny / 100) * exchangeRate;
