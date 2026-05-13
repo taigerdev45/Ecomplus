@@ -88,3 +88,57 @@ export const submitQuoteRequest = async (req: Request, res: Response) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const createOrder = async (req: Request, res: Response) => {
+  try {
+    const { quoteId } = req.params;
+    const order = await orderService.createOrderFromQuote(quoteId);
+    res.status(201).json(order);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { statut, commentaire, photos } = req.body;
+    const agentId = (req as any).user.id;
+
+    const order = await orderService.updateOrderStatus(
+      id,
+      statut,
+      agentId,
+      commentaire,
+      photos
+    );
+
+    res.json(order);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getTrackingDetails = async (req: Request, res: Response) => {
+  try {
+    const { number } = req.params;
+    const order = await orderService.getOrderByTracking(number);
+    res.json(order);
+  } catch (error: any) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
+export const getOrders = async (req: Request, res: Response) => {
+  try {
+    const { data: orders, error } = await supabase
+      .from('commande')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.json(orders);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

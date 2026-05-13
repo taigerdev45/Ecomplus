@@ -112,6 +112,43 @@ export interface DevisPreview {
   total_ttc: number;
 }
 
+export type OrderStatus = 
+  | 'devis_envoye' 
+  | 'en_attente_validation' 
+  | 'valide'
+  | 'commande_fournisseur' 
+  | 'en_preparation' 
+  | 'expedie_chine'
+  | 'en_transit' 
+  | 'arrive_libreville' 
+  | 'en_cours_livraison' 
+  | 'livre' 
+  | 'annule';
+
+export interface Order {
+  id: string;
+  client_id: string;
+  agent_id?: string;
+  devis_id: string;
+  numero_tracking: string;
+  statut: OrderStatus;
+  items: CartItem[];
+  total_ttc: number;
+  date_livraison_estimee?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderStep {
+  id: string;
+  commande_id: string;
+  statut: OrderStatus;
+  commentaire?: string;
+  photos: string[];
+  agent_id?: string;
+  created_at: string;
+}
+
 export type WhatsAppMessageType = 'DEVIS_READY' | 'ORDER_CONFIRMED' | 'STATUS_UPDATE';
 
 export interface WhatsAppPayload {

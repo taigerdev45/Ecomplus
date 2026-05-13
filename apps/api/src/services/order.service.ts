@@ -50,3 +50,116 @@ export const calculateQuote = (
     total_ttc: Math.round(total_ttc)
   };
 };
+
+export const generateTrackingNumber = (): string => {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `ECOM-${year}-${random}`;
+};
+
+import { supabase } from '../lib/supabase';
+import { OrderStatus } from '@ecom/types';
+
+export const createOrderFromQuote = async (quoteId: string) => {
+  // 1. Fetch quote
+  const { data: devis, error: fetchError } = await supabase
+    .from('devis')
+    .select('*')
+    .eq('id', quoteId)
+    .single();
+  
+  if (fetchError || !devis) throw new Error('Devis non trouvé');
+  if (devis.status === 'VALIDATED') throw new Error('Ce devis a déjà été transformé en commande');
+
+  const trackingNumber = generateTrackingNumber();
+
+  // 2. Create order
+  const { data: order, error: orderError } = await supabase
+    .from('commande')
+    .insert({
+      client_id: devis.client_id,
+      devis_id: devis.id,
+      numero_tracking: trackingNumber,
+      statut: 'valide',
+      items: devis.items,
+      total_ttc: devis.total_ttc,
+      date_livraison_estimee: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString() // Default 15 days
+    })
+    .select()
+    .single();
+
+  if (orderError) throw orderError;
+
+  // 3. Update quote status
+  await supabase
+    .from('devis')
+    .update({ status: 'VALIDATED' })
+    .eq('id', quoteId);
+
+  // 4. Create initial tracking step
+  await supabase
+    .from('suivi_commande')
+    .insert({
+      commande_id: order.id,
+      statut: 'valide',
+      commentaire: 'Commande validée et enregistrée.'
+    });
+
+  return order;
+};
+
+export const updateOrderStatus = async (
+  orderId: string, 
+  status: OrderStatus, 
+  agentId: string, 
+  comment?: string, 
+  photos: string[] = []
+) => {
+  // 1. Update order
+  const { data: order, error: orderError } = await supabase
+    .from('commande')
+    .update({ statut: status, updated_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .select()
+    .single();
+
+  if (orderError) throw orderError;
+
+  // 2. Add tracking step
+  const { error: stepError } = await supabase
+    .from('suivi_commande')
+    .insert({
+      commande_id: orderId,
+      statut: status,
+      commentaire: comment,
+      photos,
+      agent_id: agentId
+    });
+
+  if (stepError) throw stepError;
+
+  return order;
+};
+
+export const getOrderByTracking = async (trackingNumber: string) => {
+  const { data: order, error } = await supabase
+    .from('commande')
+    .select(`
+      *,
+      client:utilisateur!client_id(nom),
+      steps:suivi_commande(*)
+    `)
+    .eq('numero_tracking', trackingNumber)
+    .single();
+
+  if (error || !order) throw new Error('Numéro de suivi invalide');
+  
+  // Sort steps by date
+  if (order.steps) {
+    order.steps.sort((a: any, b: any) => 
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  }
+
+  return order;
+};
