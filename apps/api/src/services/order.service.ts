@@ -62,6 +62,7 @@ export const generateTrackingNumber = (): string => {
 
 import { supabase } from '../lib/supabase';
 import { OrderStatus } from '@ecom/types';
+import { whatsappQueue } from '../queues/whatsapp.queue';
 
 export const createOrderFromQuote = async (quoteId: string) => {
   // 1. Fetch quote
@@ -140,6 +141,26 @@ export const updateOrderStatus = async (
     });
 
   if (stepError) throw stepError;
+
+  // 3. Notify client via WhatsApp
+  const { data: client } = await supabase
+    .from('utilisateur')
+    .select('telephone, nom')
+    .eq('id', order.client_id)
+    .single();
+
+  if (client) {
+    await whatsappQueue.add('send-notification', {
+      to: client.telephone,
+      type: 'STATUS_UPDATE',
+      data: {
+        clientName: client.nom,
+        trackingNumber: order.numero_tracking,
+        status: status,
+        link: `${process.env.CLIENT_URL || 'https://ecomplus.ga'}/suivi/${order.numero_tracking}`
+      }
+    });
+  }
 
   return order;
 };

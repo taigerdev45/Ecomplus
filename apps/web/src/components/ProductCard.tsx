@@ -1,4 +1,4 @@
-import React from 'react';
+import Image from 'next/image';
 import { Product } from '@ecom/types';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
@@ -22,10 +22,12 @@ export function ProductCard({ product, exchangeRate }: ProductCardProps) {
 
   return (
     <div className="group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-slate-900">
-      <Link href={`/produit/${product.id}`} className="block aspect-square overflow-hidden bg-slate-100">
-        <img
+      <Link href={`/produit/${product.id}`} className="block relative aspect-square overflow-hidden bg-slate-100">
+        <Image
           src={product.images[0] || 'https://via.placeholder.com/400'}
           alt={product.nom}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </Link>

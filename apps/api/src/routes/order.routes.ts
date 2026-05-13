@@ -10,7 +10,10 @@ router.post('/quote-preview', orderController.getQuotePreview);
 // Quote submission (Authenticated)
 router.post('/quote-request', authenticateJWT, orderController.submitQuoteRequest);
 
-// Order creation from quote
+// Devis validation (QR Code target)
+router.post('/validate/:id', authenticateJWT, orderController.validateQuote);
+
+// Order creation from quote (Admin/Agent)
 router.post('/from-quote/:quoteId', authenticateJWT, orderController.createOrder);
 
 // List all orders (Agent/Admin)

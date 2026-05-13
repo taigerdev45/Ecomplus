@@ -99,6 +99,16 @@ export const createOrder = async (req: Request, res: Response) => {
   }
 };
 
+export const validateQuote = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const order = await orderService.createOrderFromQuote(id);
+    res.status(200).json({ message: 'Devis validé', order });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

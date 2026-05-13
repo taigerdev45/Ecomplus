@@ -7,6 +7,8 @@ import { Devis, ShippingMethod } from '@ecom/types';
 import { Trash2, Plus, Minus, Calculator, Send, Truck, Info, Loader2, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getQuotePreview, getTotalPrice, submitQuoteRequest } = useCart();
@@ -41,6 +43,8 @@ export default function CartPage() {
     }
   };
 
+  const router = useRouter();
+
   const handleSubmitQuote = async () => {
     if (!address || !city || !whatsapp) {
       toast.error('Veuillez remplir toutes les coordonnées de livraison');
@@ -51,7 +55,10 @@ export default function CartPage() {
     try {
       const res = await submitQuoteRequest(shippingMethod, address, city, whatsapp);
       toast.success(res.message);
-      setQuote(null); // Clear local quote after submission
+      setQuote(null); // Clear local quote
+      
+      // Redirect to success page with PDF and Ref
+      router.push(`/devis-envoye?pdf=${encodeURIComponent(res.devis.pdf_url || '')}&ref=${res.devis.reference}`);
     } catch (error) {
       toast.error('Erreur lors de l\'envoi de la demande');
     } finally {
@@ -89,8 +96,13 @@ export default function CartPage() {
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {items.map((item) => (
                   <div key={item.product.id} className="flex flex-col p-6 sm:flex-row sm:items-center gap-6">
-                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100">
-                      <img src={item.product.images[0]} alt={item.product.nom} className="h-full w-full object-cover" />
+                    <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                      <Image 
+                        src={item.product.images[0]} 
+                        alt={item.product.nom} 
+                        fill
+                        className="object-cover" 
+                      />
                     </div>
                     
                     <div className="flex flex-1 flex-col">
