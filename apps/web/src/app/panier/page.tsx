@@ -99,6 +99,8 @@ export default function CartPage() {
                         <button 
                           onClick={() => removeItem(item.product.id)}
                           className="text-slate-400 hover:text-red-500 transition-colors"
+                          aria-label="Supprimer du panier"
+                          title="Supprimer du panier"
                         >
                           <Trash2 className="h-5 w-5" />
                         </button>
@@ -110,6 +112,8 @@ export default function CartPage() {
                           <button 
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                             className="p-2 text-slate-500 hover:text-primary"
+                            aria-label="Diminuer la quantité"
+                            title="Diminuer"
                           >
                             <Minus className="h-4 w-4" />
                           </button>
@@ -117,6 +121,8 @@ export default function CartPage() {
                           <button 
                             onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                             className="p-2 text-slate-500 hover:text-primary"
+                            aria-label="Augmenter la quantité"
+                            title="Augmenter"
                           >
                             <Plus className="h-4 w-4" />
                           </button>
@@ -151,6 +157,8 @@ export default function CartPage() {
                       className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
                         shippingMethod === 'AIR' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
                       }`}
+                      aria-label="Sélectionner la livraison par air"
+                      title="Livraison par air"
                     >
                       <Truck className="h-6 w-6" />
                       <span className="text-xs font-bold">AIR (Rapide)</span>
@@ -160,6 +168,8 @@ export default function CartPage() {
                       className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
                         shippingMethod === 'SEA' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
                       }`}
+                      aria-label="Sélectionner la livraison par mer"
+                      title="Livraison par mer"
                     >
                       <Info className="h-6 w-6" />
                       <span className="text-xs font-bold">MER (Éco)</span>

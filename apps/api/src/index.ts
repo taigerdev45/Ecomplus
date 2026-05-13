@@ -10,6 +10,8 @@ import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
 import orderRoutes from './routes/order.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
+import adminRoutes from './routes/admin.routes';
+import configRoutes from './routes/config.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -31,6 +33,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/webhooks/whatsapp', whatsappRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/config', configRoutes);
 
 // Error Handling
 app.use(errorHandler);

@@ -93,12 +93,18 @@ export default function AdminProductsPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button className="rounded p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800">
+                            <button 
+                              className="rounded p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800"
+                              title="Modifier le produit"
+                              aria-label="Modifier le produit"
+                            >
                               <Edit className="h-5 w-5" />
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}
                               className="rounded p-2 text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-slate-800"
+                              title="Supprimer le produit"
+                              aria-label="Supprimer le produit"
                             >
                               <Trash2 className="h-5 w-5" />
                             </button>

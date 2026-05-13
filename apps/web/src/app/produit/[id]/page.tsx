@@ -87,6 +87,8 @@ export default function ProductDetailsPage() {
                     className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
                       activeImage === idx ? 'border-primary' : 'border-transparent'
                     }`}
+                    aria-label={`Voir l'image ${idx + 1}`}
+                    title={`Voir l'image ${idx + 1}`}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" />
                   </button>

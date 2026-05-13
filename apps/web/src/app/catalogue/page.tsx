@@ -49,6 +49,8 @@ export default function CataloguePage() {
                 className="rounded-lg border border-slate-200 bg-white py-3 pl-4 pr-10 focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-800 dark:text-white"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
+                title="Sélectionner une catégorie"
+                aria-label="Sélectionner une catégorie"
               >
                 <option value="">Toutes les catégories</option>
                 {categories.map((cat) => (
@@ -80,6 +82,8 @@ export default function CataloguePage() {
                 disabled={page === 1}
                 onClick={() => setPage(p => p - 1)}
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900"
+                title="Page précédente"
+                aria-label="Page précédente"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -88,6 +92,8 @@ export default function CataloguePage() {
                 disabled={products.length < 12}
                 onClick={() => setPage(p => p + 1)}
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900"
+                title="Page suivante"
+                aria-label="Page suivante"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>

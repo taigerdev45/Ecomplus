@@ -15,6 +15,7 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const product_routes_1 = __importDefault(require("./routes/product.routes"));
 const order_routes_1 = __importDefault(require("./routes/order.routes"));
 const whatsapp_routes_1 = __importDefault(require("./routes/whatsapp.routes"));
+const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 const error_middleware_1 = require("./middlewares/error.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -32,6 +33,7 @@ app.use('/api/v1/auth', auth_routes_1.default);
 app.use('/api/v1/products', product_routes_1.default);
 app.use('/api/v1/orders', order_routes_1.default);
 app.use('/api/v1/webhooks/whatsapp', whatsapp_routes_1.default);
+app.use('/api/v1/admin', admin_routes_1.default);
 // Error Handling
 app.use(error_middleware_1.errorHandler);
 app.get('/health', (req, res) => {

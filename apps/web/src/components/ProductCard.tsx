@@ -55,6 +55,8 @@ export function ProductCard({ product, exchangeRate }: ProductCardProps) {
           <button 
             onClick={handleAddToCart}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-primary/90"
+            aria-label="Ajouter au panier"
+            title="Ajouter au panier"
           >
             <ShoppingCart className="h-4 w-4" />
           </button>
