@@ -11,6 +11,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const product_routes_1 = __importDefault(require("./routes/product.routes"));
+const order_routes_1 = __importDefault(require("./routes/order.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 4000;
@@ -25,6 +26,7 @@ app.use((0, cookie_parser_1.default)());
 // Routes
 app.use('/api/v1/auth', auth_routes_1.default);
 app.use('/api/v1/products', product_routes_1.default);
+app.use('/api/v1/orders', order_routes_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });

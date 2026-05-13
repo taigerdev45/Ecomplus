@@ -2,6 +2,8 @@ import React from 'react';
 import { Product } from '@ecom/types';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { useCart } from '@/store/useCart';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -9,7 +11,14 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, exchangeRate }: ProductCardProps) {
+  const { addItem } = useCart();
   const prixXaf = Math.round((product.prix_cny / 100) * exchangeRate);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addItem(product);
+    toast.success(`${product.nom} ajouté au panier`);
+  };
 
   return (
     <div className="group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-slate-900">
@@ -43,7 +52,10 @@ export function ProductCard({ product, exchangeRate }: ProductCardProps) {
               {(product.prix_cny / 100).toFixed(2)} CNY
             </p>
           </div>
-          <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-primary/90">
+          <button 
+            onClick={handleAddToCart}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-primary/90"
+          >
             <ShoppingCart className="h-4 w-4" />
           </button>
         </div>

@@ -58,3 +58,37 @@ export interface ProductFilters {
   page?: number;
   limit?: number;
 }
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
+export type ShippingMethod = 'AIR' | 'SEA';
+
+export interface QuoteRequest {
+  items: CartItem[];
+  shippingMethod: ShippingMethod;
+  address: string;
+  city: string;
+  whatsapp: string;
+  gps?: string;
+}
+
+export interface CommissionInfo {
+  taux: number;
+  montant: number;
+}
+
+export interface ShippingInfo {
+  method: ShippingMethod;
+  montant: number;
+  delai: string;
+}
+
+export interface Devis {
+  subtotal_products: number;
+  commission: CommissionInfo;
+  shipping: ShippingInfo;
+  total_ttc: number;
+}
