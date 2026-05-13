@@ -26,3 +26,35 @@ export interface LoginDTO {
   email: string;
   mot_de_passe: string;
 }
+
+export interface Category {
+  id: string;
+  nom: string;
+  description?: string;
+  parent_id?: string;
+  created_at: string;
+}
+
+export interface Product {
+  id: string;
+  nom: string;
+  description: string;
+  prix_cny: number; // en centimes (ex: 1000 = 10.00 CNY)
+  poids_kg: number;
+  categorie_id: string;
+  images: string[]; // URLs des images (800x800)
+  thumbnails?: string[]; // URLs des versions 200x200
+  stock: number;
+  lien_fournisseur?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductFilters {
+  categorie_id?: string;
+  prix_min?: number;
+  prix_max?: number;
+  search?: string;
+  page?: number;
+  limit?: number;
+}

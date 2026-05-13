@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
+import productRoutes from './routes/product.routes';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/products', productRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
