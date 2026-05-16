@@ -26,7 +26,7 @@ const port = process.env.PORT || 4000;
 // Security Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:3000',
   credentials: true
 }));
 app.use(hpp()); // Prevent HTTP Parameter Pollution

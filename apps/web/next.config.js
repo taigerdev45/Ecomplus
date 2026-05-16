@@ -7,15 +7,16 @@ const withPWA = require('next-pwa')({
 
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data:;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://*.supabase.co https://*.whatsapp.net https://*.fbcdn.net https://placehold.co https://ui-avatars.com;
-    font-src 'self';
+    font-src 'self' data:;
+    connect-src 'self' http://localhost:5000 https://*.supabase.co wss://*.supabase.co ws: wss: blob: data:;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
-    upgrade-insecure-requests;
+    ${process.env.NODE_ENV === 'production' ? 'upgrade-insecure-requests;' : ''}
 `.replace(/\s{2,}/g, ' ').trim();
 
 /** @type {import('next').NextConfig} */
