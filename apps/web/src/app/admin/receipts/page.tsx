@@ -30,10 +30,12 @@ export default function AdminReceiptsPage() {
           </div>
           <div className="flex gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="N° reçu ou client..." 
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <label htmlFor="receipts-search" className="sr-only">Rechercher par numéro de reçu ou client</label>
+              <input
+                id="receipts-search"
+                type="text"
+                placeholder="N° reçu ou client..."
                 className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2 text-sm outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 sm:w-64"
               />
             </div>
@@ -62,11 +64,17 @@ export default function AdminReceiptsPage() {
                   <td className="px-6 py-4 font-bold text-primary">{rec.amount.toLocaleString()} F</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
-                        <Download className="h-4 w-4" />
+                      <button
+                        aria-label={`Télécharger le reçu ${rec.reference}`}
+                        className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800"
+                      >
+                        <Download className="h-4 w-4" aria-hidden="true" />
                       </button>
-                      <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
-                        <Printer className="h-4 w-4" />
+                      <button
+                        aria-label={`Imprimer le reçu ${rec.reference}`}
+                        className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800"
+                      >
+                        <Printer className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
                   </td>

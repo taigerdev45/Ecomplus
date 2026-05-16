@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -52,8 +53,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-xl">E</div>
               <span className="text-xl font-bold text-slate-900 dark:text-white">EcomPlus</span>
             </Link>
-            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-slate-500">
-              <X className="h-6 w-6" />
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Fermer le menu de navigation"
+              className="lg:hidden text-slate-500"
+            >
+              <X className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
 
@@ -95,8 +100,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Header */}
         <header className="sticky top-0 z-30 h-20 bg-white/80 backdrop-blur-md dark:bg-slate-900/80">
           <div className="flex h-full items-center justify-between px-4 lg:px-8">
-            <button onClick={() => setIsSidebarOpen(true)} className={`${isSidebarOpen ? 'lg:hidden' : ''} text-slate-500`}>
-              <Menu className="h-6 w-6" />
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Ouvrir le menu de navigation"
+              className={`${isSidebarOpen ? 'lg:hidden' : ''} text-slate-500`}
+            >
+              <Menu className="h-6 w-6" aria-hidden="true" />
             </button>
 
             <div className="hidden max-w-md flex-1 px-4 sm:block">
@@ -111,9 +120,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="relative rounded-xl p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
-                <Bell className="h-5 w-5" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500"></span>
+              <button
+                aria-label="Notifications"
+                className="relative rounded-xl p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Bell className="h-5 w-5" aria-hidden="true" />
+                <span
+                  className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500"
+                  aria-label="Nouvelles notifications"
+                />
               </button>
               <div className="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
               <div className="flex items-center gap-3">
@@ -121,8 +136,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <p className="text-sm font-bold">{user?.nom}</p>
                   <p className="text-xs text-slate-500 uppercase">{user?.role}</p>
                 </div>
-                <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-200">
-                  <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.nom || 'Admin')}&background=random`} alt="Avatar" />
+                <div className="relative h-10 w-10 overflow-hidden rounded-full bg-slate-200">
+                  <Image
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.nom || 'Admin')}&background=random&size=40`}
+                    alt={`Avatar de ${user?.nom || 'Admin'}`}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
                 </div>
               </div>
             </div>

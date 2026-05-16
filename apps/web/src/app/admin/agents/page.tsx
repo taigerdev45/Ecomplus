@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { UserPlus, Mail, Phone, Shield, MoreVertical, Trash2, UserCheck } from 'lucide-react';
 import { User } from '@ecom/types';
@@ -76,8 +77,14 @@ export default function AdminAgentsPage() {
           ) : agents.map((agent) => (
             <div key={agent.id} className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-sm transition-all hover:shadow-xl dark:bg-slate-900">
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 overflow-hidden rounded-2xl bg-slate-100">
-                  <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(agent.nom)}&background=random`} alt={agent.nom} />
+                <div className="relative h-16 w-16 overflow-hidden rounded-2xl bg-slate-100">
+                  <Image
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(agent.nom)}&background=random&size=64`}
+                    alt={`Avatar de ${agent.nom}`}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-slate-900 dark:text-white">{agent.nom}</h3>
@@ -90,8 +97,11 @@ export default function AdminAgentsPage() {
                     </span>
                   </div>
                 </div>
-                <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
-                  <MoreVertical className="h-5 w-5" />
+                <button
+                  aria-label={`Options pour ${agent.nom}`}
+                  className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <MoreVertical className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
 
@@ -138,8 +148,9 @@ export default function AdminAgentsPage() {
             <h2 className="text-2xl font-bold">Nouvel Agent</h2>
             <form onSubmit={handleAddAgent} className="mt-6 space-y-4">
               <div>
-                <label className="text-sm font-medium">Nom complet</label>
+                <label htmlFor="agent-nom" className="text-sm font-medium">Nom complet</label>
                 <input 
+                  id="agent-nom"
                   required
                   type="text" 
                   value={newAgent.nom}
@@ -148,8 +159,9 @@ export default function AdminAgentsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Email</label>
+                <label htmlFor="agent-email" className="text-sm font-medium">Email</label>
                 <input 
+                  id="agent-email"
                   required
                   type="email" 
                   value={newAgent.email}
@@ -158,8 +170,9 @@ export default function AdminAgentsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Téléphone</label>
+                <label htmlFor="agent-tel" className="text-sm font-medium">Téléphone</label>
                 <input 
+                  id="agent-tel"
                   required
                   type="tel" 
                   value={newAgent.telephone}
@@ -168,8 +181,9 @@ export default function AdminAgentsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Rôle</label>
+                <label htmlFor="agent-role" className="text-sm font-medium">Rôle</label>
                 <select 
+                  id="agent-role"
                   value={newAgent.role}
                   onChange={e => setNewAgent({...newAgent, role: e.target.value})}
                   className="mt-1 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-800"

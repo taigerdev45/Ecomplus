@@ -22,20 +22,23 @@ export function PDFPreview({ url, title }: PDFPreviewProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <a 
-            href={url} 
-            target="_blank" 
+          <a
+            href={url}
+            target="_blank"
             rel="noopener noreferrer"
+            aria-label={`Ouvrir ${title} dans un nouvel onglet`}
+            title={`Ouvrir ${title} dans un nouvel onglet`}
             className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-600 transition-all hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
           >
-            <ExternalLink className="h-4 w-4" />
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
-          <a 
-            href={url} 
-            download 
+          <a
+            href={url}
+            download
+            aria-label={`Télécharger ${title}`}
             className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-xs font-bold text-white transition-all hover:bg-primary/90"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4" aria-hidden="true" />
             Télécharger
           </a>
         </div>

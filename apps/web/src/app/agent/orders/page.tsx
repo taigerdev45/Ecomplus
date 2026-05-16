@@ -88,15 +88,20 @@ export default function AgentOrdersPage() {
           </div>
           <div className="flex gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Chercher tracking..." 
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <label htmlFor="tracking-search" className="sr-only">Rechercher par numéro de tracking</label>
+              <input
+                id="tracking-search"
+                type="text"
+                placeholder="Chercher tracking..."
                 className="rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2 outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900"
               />
             </div>
-            <button className="rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
-              <Filter className="h-5 w-5" />
+            <button
+              aria-label="Filtrer les commandes"
+              className="rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-900"
+            >
+              <Filter className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -152,8 +157,9 @@ export default function AgentOrdersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Mettre à jour le statut</label>
-                    <select 
+                    <label htmlFor="order-status-select" className="text-sm font-medium">Mettre à jour le statut</label>
+                    <select
+                      id="order-status-select"
                       value={newStatus}
                       onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
                       className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900"
@@ -166,8 +172,9 @@ export default function AgentOrdersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Commentaire</label>
-                    <textarea 
+                    <label htmlFor="order-comment" className="text-sm font-medium">Commentaire</label>
+                    <textarea
+                      id="order-comment"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       placeholder="Ex: Colis chargé dans le container..."
@@ -176,9 +183,13 @@ export default function AgentOrdersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Photos (Optionnel)</label>
-                    <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 p-6 text-slate-400 hover:border-primary hover:text-primary dark:border-slate-800">
-                      <Camera className="h-6 w-6" />
+                    <p className="text-sm font-medium">Photos (Optionnel)</p>
+                    <button
+                      type="button"
+                      aria-label="Ajouter des photos pour cette étape"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 p-6 text-slate-400 hover:border-primary hover:text-primary dark:border-slate-800"
+                    >
+                      <Camera className="h-6 w-6" aria-hidden="true" />
                       <span>Ajouter des photos</span>
                     </button>
                   </div>
