@@ -13,7 +13,7 @@ export function Navbar() {
   const [logoUrl, setLogoUrl] = React.useState<string>('');
 
   React.useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data.logo_url) {
@@ -24,23 +24,23 @@ export function Navbar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-black tracking-tighter text-primary">
+          <Link href="/" className="text-xl font-black tracking-tighter text-primary transition-transform hover:scale-105 active:scale-95">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="Logo" className="h-8 w-auto object-contain" />
+              <img src={logoUrl} alt="Logo" className="h-8 w-auto object-contain drop-shadow-sm" />
             ) : (
-              <>ECOM<span className="text-slate-900 dark:text-white">PLUS</span></>
+              <>ECOM<span className="text-foreground">PLUS</span></>
             )}
           </Link>
           
           <div className="hidden items-center gap-6 md:flex">
-            <Link href="/catalogue" className="text-sm font-medium hover:text-primary">Catalogue</Link>
-            <Link href="/panier" className="text-sm font-medium hover:text-primary">Panier</Link>
+            <Link href="/catalogue" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Catalogue</Link>
+            <Link href="/panier" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Panier</Link>
             {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') && (
-              <Link href="/admin/products" className="text-sm font-medium hover:text-primary">Admin</Link>
+              <Link href="/admin/products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Admin</Link>
             )}
           </div>
         </div>
@@ -48,35 +48,35 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Link 
             href="/panier" 
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-all hover:bg-secondary/80 hover:scale-105 active:scale-95"
             aria-label="Voir le panier"
             title="Mon panier"
           >
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm shadow-primary/40">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 animate-slide-up items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm shadow-primary/40">
                 {cartCount}
               </span>
             )}
           </Link>
 
           {isAuthenticated ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="hidden flex-col items-end sm:flex">
                 <span className="text-xs font-bold leading-none">{user?.nom}</span>
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest">{user?.role}</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{user?.role}</span>
               </div>
               <button 
                 onClick={() => logout()}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 hover:bg-slate-50 dark:border-slate-800"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-all hover:bg-muted hover:scale-105 active:scale-95"
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
           ) : (
-            <Link href="/login" className="flex h-10 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-bold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100">
+            <Link href="/login" className="flex h-10 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">
               <User className="h-4 w-4" /> Connexion
             </Link>
           )}

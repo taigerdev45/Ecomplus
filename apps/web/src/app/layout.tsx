@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen bg-background font-sans antialiased flex flex-col`}>
         <AuthProvider>
           <Navbar />
           <main>{children}</main>

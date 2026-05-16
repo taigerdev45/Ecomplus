@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Globe, Shield, Truck, Package, Search, ClipboardCheck } from 'lucide-react';
 
 interface SiteConfig {
@@ -58,6 +59,18 @@ export default function Home() {
         <div className="absolute inset-0 z-0 opacity-10 dark:opacity-20">
           <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary blur-3xl"></div>
           <div className="absolute top-1/2 -right-24 h-96 w-96 rounded-full bg-blue-500 blur-3xl"></div>
+        </div>
+
+        {/* Floating Animated Illustrations */}
+        <div className="hidden lg:block absolute left-10 top-32 z-20 animate-float" style={{ animationDelay: '0s' }}>
+          <div className="relative h-48 w-48 rounded-full bg-white/50 backdrop-blur-sm shadow-xl p-4 flex items-center justify-center border border-white/20">
+            <Image src="/images/shopping.png" alt="Shopping" width={150} height={150} className="object-contain" />
+          </div>
+        </div>
+        <div className="hidden lg:block absolute right-10 top-40 z-20 animate-float" style={{ animationDelay: '1.5s' }}>
+          <div className="relative h-56 w-56 rounded-full bg-white/50 backdrop-blur-sm shadow-xl p-4 flex items-center justify-center border border-white/20">
+            <Image src="/images/delivery.png" alt="Delivery" width={180} height={180} className="object-contain" />
+          </div>
         </div>
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 lg:px-8">

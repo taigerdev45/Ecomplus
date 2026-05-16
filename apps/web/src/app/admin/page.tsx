@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { TrendingUp, Users, ShoppingBag, FileText, ArrowUpRight, AlertCircle } from 'lucide-react';
 import { 
@@ -59,9 +60,18 @@ export default function AdminDashboard() {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold">Tableau de Bord</h1>
-          <p className="text-slate-500">Aperçu global de l&apos;activité EcomPlus.</p>
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-primary to-primary/80 p-8 text-white shadow-lg">
+          <div className="relative z-10">
+            <h1 className="text-3xl font-black mb-2">Tableau de Bord</h1>
+            <p className="text-white/80 text-lg max-w-xl">Aperçu global de l&apos;activité EcomPlus et pilotage de vos performances en temps réel.</p>
+          </div>
+          
+          {/* Floating Admin Illustration */}
+          <div className="absolute right-8 -top-4 z-0 hidden lg:block animate-float">
+            <div className="relative h-40 w-40">
+              <Image src="/images/admin.png" alt="Admin Dashboard" fill className="object-contain drop-shadow-2xl" />
+            </div>
+          </div>
         </div>
 
         {/* KPI Grid */}

@@ -21,42 +21,43 @@ export function ProductCard({ product, exchangeRate }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-slate-900">
-      <Link href={`/produit/${product.id}`} className="block relative aspect-square overflow-hidden bg-slate-100">
+    <div className="group relative overflow-hidden rounded-[2rem] bg-card border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-primary/20">
+      <Link href={`/produit/${product.id}`} className="block relative aspect-[4/3] overflow-hidden bg-secondary/50">
         <Image
           src={product.images[0] || 'https://via.placeholder.com/400'}
           alt={product.nom}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </Link>
-      <div className="p-4">
-        <div className="mb-1 flex items-center justify-between">
-          <span className="text-xs font-medium text-primary uppercase tracking-wider">
+      <div className="p-5">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2 py-1 rounded-full">
             {product.categorie_id}
           </span>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-muted-foreground font-medium">
             {product.poids_kg} kg
           </span>
         </div>
         <Link href={`/produit/${product.id}`}>
-          <h3 className="mb-2 line-clamp-1 text-sm font-semibold text-slate-900 dark:text-white">
+          <h3 className="mb-3 line-clamp-1 text-base font-bold text-foreground transition-colors group-hover:text-primary">
             {product.nom}
           </h3>
         </Link>
         <div className="flex items-end justify-between">
-          <div className="space-y-0.5">
-            <p className="text-lg font-bold text-slate-900 dark:text-white">
-              {prixXaf.toLocaleString()} F CFA
+          <div className="space-y-1">
+            <p className="text-xl font-black text-foreground">
+              {prixXaf.toLocaleString()} <span className="text-sm font-medium text-muted-foreground">FCFA</span>
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs font-semibold text-muted-foreground">
               {(product.prix_cny / 100).toFixed(2)} CNY
             </p>
           </div>
           <button 
             onClick={handleAddToCart}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-primary/90"
+            className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-95 hover:shadow-lg hover:shadow-primary/30 z-10"
             aria-label="Ajouter au panier"
             title="Ajouter au panier"
           >
