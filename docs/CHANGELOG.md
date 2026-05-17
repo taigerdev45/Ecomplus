@@ -9,6 +9,25 @@
 
 ---
 
+### [1.8.0] - Stabilisation Ecom Plus Gabon UI, Intégration pdfmake & Optimisations Mobiles
+
+#### Added
+- Intégration de `pdfmake` (100% pur Node.js, indépendant du système d'exploitation) en remplacement de `puppeteer` pour la génération des devis et des reçus PDF. Garantit un fonctionnement fiable sur Render et les environnements serverless.
+- Génération de documents PDF professionnels au format A4 esthétiques avec tables stylisées, couleurs harmonieuses, codes QR de validation dynamique et clauses de non-responsabilité logistique.
+- Gestion d'un hook de redimensionnement (`useEffect`) dans `AdminLayout` pour replier/déployer la barre latérale selon l'appareil.
+- Correction du comportement du fond noir transparent (backdrop) sur mobile qui s'affiche à l'ouverture de la sidebar et permet de la fermer au clic externe.
+
+#### Changed
+- Pivot global des dimensions en **mètres** (`longueur_m`, `largeur_m`, `hauteur_m`) : de la structure de base de données SQL aux schémas Zod, types partagés, API, et formulaires de création de produits dans `/admin/products`.
+- Calcul simplifié du fret maritime en mètres cubes : `longueur * largeur * hauteur` (en m³) avec une valeur par défaut de `0.001 m³` en cas d'absence de saisie.
+- Refonte esthétique haut de gamme du catalogue utilisateur (`/catalogue`) : hero header sombre avec dégradés, barre de recherche interactive dotée d'un délai anti-rebond (debounce de 350ms), filtres par catégories et gestion soignée des états vides et de chargement.
+- Fiches produits (`ProductCard`) modernisées affichant le nom de la catégorie (et non plus son UUID) ainsi que les dimensions exactes en mètres.
+
+#### Fixed
+- Résolution du bug de disparition de la barre latérale sur l'espace d'administration lors de la navigation vers la messagerie (`/admin/chat`) en encapsulant correctement le chat dans le composant `<AdminLayout>`.
+
+---
+
 ### [1.7.0] - Règles de Transport Dynamiques, Configurations Financières Admin & Sécurisation de Production
 
 #### Added
