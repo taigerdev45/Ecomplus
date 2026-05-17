@@ -60,6 +60,22 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
+    const state = useAuth.getState();
+    // Silent background check if already authenticated to prevent loading layout re-renders
+    if (state.isAuthenticated && state.user) {
+      try {
+        const res = await api.get<{ user: User }>('/auth/me');
+        set({ user: res.data.user, isAuthenticated: true, isLoading: false });
+      } catch (error) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        }
+        set({ user: null, isAuthenticated: false, isLoading: false });
+      }
+      return;
+    }
+
     try {
       const res = await api.get<{ user: User }>('/auth/me');
       set({ user: res.data.user, isAuthenticated: true, isLoading: false });

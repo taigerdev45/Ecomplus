@@ -1,10 +1,43 @@
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import QRCode from 'qrcode';
 
-// Initialize fonts in browser
+// Initialize fonts in browser safely
 if (typeof window !== 'undefined') {
-  (pdfMake as any).vfs = (pdfFonts as any).pdfMake.vfs;
+  try {
+    const vfs = (pdfFonts as any)?.pdfMake?.vfs || (pdfFonts as any)?.default?.pdfMake?.vfs || (pdfFonts as any)?.vfs;
+    if (vfs) {
+      (pdfMake as any).vfs = vfs;
+    }
+  } catch (err) {
+    console.warn('pdfMake vfs fonts not found, falling back to standard fonts:', err);
+  }
+
+  // Register standard system fonts (Helvetica/Roboto) as fallbacks to prevent crashes
+  const helveticaFonts = {
+    Helvetica: {
+      normal: 'Helvetica',
+      bold: 'Helvetica-Bold',
+      italics: 'Helvetica-Oblique',
+      bolditalics: 'Helvetica-BoldOblique'
+    },
+    Roboto: {
+      normal: 'Helvetica',
+      bold: 'Helvetica-Bold',
+      italics: 'Helvetica-Oblique',
+      bolditalics: 'Helvetica-BoldOblique'
+    }
+  };
+
+  try {
+    if (typeof (pdfMake as any).addFonts === 'function') {
+      (pdfMake as any).addFonts(helveticaFonts);
+    } else {
+      (pdfMake as any).fonts = helveticaFonts;
+    }
+  } catch (err) {
+    console.error('Error defining standard fonts fallback:', err);
+  }
 }
 
 // Color palette

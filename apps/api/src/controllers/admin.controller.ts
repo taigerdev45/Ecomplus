@@ -167,7 +167,7 @@ export const getAgents = async (req: Request, res: Response) => {
     const { data: agents, error } = await supabase
       .from('utilisateur')
       .select('*')
-      .in('role', ['agent', 'secretaire']);
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     res.json(agents);

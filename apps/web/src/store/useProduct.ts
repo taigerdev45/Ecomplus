@@ -29,6 +29,19 @@ export const useProduct = create<ProductState>((set) => ({
   isLoading: false,
 
   fetchProducts: async (filters) => {
+    const state = useProduct.getState();
+    // If we already have products and no active filter query, return immediately and refetch silently in background
+    if (state.products.length > 0 && !filters) {
+      try {
+        const res = await api.get<{ products: Product[], total: number }>('/products');
+        set({ 
+          products: res.data.products, 
+          totalProducts: res.data.total
+        });
+      } catch (error) {}
+      return;
+    }
+
     set({ isLoading: true });
     try {
       const res = await api.get<{ products: Product[], total: number }>('/products', { params: filters });
@@ -43,6 +56,10 @@ export const useProduct = create<ProductState>((set) => ({
   },
 
   fetchCategories: async () => {
+    const state = useProduct.getState();
+    // Cache categories permanently in memory since they change very rarely
+    if (state.categories.length > 0) return;
+
     try {
       const res = await api.get<Category[]>('/products/categories');
       set({ categories: res.data });
@@ -50,6 +67,10 @@ export const useProduct = create<ProductState>((set) => ({
   },
 
   fetchExchangeRate: async () => {
+    const state = useProduct.getState();
+    // Cache exchange rate (default is 95, so if it has been fetched or changed, bypass network call)
+    if (state.exchangeRate !== 95) return;
+
     try {
       const res = await api.get<{ rate: number }>('/products/rate');
       set({ exchangeRate: res.data.rate });
@@ -57,6 +78,10 @@ export const useProduct = create<ProductState>((set) => ({
   },
 
   fetchSettings: async () => {
+    const state = useProduct.getState();
+    // Cache CMS site configuration settings
+    if (Object.keys(state.settings).length > 0) return;
+
     try {
       const res = await api.get<Record<string, string>>('/products/settings');
       set({ settings: res.data });
