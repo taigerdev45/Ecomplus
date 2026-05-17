@@ -20,7 +20,10 @@ export const useAuth = create<AuthState>((set) => ({
   login: async (data) => {
     set({ isLoading: true });
     try {
-      const res = await api.post<{ user: User }>('/auth/login', data);
+      const res = await api.post<{ user: User; accessToken: string }>('/auth/login', data);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('accessToken', res.data.accessToken);
+      }
       set({ user: res.data.user, isAuthenticated: true, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -31,7 +34,10 @@ export const useAuth = create<AuthState>((set) => ({
   register: async (data) => {
     set({ isLoading: true });
     try {
-      const res = await api.post<{ user: User }>('/auth/register', data);
+      const res = await api.post<{ user: User; accessToken: string }>('/auth/register', data);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('accessToken', res.data.accessToken);
+      }
       set({ user: res.data.user, isAuthenticated: true, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -43,6 +49,9 @@ export const useAuth = create<AuthState>((set) => ({
     try {
       await api.post('/auth/logout');
     } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+      }
       set({ user: null, isAuthenticated: false });
     }
   },
@@ -52,6 +61,9 @@ export const useAuth = create<AuthState>((set) => ({
       const res = await api.get<{ user: User }>('/auth/me');
       set({ user: res.data.user, isAuthenticated: true, isLoading: false });
     } catch (error) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+      }
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },

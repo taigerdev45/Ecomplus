@@ -7,6 +7,17 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Interceptor to inject Authorization header
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 // Interceptor to handle token refresh
 api.interceptors.response.use(
   (response) => response,
@@ -15,13 +26,23 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        await axios.post(
+        const res = await axios.post<{ accessToken: string }>(
           `${BASE}/api/v1/auth/refresh`,
           {},
           { withCredentials: true }
         );
+        const { accessToken } = res.data;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        }
         return api(originalRequest);
       } catch (refreshError) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+        }
         return Promise.reject(refreshError);
       }
     }
