@@ -12,32 +12,6 @@ if (typeof window !== 'undefined') {
   } catch (err) {
     console.warn('pdfMake vfs fonts not found, falling back to standard fonts:', err);
   }
-
-  // Register standard system fonts (Helvetica/Roboto) as fallbacks to prevent crashes
-  const helveticaFonts = {
-    Helvetica: {
-      normal: 'Helvetica',
-      bold: 'Helvetica-Bold',
-      italics: 'Helvetica-Oblique',
-      bolditalics: 'Helvetica-BoldOblique'
-    },
-    Roboto: {
-      normal: 'Helvetica',
-      bold: 'Helvetica-Bold',
-      italics: 'Helvetica-Oblique',
-      bolditalics: 'Helvetica-BoldOblique'
-    }
-  };
-
-  try {
-    if (typeof (pdfMake as any).addFonts === 'function') {
-      (pdfMake as any).addFonts(helveticaFonts);
-    } else {
-      (pdfMake as any).fonts = helveticaFonts;
-    }
-  } catch (err) {
-    console.error('Error defining standard fonts fallback:', err);
-  }
 }
 
 // Color palette

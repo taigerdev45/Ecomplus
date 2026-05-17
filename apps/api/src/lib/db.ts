@@ -1,17 +1,34 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config();
+import { URL } from 'url';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  },
+import path from 'path';
+
+const connectionString = process.env.DATABASE_URL;
+const poolConfig: any = {
   max: 5,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+  connectionTimeoutMillis: 15000,
+  ssl: {
+    rejectUnauthorized: false
+  }
+};
+
+if (connectionString) {
+  try {
+    const parsedUrl = new URL(connectionString);
+    poolConfig.user = decodeURIComponent(parsedUrl.username);
+    poolConfig.password = decodeURIComponent(parsedUrl.password);
+    poolConfig.host = parsedUrl.hostname;
+    poolConfig.port = parsedUrl.port ? parseInt(parsedUrl.port, 10) : 5432;
+    poolConfig.database = parsedUrl.pathname.substring(1);
+  } catch (err) {
+    poolConfig.connectionString = connectionString;
+  }
+}
+
+const pool = new Pool(poolConfig);
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
 

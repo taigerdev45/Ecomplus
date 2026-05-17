@@ -41,36 +41,56 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     }, []);
 
     // 4. Global visits count
-    const visitCountRes = await query('SELECT COUNT(*) as count FROM visite');
-    const totalVisits = parseInt(visitCountRes.rows[0]?.count || '0', 10);
+    const { count: totalVisits } = await supabase
+      .from('visite')
+      .select('*', { count: 'exact', head: true });
 
     // 5. Daily visits (last 30 days)
-    const dailyVisitsRes = await query(`
-      SELECT TO_CHAR(created_at, 'DD/MM') as date, COUNT(*)::integer as count 
-      FROM visite 
-      WHERE created_at >= NOW() - INTERVAL '30 days' 
-      GROUP BY TO_CHAR(created_at, 'DD/MM') 
-      ORDER BY MIN(created_at) ASC
-    `);
-    const dailyVisits = dailyVisitsRes.rows;
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { data: visitsData } = await supabase
+      .from('visite')
+      .select('created_at')
+      .gte('created_at', thirtyDaysAgo.toISOString())
+      .order('created_at', { ascending: true });
+
+    const dailyVisitsMap = (visitsData || []).reduce((acc: Record<string, number>, curr) => {
+      const date = new Date(curr.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+
+    const dailyVisits = Object.entries(dailyVisitsMap).map(([date, count]) => ({
+      date,
+      count
+    }));
 
     // 6. Daily logins (last 30 days)
-    const dailyLoginsRes = await query(`
-      SELECT TO_CHAR(created_at, 'DD/MM') as date, COUNT(*)::integer as count 
-      FROM connexion_log 
-      WHERE created_at >= NOW() - INTERVAL '30 days' 
-      GROUP BY TO_CHAR(created_at, 'DD/MM') 
-      ORDER BY MIN(created_at) ASC
-    `);
-    const dailyLogins = dailyLoginsRes.rows;
+    const { data: loginsData } = await supabase
+      .from('connexion_log')
+      .select('created_at')
+      .gte('created_at', thirtyDaysAgo.toISOString())
+      .order('created_at', { ascending: true });
+
+    const dailyLoginsMap = (loginsData || []).reduce((acc: Record<string, number>, curr) => {
+      const date = new Date(curr.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+
+    const dailyLogins = Object.entries(dailyLoginsMap).map(([date, count]) => ({
+      date,
+      count
+    }));
 
     res.json({
       kpis: {
-        totalOrders: ordersCount,
-        pendingQuotes,
+        totalOrders: ordersCount || 0,
+        pendingQuotes: pendingQuotes || 0,
         totalRevenue,
         avgOrderValue: ordersCount ? Math.round(totalRevenue / ordersCount) : 0,
-        totalVisits
+        totalVisits: totalVisits || 0
       },
       chartData: formattedChartData,
       dailyVisits,
@@ -83,57 +103,100 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
 export const getReportsStats = async (req: Request, res: Response) => {
   try {
-    const onboardingRolesRes = await query(`
-      SELECT role, COUNT(*)::integer as count
-      FROM utilisateur
-      GROUP BY role
-    `);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const registrationsTrendRes = await query(`
-      SELECT TO_CHAR(created_at, 'DD/MM') as date, COUNT(*)::integer as count
-      FROM utilisateur
-      WHERE created_at >= NOW() - INTERVAL '30 days'
-      GROUP BY TO_CHAR(created_at, 'DD/MM')
-      ORDER BY MIN(created_at) ASC
-    `);
+    // 1. Roles distribution
+    const { data: usersData } = await supabase
+      .from('utilisateur')
+      .select('role');
+    const rolesMap = (usersData || []).reduce((acc: Record<string, number>, curr) => {
+      acc[curr.role] = (acc[curr.role] || 0) + 1;
+      return acc;
+    }, {});
+    const roles = Object.entries(rolesMap).map(([role, count]) => ({ role, count }));
 
-    const shippingMethodStatsRes = await query(`
-      SELECT shipping_method, COUNT(*)::integer as count, SUM(shipping_montant)::integer as total_shipping_revenue
-      FROM devis
-      GROUP BY shipping_method
-    `);
+    // 2. Registrations Trend
+    const { data: trendData } = await supabase
+      .from('utilisateur')
+      .select('created_at')
+      .gte('created_at', thirtyDaysAgo.toISOString())
+      .order('created_at', { ascending: true });
+    const trendMap = (trendData || []).reduce((acc: Record<string, number>, curr) => {
+      const date = new Date(curr.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+    const trend = Object.entries(trendMap).map(([date, count]) => ({ date, count }));
 
-    const commissionStatsRes = await query(`
-      SELECT 
-        COALESCE(AVG(commission_taux), 0)::float as avg_commission_rate, 
-        COALESCE(SUM(commission_montant), 0)::integer as total_commission_revenue
-      FROM devis
-    `);
+    // 3. Shipping method stats
+    const { data: devisData } = await supabase
+      .from('devis')
+      .select('shipping_method, shipping_montant');
+    const shippingMap = (devisData || []).reduce((acc: Record<string, { count: number, total_shipping_revenue: number }>, curr) => {
+      const method = curr.shipping_method || 'AUTRE';
+      if (!acc[method]) acc[method] = { count: 0, total_shipping_revenue: 0 };
+      acc[method].count += 1;
+      acc[method].total_shipping_revenue += curr.shipping_montant || 0;
+      return acc;
+    }, {});
+    const shipping = Object.entries(shippingMap).map(([shipping_method, stats]) => ({
+      shipping_method,
+      ...stats
+    }));
 
-    const categoryStatsRes = await query(`
-      SELECT c.nom as category_name, COUNT(p.id)::integer as product_count
-      FROM categorie c
-      LEFT JOIN produit p ON p.categorie_id = c.id
-      GROUP BY c.nom
-    `);
+    // 4. Commission stats
+    const { data: commissionData } = await supabase
+      .from('devis')
+      .select('commission_taux, commission_montant');
+    let totalCommissionMontant = 0;
+    let totalCommissionTaux = 0;
+    const countCommission = commissionData?.length || 0;
+    (commissionData || []).forEach(d => {
+      totalCommissionMontant += d.commission_montant || 0;
+      totalCommissionTaux += d.commission_taux || 0;
+    });
+    const avg_commission_rate = countCommission ? (totalCommissionTaux / countCommission) : 0;
+    const commission = {
+      avg_commission_rate,
+      total_commission_revenue: totalCommissionMontant
+    };
 
-    const popularProductsRes = await query(`
-      SELECT nom, stock, prix_cny, poids_kg 
-      FROM produit 
-      ORDER BY stock DESC 
-      LIMIT 5
-    `);
+    // 5. Categories stats
+    const { data: categories } = await supabase.from('categorie').select('id, nom');
+    const { data: products } = await supabase.from('produit').select('categorie_id');
+    const categoriesMap = (categories || []).reduce((acc: Record<string, number>, cat) => {
+      acc[cat.nom] = 0;
+      return acc;
+    }, {});
+    (products || []).forEach(p => {
+      const cat = (categories || []).find(c => c.id === p.categorie_id);
+      if (cat) {
+        categoriesMap[cat.nom] = (categoriesMap[cat.nom] || 0) + 1;
+      }
+    });
+    const categoriesStats = Object.entries(categoriesMap).map(([category_name, product_count]) => ({
+      category_name,
+      product_count
+    }));
+
+    // 6. Popular products
+    const { data: popularProducts } = await supabase
+      .from('produit')
+      .select('nom, stock, prix_cny, poids_kg')
+      .order('stock', { ascending: false })
+      .limit(5);
 
     res.json({
       onboarding: {
-        roles: onboardingRolesRes.rows,
-        trend: registrationsTrendRes.rows
+        roles,
+        trend
       },
       metadata: {
-        shipping: shippingMethodStatsRes.rows,
-        commission: commissionStatsRes.rows[0] || { avg_commission_rate: 0, total_commission_revenue: 0 },
-        categories: categoryStatsRes.rows,
-        popularProducts: popularProductsRes.rows
+        shipping,
+        commission,
+        categories: categoriesStats,
+        popularProducts: popularProducts || []
       }
     });
   } catch (error: any) {

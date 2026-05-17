@@ -28,24 +28,41 @@ export const recordVisit = async (req: Request, res: Response) => {
 };
 
 const configSchema = z.object({
-  logo_url: z.string().optional(),
-  description_services: z.string().min(10, 'La description doit faire au moins 10 caractères'),
-  footer_text: z.string().min(5, 'Le footer doit faire au moins 5 caractères'),
-  whatsapp_service_1: z.string().min(8, 'Numéro WhatsApp invalide'),
-  whatsapp_service_2: z.string().min(8, 'Numéro WhatsApp invalide'),
-  exchange_rate: z.number().positive('Le taux de change doit être supérieur à 0'),
-  cbm_rate: z.number().positive('Le tarif CBM doit être supérieur à 0')
+  logo_url: z.string().nullable().optional(),
+  description_services: z.string().min(1, 'La description est requise'),
+  footer_text: z.string().min(1, 'Le texte de bas de page est requis'),
+  whatsapp_service_1: z.string().nullable().optional().or(z.literal('')),
+  whatsapp_service_2: z.string().nullable().optional().or(z.literal('')),
+  exchange_rate: z.coerce.number().positive('Le taux de change doit être supérieur à 0'),
+  cbm_rate: z.coerce.number().positive('Le tarif CBM doit être supérieur à 0')
 });
 
 export const getConfig = async (req: Request, res: Response) => {
   try {
-    const { data: siteConfig, error: siteConfigError } = await supabase
+    let { data: siteConfig, error: siteConfigError } = await supabase
       .from('configuration_site')
       .select('*')
       .eq('id', 1)
-      .single();
+      .maybeSingle();
 
     if (siteConfigError) throw siteConfigError;
+
+    // Auto-seed initial configuration_site if missing
+    if (!siteConfig) {
+      const { data: newConfig, error: insertError } = await supabase
+        .from('configuration_site')
+        .insert({
+          id: 1,
+          description_services: 'Nous sourçons les meilleurs produits, nous négocions pour vous, et nous assurons la logistique jusqu\'à votre porte à Libreville.',
+          footer_text: '© 2026 EcomPlus Gabon. Tous droits réservés.',
+          whatsapp_service_1: '24100000000',
+          whatsapp_service_2: '24111111111'
+        })
+        .select()
+        .single();
+      if (insertError) throw insertError;
+      siteConfig = newConfig;
+    }
 
     // Fetch exchange rate and CBM rate from configuration table
     const { data: configData } = await supabase
@@ -91,19 +108,17 @@ export const updateConfig = async (req: Request, res: Response) => {
 
     if (error) throw error;
 
-    // Parallel configuration key updates
+    // Parallel configuration key upserts
     if (exchange_rate !== undefined) {
       await supabase
         .from('configuration')
-        .update({ valeur: String(exchange_rate) })
-        .eq('cle', 'TAUX_CHANGE_CNY_XAF');
+        .upsert({ cle: 'TAUX_CHANGE_CNY_XAF', valeur: String(exchange_rate) });
     }
 
     if (cbm_rate !== undefined) {
       await supabase
         .from('configuration')
-        .update({ valeur: String(cbm_rate) })
-        .eq('cle', 'TARIF_CBM_XAF');
+        .upsert({ cle: 'TARIF_CBM_XAF', valeur: String(cbm_rate) });
     }
 
     res.status(200).json({

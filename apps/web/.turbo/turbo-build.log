@@ -9,7 +9,7 @@
 > [PWA] Compile server
 > [PWA] Compile server
 > [PWA] Compile client (static)
-> [PWA] Auto register service worker with: C:\Users\taige\Downloads\mes_projetsv1\Ecomplus\node_modules\next-pwa\register.js
+> [PWA] Auto register service worker with: C:\Users\taige\Downloads\mes_projetsv1\Ecomplus\apps\web\node_modules\next-pwa\register.js
 > [PWA] Service worker: C:\Users\taige\Downloads\mes_projetsv1\Ecomplus\apps\web\public\sw.js
 > [PWA]   url: /sw.js
 > [PWA]   scope: /
@@ -29,140 +29,48 @@
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
    Collecting page data ...
    Generating static pages (0/30) ...
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/chat. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/chat. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/products. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/products. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/config. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/config. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/agents. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/agents. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
    Generating static pages (7/30) 
- ⚠ Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/receipts. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/receipts. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /agent/orders. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /agent/orders. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/dashboard. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/dashboard. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /catalogue. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /catalogue. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
    Generating static pages (14/30) 
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/quotes. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/quotes. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/profil. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/profil. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/clients. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/clients. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/quotes. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/quotes. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/orders. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/orders. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
    Generating static pages (22/30) 
- ⚠ Unsupported metadata themeColor is configured in metadata export in /devis-envoye. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /devis-envoye. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/reports. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /admin/reports. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /register. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /register. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /suivi. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /suivi. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /panier. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /panier. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/chat. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ⚠ Unsupported metadata themeColor is configured in metadata export in /client/chat. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  ✓ Generating static pages (30/30)
    Finalizing page optimization ...
    Collecting build traces ...
 
 Route (app)                              Size     First Load JS
-┌ ○ /                                    3.5 kB          103 kB
-├ ○ /_not-found                          877 B          88.1 kB
-├ ○ /admin                               5.12 kB         249 kB
-├ ○ /admin/agents                        2.97 kB         140 kB
-├ ○ /admin/chat                          7.25 kB         140 kB
-├ ○ /admin/clients                       2.79 kB         140 kB
-├ ○ /admin/config                        3.4 kB          140 kB
-├ ○ /admin/products                      4.51 kB         141 kB
-├ ○ /admin/quotes                        2.34 kB         139 kB
-├ ○ /admin/receipts                      5.43 kB         128 kB
-├ ○ /admin/reports                       13.7 kB         258 kB
-├ ○ /agent/orders                        2.82 kB         139 kB
+┌ ○ /                                    4.75 kB         104 kB
+├ ○ /_not-found                          879 B          88.1 kB
+├ ○ /admin                               4.47 kB         252 kB
+├ ○ /admin/agents                        2.98 kB         142 kB
+├ ○ /admin/chat                          5.98 kB         141 kB
+├ ○ /admin/clients                       2.87 kB         141 kB
+├ ○ /admin/config                        5.72 kB         141 kB
+├ ○ /admin/products                      6.98 kB         142 kB
+├ ○ /admin/quotes                        4.57 kB         959 kB
+├ ○ /admin/receipts                      4.26 kB         958 kB
+├ ○ /admin/reports                       12.4 kB         260 kB
+├ ○ /agent/orders                        5.2 kB          141 kB
 ├ ○ /apple-icon.png                      0 B                0 B
-├ ○ /catalogue                           6.39 kB         139 kB
-├ ○ /client/chat                         3.27 kB         123 kB
-├ ○ /client/dashboard                    2.62 kB         120 kB
-├ ○ /client/orders                       2.63 kB         123 kB
-├ ○ /client/profil                       4.27 kB         124 kB
-├ ○ /client/quotes                       2.31 kB         122 kB
-├ ○ /devis-envoye                        2.6 kB         96.7 kB
+├ ○ /catalogue                           7.15 kB         140 kB
+├ ○ /client/chat                         3.64 kB         124 kB
+├ ○ /client/dashboard                    3.65 kB         121 kB
+├ ○ /client/orders                       3.55 kB         949 kB
+├ ○ /client/profil                       4.3 kB          125 kB
+├ ○ /client/quotes                       2.87 kB         942 kB
+├ ○ /devis-envoye                        2.58 kB        96.7 kB
 ├ ○ /icon.png                            0 B                0 B
-├ ○ /login                               2.9 kB          130 kB
-├ ○ /panier                              6.55 kB         139 kB
-├ ƒ /produit/[id]                        4.87 kB         132 kB
-├ ○ /register                            3.32 kB         130 kB
+├ ○ /login                               4.25 kB         137 kB
+├ ○ /panier                              6.87 kB         139 kB
+├ ƒ /produit/[id]                        5.06 kB         132 kB
+├ ○ /register                            4.7 kB          137 kB
 ├ ○ /robots.txt                          0 B                0 B
 ├ ○ /sitemap.xml                         0 B                0 B
-├ ○ /suivi                               2.65 kB        89.9 kB
-├ ƒ /suivi/[tracking]                    3.42 kB        90.7 kB
-└ ƒ /valider/[id]                        1.88 kB         122 kB
+├ ○ /suivi                               2.64 kB        89.9 kB
+├ ƒ /suivi/[tracking]                    3.4 kB         90.6 kB
+└ ƒ /valider/[id]                        2 kB            122 kB
 + First Load JS shared by all            87.2 kB
-  ├ chunks/1dd3208c-b756d0658189d860.js  53.6 kB
-  ├ chunks/286-eb934f005ab0711a.js       31.6 kB
-  └ other shared chunks (total)          1.96 kB
+  ├ chunks/7023-9fbff03fb30268c6.js      31.6 kB
+  ├ chunks/fd9d1056-b080d219a2d647a6.js  53.6 kB
+  └ other shared chunks (total)          1.97 kB
 
 
 ƒ Middleware                             27.5 kB
