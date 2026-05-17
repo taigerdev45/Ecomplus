@@ -16,6 +16,7 @@ interface ClientOrder {
 export default function ClientOrders() {
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -29,6 +30,30 @@ export default function ClientOrders() {
       toast.error('Erreur lors de la récupération des commandes');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const downloadReceiptPdf = async (orderId: string, trackingNumber: string) => {
+    try {
+      setDownloadingId(orderId);
+      const response = await api.get(`/orders/receipts/${orderId}/download-pdf`, {
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data as BlobPart], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `recu_${trackingNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('Reçu PDF téléchargé avec succès !');
+    } catch (error) {
+      toast.error('Erreur lors du téléchargement du reçu PDF');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -101,7 +126,7 @@ export default function ClientOrders() {
                     </td>
                     <td className="px-6 py-4 font-bold text-primary">
                       {order.total_ttc.toLocaleString()} F
-                    </td>
+                  </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.statut)}`}>
                         {getStatusLabel(order.statut)}
@@ -110,15 +135,18 @@ export default function ClientOrders() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         {order.statut !== 'annule' && order.statut !== 'devis_envoye' && (
-                          <a 
-                            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/orders/receipts/${order.id}/download-pdf`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors text-xs"
+                          <button 
+                            onClick={() => downloadReceiptPdf(order.id, order.numero_tracking)}
+                            disabled={downloadingId === order.id}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors text-xs disabled:opacity-50"
                           >
-                            <Download className="h-3.5 w-3.5" />
+                            {downloadingId === order.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Download className="h-3.5 w-3.5" />
+                            )}
                             Reçu PDF
-                          </a>
+                          </button>
                         )}
                         <a 
                           href={`/suivi/${order.numero_tracking}`} 

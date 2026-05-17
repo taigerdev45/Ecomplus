@@ -70,7 +70,7 @@ export default function AdminReportsPage() {
   const exportToCSV = () => {
     if (!data) return;
     try {
-      let csvContent = "data:text/csv;charset=utf-8,";
+      let csvContent = "\ufeff"; // Add BOM for Excel UTF-8 support
       csvContent += "Type de Statistique,Cle,Valeur\n";
       
       // Roles
@@ -89,13 +89,15 @@ export default function AdminReportsPage() {
         csvContent += `Livraison - Option,${s.shipping_method},${s.count} colis (${s.total_shipping_revenue} F)\n`;
       });
 
-      const encodedUri = encodeURI(csvContent);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", url);
       link.setAttribute("download", `rapport_plateforme_ecomplus_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
       toast.success('Rapport exporté avec succès !');
     } catch (err) {
       toast.error("Impossible d'exporter les statistiques");

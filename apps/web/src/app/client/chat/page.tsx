@@ -22,7 +22,7 @@ export default function ClientChat() {
   const [isLoading, setIsLoading] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
   
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Optimize: useCallback for stable dependencies
   const loadConversation = useCallback(async () => {
@@ -90,8 +90,10 @@ export default function ClientChat() {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 50);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -151,7 +153,7 @@ export default function ClientChat() {
       </div>
 
       {/* Messages Flow */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400">
             <MessageSquare className="h-12 w-12 mb-3 opacity-20" />
@@ -195,7 +197,6 @@ export default function ClientChat() {
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}

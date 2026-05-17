@@ -1,20 +1,49 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/store/useAuth';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, FileText, ShoppingBag, Settings, LogOut, Loader2, User, ShoppingCart, Truck, Home, MessageSquare } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  ShoppingBag, 
+  LogOut, 
+  Loader2, 
+  User, 
+  ShoppingCart, 
+  Truck, 
+  Home, 
+  MessageSquare,
+  Menu,
+  X,
+  ChevronRight
+} from 'lucide-react';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading, checkAuth, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -52,109 +81,157 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row theme-client">
-      {/* Mobile Top Bar */}
-      <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-black text-sm">C</div>
-          <span className="text-[10px] font-black text-primary uppercase tracking-wider bg-primary/10 px-2.5 py-1 rounded-md">Portail Client</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <h2 className="text-xs font-bold text-slate-900 dark:text-white leading-none">{user?.nom}</h2>
-            <p className="text-[9px] text-slate-500 mt-0.5 leading-none max-w-[120px] truncate">{user?.email}</p>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-500 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-            title="Déconnexion"
-            aria-label="Se déconnecter"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 md:h-screen md:sticky md:top-0 p-4 flex flex-col">
-        <div className="mb-8 hidden md:block">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-black">C</div>
-            <span className="text-[10px] font-black text-primary uppercase tracking-wider bg-primary/10 px-2.5 py-1 rounded-md">Portail Client</span>
+      <aside className={`fixed inset-y-0 left-0 z-50 transform bg-white shadow-2xl transition-all duration-300 ease-in-out dark:bg-slate-900 ${isSidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full lg:w-20 lg:translate-x-0'}`}>
+        <div className={`flex h-full flex-col ${!isSidebarOpen && 'lg:items-center'}`}>
+          <div className="flex h-20 items-center justify-between px-6">
+            <Link href="/" className={`flex items-center gap-2 ${!isSidebarOpen && 'lg:hidden'}`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-inner">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/logo_ecomplus.jpeg" alt="Ecom Plus Gabon" className="h-8 w-auto object-contain mix-blend-multiply dark:mix-blend-normal rounded-sm" />
+              </div>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">EcomPlus</span>
+            </Link>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-inner bg-gradient-to-br from-primary/20 to-primary/5 ${isSidebarOpen ? 'hidden' : 'hidden lg:flex'}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icons/logo_ecomplus.jpeg" alt="E" className="h-8 w-auto object-contain mix-blend-multiply dark:mix-blend-normal rounded-sm" />
+            </div>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Fermer le menu"
+              className="lg:hidden text-slate-500"
+            >
+              <X className="h-6 w-6" />
+            </button>
           </div>
-          <h2 className="text-lg font-black text-slate-900 dark:text-white">{user?.nom}</h2>
-          <p className="text-xs text-slate-500">{user?.email}</p>
-        </div>
-        
-        <nav className="flex-1 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-4 md:pb-0 scrollbar-thin">
-          <div className="hidden md:block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-4 mb-1">
-            Espace Client
-          </div>
-          {clientItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap md:whitespace-normal ${
-                  isActive 
-                    ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="font-semibold">{item.name}</span>
-              </Link>
-            );
-          })}
 
-          <div className="hidden md:block border-t border-slate-100 dark:border-slate-800/60 my-3 pt-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-4 mb-1">
-            Boutique & Liens
-          </div>
-          {publicItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap md:whitespace-normal ${
-                  isActive 
-                    ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="font-semibold">{item.name}</span>
-              </Link>
-            );
-          })}
+          <nav className="flex-1 space-y-6 px-4 py-6 overflow-y-auto scrollbar-thin">
+            <div>
+              <div className={`text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-4 mb-2 ${!isSidebarOpen && 'lg:hidden'}`}>
+                Espace Client
+              </div>
+              <div className="space-y-1">
+                {clientItems.map((item) => {
+                  const isActive = pathname.startsWith(item.href);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      title={!isSidebarOpen ? item.name : undefined}
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                        isActive 
+                          ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                          : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                      } ${!isSidebarOpen && 'lg:justify-center lg:px-0'}`}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      <span className={`${!isSidebarOpen && 'lg:hidden'}`}>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
 
-          {/* Mobile direct logout helper */}
-          <button
-            onClick={handleLogout}
-            className="flex md:hidden items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-semibold"
-          >
-            <LogOut className="h-5 w-5" />
-            <span>Déconnexion</span>
-          </button>
-        </nav>
-        
-        <div className="mt-auto hidden md:block border-t border-slate-200 dark:border-slate-800 pt-4">
-          <button 
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-          >
-            <LogOut className="h-5 w-5" />
-            <span className="font-semibold">Déconnexion</span>
-          </button>
+            <div>
+              <div className={`text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-4 mb-2 ${!isSidebarOpen && 'lg:hidden'}`}>
+                Boutique & Liens
+              </div>
+              <div className="space-y-1">
+                {publicItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      title={!isSidebarOpen ? item.name : undefined}
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                        isActive 
+                          ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                          : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                      } ${!isSidebarOpen && 'lg:justify-center lg:px-0'}`}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      <span className={`${!isSidebarOpen && 'lg:hidden'}`}>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </nav>
+
+          <div className="border-t border-slate-100 p-4 dark:border-slate-800">
+            <button 
+              onClick={handleLogout}
+              title={!isSidebarOpen ? 'Déconnexion' : undefined}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 ${!isSidebarOpen && 'lg:justify-center lg:px-0'}`}
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <span className={`${!isSidebarOpen && 'lg:hidden'}`}>Déconnexion</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8">
-        <div className="max-w-5xl mx-auto">
+      <main className={`flex min-h-screen flex-col transition-all duration-300 ${isSidebarOpen ? 'lg:pl-64' : 'lg:pl-20'}`}>
+        {/* Header */}
+        <header className="sticky top-0 z-30 h-20 bg-white/80 backdrop-blur-md dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex h-full items-center justify-between px-4 lg:px-8">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-label="Toggle navigation"
+              className="text-slate-500 hover:text-primary transition-colors animate-press"
+            >
+              {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black text-primary uppercase tracking-wider bg-primary/10 px-2.5 py-1 rounded-md hidden sm:inline-block">Portail Client</span>
+              <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+              <div className="flex items-center gap-3">
+                <div className={`text-right hidden sm:block ${!isSidebarOpen && 'lg:hidden'}`}>
+                  <p className="text-sm font-bold">{user?.nom}</p>
+                  <p className="text-xs text-slate-500">{user?.email}</p>
+                </div>
+                <div className="relative h-10 w-10 overflow-hidden rounded-full bg-slate-200 border-2 border-white dark:border-slate-800">
+                  <Image
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.nom || 'Client')}&background=random&size=100`}
+                    alt={`Avatar de ${user?.nom || 'Client'}`}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <div className="flex-1 p-4 lg:p-8">
+          {/* Breadcrumb */}
+          <nav className="mb-6 flex items-center gap-2 text-xs font-medium text-slate-500">
+            <Link href="/client/dashboard" className="hover:text-primary">Espace Client</Link>
+            {pathname !== '/client/dashboard' && (
+              <>
+                <ChevronRight className="h-3 w-3" />
+                <span className="capitalize text-slate-900 dark:text-white">
+                  {pathname.split('/').pop()?.replace('quotes', 'Devis').replace('orders', 'Commandes').replace('chat', 'Messagerie').replace('profil', 'Profil')}
+                </span>
+              </>
+            )}
+          </nav>
           {children}
         </div>
       </main>

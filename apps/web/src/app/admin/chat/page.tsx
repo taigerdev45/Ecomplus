@@ -42,8 +42,8 @@ export default function AdminChat() {
   const [newTeamMessage, setNewTeamMessage] = useState('');
   const [isLoadingTeam, setIsLoadingTeam] = useState(true);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const teamMessagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const teamChatContainerRef = useRef<HTMLDivElement>(null);
 
   // -------------------------------------------------------------
   // SUPPORT CHAT LOGIC
@@ -136,14 +136,18 @@ export default function AdminChat() {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 50);
   };
 
   const scrollToTeamBottom = () => {
     setTimeout(() => {
-      teamMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+      if (teamChatContainerRef.current) {
+        teamChatContainerRef.current.scrollTop = teamChatContainerRef.current.scrollHeight;
+      }
+    }, 50);
   };
 
   // Sending Messages
@@ -312,7 +316,7 @@ export default function AdminChat() {
                   </div>
 
                   {/* Messages Flow */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
+                  <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
                     {messages.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-slate-400">
                         <MessageSquare className="h-12 w-12 mb-3 opacity-20" />
@@ -350,8 +354,8 @@ export default function AdminChat() {
                           </div>
                         );
                       })
-                    )}
-                    <div ref={messagesEndRef} />
+                    )
+                    }
                   </div>
 
                   {/* Input Area */}
@@ -410,7 +414,7 @@ export default function AdminChat() {
             </div>
 
             {/* Team Messages Flow */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
+            <div ref={teamChatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
               {isLoadingTeam && teamMessages.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-slate-400">Chargement du canal...</div>
               ) : teamMessages.length === 0 ? (
@@ -451,7 +455,6 @@ export default function AdminChat() {
                   );
                 })
               )}
-              <div ref={teamMessagesEndRef} />
             </div>
 
             {/* Team Message Input Area */}
