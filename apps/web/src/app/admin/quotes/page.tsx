@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Search, Filter, FileText, MessageCircle, MoreVertical, ExternalLink } from 'lucide-react';
-import { Devis } from '@ecom/types';
+import { Search, Filter, FileText, MessageCircle, MoreVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/axios';
+import { downloadDevisPDF } from '@/lib/pdf';
 
 type QuoteStatus = 'PENDING' | 'VALIDATED' | 'CANCELLED' | 'EXPIRED';
 
@@ -23,13 +23,17 @@ interface QuoteRow {
   total_ttc: number;
   created_at: string;
   client?: { nom: string; telephone: string };
-  pdf_url?: string;
+  items?: any[];
+  subtotal_products?: number;
+  commission?: any;
+  shipping?: any;
 }
 
 export default function AdminQuotesPage() {
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchQuotes();
@@ -43,6 +47,19 @@ export default function AdminQuotesPage() {
       toast.error(err.response?.data?.message || 'Erreur lors du chargement des devis');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadPdf = async (quote: QuoteRow) => {
+    try {
+      setDownloadingId(quote.id);
+      await downloadDevisPDF(quote as any, quote.client?.nom || 'Client Ecom Plus');
+      toast.success('Devis téléchargé avec succès !');
+    } catch (error) {
+      console.error(error);
+      toast.error('Erreur lors de la génération du PDF');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -117,25 +134,14 @@ export default function AdminQuotesPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      {quote.pdf_url ? (
-                        <a
-                          href={quote.pdf_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Télécharger PDF du devis ${quote.reference}`}
-                          className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800"
-                        >
-                          <FileText className="h-4 w-4" aria-hidden="true" />
-                        </a>
-                      ) : (
-                        <button
-                          disabled
-                          aria-label={`Voir PDF du devis ${quote.reference}`}
-                          className="rounded-lg p-2 text-slate-300 dark:text-slate-700"
-                        >
-                          <FileText className="h-4 w-4" aria-hidden="true" />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDownloadPdf(quote)}
+                        disabled={downloadingId === quote.id}
+                        aria-label={`Télécharger PDF du devis ${quote.reference}`}
+                        className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800 disabled:opacity-50"
+                      >
+                        <FileText className="h-4 w-4" aria-hidden="true" />
+                      </button>
                       <button
                         aria-label={`Renvoyer WhatsApp pour ${quote.reference}`}
                         className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-green-600 dark:hover:bg-slate-800"
@@ -173,25 +179,14 @@ export default function AdminQuotesPage() {
               <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
                 <p className="font-bold text-primary">{quote.total_ttc.toLocaleString()} F</p>
                 <div className="flex gap-2">
-                  {quote.pdf_url ? (
-                    <a
-                      href={quote.pdf_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Télécharger PDF du devis ${quote.reference}`}
-                      className="rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800"
-                    >
-                      <FileText className="h-4 w-4" aria-hidden="true" />
-                    </a>
-                  ) : (
-                    <button
-                      disabled
-                      aria-label={`Télécharger PDF du devis ${quote.reference}`}
-                      className="rounded-lg bg-slate-100 p-2 text-slate-400 dark:bg-slate-800"
-                    >
-                      <FileText className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleDownloadPdf(quote)}
+                    disabled={downloadingId === quote.id}
+                    aria-label={`Télécharger PDF du devis ${quote.reference}`}
+                    className="rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800 disabled:opacity-50"
+                  >
+                    <FileText className="h-4 w-4" aria-hidden="true" />
+                  </button>
                   <button
                     aria-label={`Renvoyer WhatsApp pour le devis ${quote.reference}`}
                     className="rounded-lg bg-green-50 p-2 text-green-600 dark:bg-green-900/20"
@@ -207,4 +202,3 @@ export default function AdminQuotesPage() {
     </AdminLayout>
   );
 }
-

@@ -9,6 +9,10 @@ import { AuthProvider } from "@/providers/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport = {
+  themeColor: "#2563eb",
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Ecom Plus Gabon — Sourcing Chine-Gabon",
@@ -16,12 +20,6 @@ export const metadata: Metadata = {
   },
   description: "La plateforme PWA n°1 pour sourcer vos produits en Chine et les faire livrer au Gabon en toute sécurité.",
   manifest: "/manifest.json",
-  themeColor: "#2563eb",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Ecom Plus",
-  },
   formatDetection: {
     telephone: false,
   },

@@ -1,23 +1,17 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FileText, Download, Loader2, RefreshCw } from 'lucide-react';
+import { FileText, Download, Loader2 } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
-
-interface ClientQuote {
-  id: string;
-  reference: string;
-  created_at: string;
-  total_ttc: number;
-  status: string;
-  pdf_url?: string;
-}
+import { useAuth } from '@/store/useAuth';
+import { downloadDevisPDF, ClientQuote } from '@/lib/pdf';
 
 export default function ClientQuotes() {
   const [quotes, setQuotes] = useState<ClientQuote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchQuotes();
@@ -34,20 +28,16 @@ export default function ClientQuotes() {
     }
   };
 
-  const handleRegeneratePdf = async (id: string) => {
-    setRegeneratingId(id);
+  const handleDownloadPdf = async (quote: ClientQuote) => {
+    setDownloadingId(quote.id);
     try {
-      const res = await api.post(`/orders/quotes/${id}/regenerate-pdf`);
-      toast.success((res.data as { message?: string }).message || 'Génération lancée');
-      
-      // On recharge la liste après quelques secondes pour voir si l'URL est mise à jour
-      setTimeout(() => {
-        fetchQuotes();
-      }, 5000);
+      await downloadDevisPDF(quote, user?.nom || 'Client Ecom Plus');
+      toast.success('Devis téléchargé avec succès !');
     } catch (error) {
-      toast.error('Erreur lors de la régénération du devis');
+      console.error(error);
+      toast.error('Erreur lors du téléchargement du devis');
     } finally {
-      setRegeneratingId(null);
+      setDownloadingId(null);
     }
   };
 
@@ -108,30 +98,18 @@ export default function ClientQuotes() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {quote.pdf_url ? (
-                        <a 
-                          href={quote.pdf_url} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors text-xs"
-                        >
+                      <button 
+                        onClick={() => handleDownloadPdf(quote)}
+                        disabled={downloadingId === quote.id}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-dark font-medium transition-colors text-xs disabled:opacity-50"
+                      >
+                        {downloadingId === quote.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
                           <Download className="h-4 w-4" />
-                          Télécharger PDF
-                        </a>
-                      ) : (
-                        <button 
-                          onClick={() => handleRegeneratePdf(quote.id)}
-                          disabled={regeneratingId === quote.id}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 font-medium transition-colors text-xs disabled:opacity-50"
-                        >
-                          {regeneratingId === quote.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <RefreshCw className="h-4 w-4" />
-                          )}
-                          Générer PDF
-                        </button>
-                      )}
+                        )}
+                        Télécharger PDF
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -4,19 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { Package, Download, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
-
-interface ClientOrder {
-  id: string;
-  numero_tracking: string;
-  created_at: string;
-  total_ttc: number;
-  statut: string;
-}
+import { useAuth } from '@/store/useAuth';
+import { downloadReceiptPDF, ClientOrder } from '@/lib/pdf';
 
 export default function ClientOrders() {
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchOrders();
@@ -33,24 +28,19 @@ export default function ClientOrders() {
     }
   };
 
-  const downloadReceiptPdf = async (orderId: string, trackingNumber: string) => {
+  const handleDownloadReceiptPdf = async (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) {
+      toast.error('Commande introuvable');
+      return;
+    }
+
     try {
       setDownloadingId(orderId);
-      const response = await api.get(`/orders/receipts/${orderId}/download-pdf`, {
-        responseType: 'blob'
-      });
-      
-      const blob = new Blob([response.data as BlobPart], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `recu_${trackingNumber}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadReceiptPDF(order, user?.nom || 'Client Ecom Plus');
       toast.success('Reçu PDF téléchargé avec succès !');
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors du téléchargement du reçu PDF');
     } finally {
       setDownloadingId(null);
@@ -126,7 +116,7 @@ export default function ClientOrders() {
                     </td>
                     <td className="px-6 py-4 font-bold text-primary">
                       {order.total_ttc.toLocaleString()} F
-                  </td>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.statut)}`}>
                         {getStatusLabel(order.statut)}
@@ -136,7 +126,7 @@ export default function ClientOrders() {
                       <div className="flex justify-end gap-2">
                         {order.statut !== 'annule' && order.statut !== 'devis_envoye' && (
                           <button 
-                            onClick={() => downloadReceiptPdf(order.id, order.numero_tracking)}
+                            onClick={() => handleDownloadReceiptPdf(order.id)}
                             disabled={downloadingId === order.id}
                             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors text-xs disabled:opacity-50"
                           >
@@ -168,7 +158,7 @@ export default function ClientOrders() {
         <AlertCircle className="h-5 w-5 text-blue-500 shrink-0" />
         <div className="text-sm text-blue-800 dark:text-blue-300">
           <p className="font-semibold mb-1">Information sur vos documents</p>
-          <p>Pour des raisons de sécurité et d&apos;optimisation, les reçus de plus d&apos;une semaine ne sont plus affichés automatiquement. En cas de besoin, vous pouvez les redemander au service client avec votre numéro de tracking.</p>
+          <p>Pour des raisons de sécurité et d&apos;optimisation, les reçus sont générés localement et instantanément en haute définition.</p>
         </div>
       </div>
     </div>
