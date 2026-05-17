@@ -241,6 +241,8 @@ export default function AdminProductsPage() {
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">Ajouter un produit</h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
+                aria-label="Fermer le formulaire"
+                title="Fermer"
                 className="rounded-full p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <X className="h-5 w-5" />
@@ -256,7 +258,7 @@ export default function AdminProductsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Catégorie *</label>
-                    <select required name="categorie_id" value={formData.categorie_id} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
+                    <select required name="categorie_id" value={formData.categorie_id} onChange={handleInputChange} aria-label="Catégorie du produit" title="Catégorie" className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
                       <option value="">Sélectionner une catégorie</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.id}>{c.nom}</option>
@@ -281,7 +283,7 @@ export default function AdminProductsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Stock</label>
-                    <input required type="number" min="0" name="stock" value={formData.stock} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" />
+                    <input required type="number" min="0" name="stock" value={formData.stock} onChange={handleInputChange} placeholder="Ex: 10" aria-label="Stock disponible" className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" />
                   </div>
                 </div>
 
@@ -325,7 +327,7 @@ export default function AdminProductsPage() {
                           {imageFiles.map((file, i) => (
                             <li key={i} className="flex justify-between items-center bg-slate-100 p-2 rounded-md dark:bg-slate-800">
                               <span className="truncate max-w-[120px]">{file.name}</span>
-                              <button type="button" onClick={() => removeImage(i)} className="text-red-500 hover:bg-red-50 rounded-full p-1"><X className="h-3 w-3" /></button>
+                              <button type="button" onClick={() => removeImage(i)} aria-label="Supprimer l'image" title="Supprimer" className="text-red-500 hover:bg-red-50 rounded-full p-1"><X className="h-3 w-3" /></button>
                             </li>
                           ))}
                         </ul>

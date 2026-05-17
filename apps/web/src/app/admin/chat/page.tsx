@@ -367,6 +367,8 @@ export default function AdminChat() {
                       <button
                         type="submit"
                         disabled={!newMessage.trim()}
+                        aria-label="Envoyer le message"
+                        title="Envoyer le message"
                         className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                       >
                         <Send className="h-4 w-4" />
@@ -465,6 +467,8 @@ export default function AdminChat() {
                 <button
                   type="submit"
                   disabled={!newTeamMessage.trim()}
+                  aria-label="Envoyer le message à l'équipe"
+                  title="Envoyer le message à l'équipe"
                   className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                 >
                   <Send className="h-4 w-4" />
