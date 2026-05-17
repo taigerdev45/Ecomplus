@@ -20,6 +20,7 @@ const order_routes_1 = __importDefault(require("./routes/order.routes"));
 const whatsapp_routes_1 = __importDefault(require("./routes/whatsapp.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 const config_routes_1 = __importDefault(require("./routes/config.routes"));
+const chat_routes_1 = __importDefault(require("./routes/chat.routes"));
 const error_middleware_1 = require("./middlewares/error.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -33,7 +34,7 @@ app.use((0, cors_1.default)({
 app.use((0, hpp_1.default)()); // Prevent HTTP Parameter Pollution
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    max: 3000, // Increase threshold to 3000 to accommodate frequent chat and visit pollings
     message: 'Trop de requêtes effectuées depuis cette adresse IP, veuillez réessayer après 15 minutes',
     standardHeaders: true,
     legacyHeaders: false,
@@ -56,6 +57,7 @@ app.use('/api/v1/orders', order_routes_1.default);
 app.use('/api/v1/webhooks/whatsapp', whatsapp_routes_1.default);
 app.use('/api/v1/admin', admin_routes_1.default);
 app.use('/api/v1/config', config_routes_1.default);
+app.use('/api/v1/chat', chat_routes_1.default);
 // Error Handling
 app.use(error_middleware_1.errorHandler);
 app.get('/health', (req, res) => {

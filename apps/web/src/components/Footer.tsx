@@ -29,7 +29,8 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="md:col-span-2">
-            <h2 className="text-xl font-bold text-primary">EcomPlus Gabon</h2>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icons/logo_ecomplus.jpeg" alt="Ecom Plus Gabon" className="h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-normal rounded-sm mb-4" />
             <p className="mt-4 max-w-xs text-sm text-slate-500 dark:text-slate-400">
               Votre partenaire de confiance pour le sourcing en Chine et la logistique vers le Gabon.
             </p>

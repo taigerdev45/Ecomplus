@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase } from '../lib/supabase';
 import { query } from '../lib/db';
+import { hashPassword } from '../services/auth.service';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
@@ -171,6 +172,11 @@ export const getAgents = async (req: Request, res: Response) => {
 export const createAgent = async (req: Request, res: Response) => {
   try {
     const { email, nom, telephone, role, password } = req.body;
+    
+    // Hash password before saving
+    const plainPassword = password || 'temporary-pass';
+    const hashedPassword = await hashPassword(plainPassword);
+
     const { data: agent, error } = await supabase
       .from('utilisateur')
       .insert({ 
@@ -178,7 +184,7 @@ export const createAgent = async (req: Request, res: Response) => {
         nom, 
         telephone, 
         role, 
-        mot_de_passe: password || 'temporary-pass' 
+        mot_de_passe: hashedPassword 
       })
       .select()
       .single();

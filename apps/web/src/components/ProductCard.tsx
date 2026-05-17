@@ -51,9 +51,6 @@ export function ProductCard({ product, exchangeRate }: ProductCardProps) {
             <p className="text-xl font-black text-foreground">
               {prixXaf.toLocaleString()} <span className="text-sm font-medium text-muted-foreground">FCFA</span>
             </p>
-            <p className="text-xs font-semibold text-muted-foreground">
-              {(product.prix_cny / 100).toFixed(2)} CNY
-            </p>
           </div>
           <button 
             onClick={handleAddToCart}

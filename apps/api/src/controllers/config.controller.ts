@@ -10,13 +10,19 @@ export const recordVisit = async (req: Request, res: Response) => {
     const ip = req.ip || req.socket.remoteAddress || '';
     const userAgent = req.headers['user-agent'] || '';
 
-    await query(
-      'INSERT INTO visite (ip, user_agent, page) VALUES ($1, $2, $3)',
-      [ip, userAgent, page || '/']
-    );
+    const { error } = await supabase
+      .from('visite')
+      .insert({
+        ip,
+        user_agent: userAgent,
+        page: page || '/'
+      });
+
+    if (error) throw error;
 
     res.json({ success: true });
   } catch (error: any) {
+    console.error('Error recording visit:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

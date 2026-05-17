@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { quoteRequestSchema } from '../schemas/order.schema';
 import * as orderService from '../services/order.service';
 import { supabase } from '../lib/supabase';
+import { AuthRequest } from '../middlewares/auth.middleware';
 
 export const getQuotePreview = async (req: Request, res: Response) => {
   try {
@@ -30,10 +31,10 @@ export const getQuotePreview = async (req: Request, res: Response) => {
 
 import { pdfQueue } from '../queues/pdf.queue';
 
-export const submitQuoteRequest = async (req: Request, res: Response) => {
+export const submitQuoteRequest = async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = quoteRequestSchema.parse(req.body);
-    const userId = (req as any).user.id;
+    const userId = req.user!.id;
 
     // 1. Get exchange rate
     const { data: rateData } = await supabase
@@ -76,7 +77,7 @@ export const submitQuoteRequest = async (req: Request, res: Response) => {
     await pdfQueue.add('generate-pdf', {
       type: 'DEVIS',
       data: devis,
-      clientName: (req as any).user.nom,
+      clientName: req.user!.nom || req.user!.email,
       whatsapp: null // DÉSACTIVÉ : On n'envoie plus par WhatsApp
     });
 
@@ -109,11 +110,11 @@ export const validateQuote = async (req: Request, res: Response) => {
   }
 };
 
-export const updateOrderStatus = async (req: Request, res: Response) => {
+export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { statut, commentaire, photos } = req.body;
-    const agentId = (req as any).user.id;
+    const agentId = req.user!.id;
 
     const order = await orderService.updateOrderStatus(
       id,
@@ -144,7 +145,8 @@ export const getOrders = async (req: Request, res: Response) => {
     const { data: orders, error } = await supabase
       .from('commande')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(100); // Pagination / Protection anti-fuite mémoire
 
     if (error) throw error;
     res.json(orders);
@@ -153,9 +155,9 @@ export const getOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const getClientQuotes = async (req: Request, res: Response) => {
+export const getClientQuotes = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user!.id;
     const { data: quotes, error } = await supabase
       .from('devis')
       .select('*')
@@ -169,9 +171,9 @@ export const getClientQuotes = async (req: Request, res: Response) => {
   }
 };
 
-export const getClientOrders = async (req: Request, res: Response) => {
+export const getClientOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user!.id;
     const { data: orders, error } = await supabase
       .from('commande')
       .select('*')
@@ -185,10 +187,10 @@ export const getClientOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const regenerateQuotePdf = async (req: Request, res: Response) => {
+export const regenerateQuotePdf = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = (req as any).user.id;
+    const userId = req.user!.id;
 
     // Check if the quote belongs to the user
     const { data: devis, error } = await supabase

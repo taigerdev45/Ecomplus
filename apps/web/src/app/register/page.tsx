@@ -53,11 +53,12 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-900">
-        <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <UserPlus className="h-6 w-6 text-primary" />
+        <div className="text-center flex flex-col items-center">
+          <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icons/logo_ecomplus.jpeg" alt="Logo Ecom Plus Gabon" className="h-20 w-auto object-contain rounded-xl" />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Inscription
           </h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">

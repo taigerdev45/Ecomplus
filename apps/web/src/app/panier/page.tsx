@@ -147,9 +147,6 @@ export default function CartPage() {
                           <p className="font-bold text-lg">
                             {(Math.round((item.product.prix_cny / 100) * exchangeRate) * item.quantity).toLocaleString()} F CFA
                           </p>
-                          <p className="text-xs text-slate-500">
-                            {(item.product.prix_cny / 100 * item.quantity).toFixed(2)} CNY
-                          </p>
                         </div>
                       </div>
                     </div>

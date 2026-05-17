@@ -40,9 +40,10 @@ export function Navbar() {
           <Link href="/" className="text-xl font-black tracking-tighter text-primary transition-transform hover:scale-105 active:scale-95">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="Logo" className="h-8 w-auto object-contain drop-shadow-sm" />
+              <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain drop-shadow-sm" />
             ) : (
-              <>ECOM<span className="text-foreground">PLUS</span></>
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src="/icons/logo_ecomplus.jpeg" alt="Ecom Plus Gabon" className="h-10 w-auto object-contain drop-shadow-sm mix-blend-multiply dark:mix-blend-normal rounded-sm" />
             )}
           </Link>
           

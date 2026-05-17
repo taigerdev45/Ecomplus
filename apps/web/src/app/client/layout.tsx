@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '@/store/useAuth';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, FileText, ShoppingBag, Settings, LogOut, Loader2, User, ShoppingCart, Truck, Home } from 'lucide-react';
+import { LayoutDashboard, FileText, ShoppingBag, Settings, LogOut, Loader2, User, ShoppingCart, Truck, Home, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -40,6 +40,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     { name: 'Tableau de bord', href: '/client/dashboard', icon: LayoutDashboard },
     { name: 'Mes Devis', href: '/client/quotes', icon: FileText },
     { name: 'Mes Commandes', href: '/client/orders', icon: ShoppingBag },
+    { name: 'Support Client', href: '/client/chat', icon: MessageSquare },
     { name: 'Mon Profil', href: '/client/profil', icon: User },
   ];
 

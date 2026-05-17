@@ -4,6 +4,7 @@ import { generateQRCode } from './qr.service';
 import { supabase } from '../lib/supabase';
 import fs from 'fs';
 import path from 'path';
+import { logoBase64 } from './logoBase64';
 
 export const generateDevisPDF = async (devis: Devis, clientName: string): Promise<string> => {
   const qrCode = await generateQRCode(`https://ecomplus.ga/valider/${devis.id}`);
@@ -13,9 +14,10 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
     <html>
     <head>
       <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; }
-        .logo { font-size: 24px; font-weight: 900; color: #10b981; }
+        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; position: relative; }
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; z-index: -1; width: 60%; max-width: 500px; pointer-events: none; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; align-items: flex-start; }
+        .logo-img { height: 60px; object-fit: contain; }
         .title { font-size: 28px; font-weight: bold; margin: 20px 0; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
         .info-box h4 { margin: 0 0 10px 0; color: #666; text-transform: uppercase; font-size: 12px; }
@@ -31,9 +33,10 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
       </style>
     </head>
     <body>
+      <img src="${logoBase64}" class="watermark" />
       <div class="header">
         <div>
-          <div class="logo">ECOM PLUS GABON</div>
+          <img src="${logoBase64}" class="logo-img" alt="ECOM PLUS GABON" />
           <div style="font-size: 12px; margin-top: 5px;">Sourcing Chine-Gabon • Libreville, Gabon</div>
         </div>
         <div style="text-align: right; font-size: 12px;">
@@ -121,9 +124,10 @@ export const generateReceiptPDF = async (receipt: Receipt, clientName: string): 
     <html>
     <head>
       <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; }
-        .logo { font-size: 24px; font-weight: 900; color: #10b981; }
+        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; position: relative; }
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; z-index: -1; width: 60%; max-width: 500px; pointer-events: none; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; align-items: flex-start; }
+        .logo-img { height: 60px; object-fit: contain; }
         .title { font-size: 28px; font-weight: bold; margin: 20px 0; }
         .tracking-box { background: #f0fdf4; border: 1px solid #10b981; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 40px; }
         .tracking-number { font-size: 24px; font-weight: 900; color: #059669; letter-spacing: 2px; }
@@ -136,9 +140,10 @@ export const generateReceiptPDF = async (receipt: Receipt, clientName: string): 
       </style>
     </head>
     <body>
+      <img src="${logoBase64}" class="watermark" />
       <div class="header">
         <div>
-          <div class="logo">ECOM PLUS GABON</div>
+          <img src="${logoBase64}" class="logo-img" alt="ECOM PLUS GABON" />
           <div style="font-size: 12px; margin-top: 5px;">Sourcing Chine-Gabon • Reçu Officiel</div>
         </div>
         <div style="text-align: right; font-size: 12px;">

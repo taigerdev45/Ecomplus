@@ -16,7 +16,8 @@ import {
   LogOut,
   Bell,
   Search,
-  ChevronRight
+  ChevronRight,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/store/useAuth';
 
@@ -26,6 +27,7 @@ const navItems = [
   { name: 'Devis', href: '/admin/quotes', icon: FileText },
   { name: 'Commandes', href: '/agent/orders', icon: Package },
   { name: 'Reçus', href: '/admin/receipts', icon: FileText },
+  { name: 'Messages', href: '/admin/chat', icon: MessageSquare },
   { name: 'Agents', href: '/admin/agents', icon: Users },
   { name: 'Rapports', href: '/admin/reports', icon: BarChart3 },
   { name: 'Configuration', href: '/admin/config', icon: Settings },
@@ -51,10 +53,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className={`flex h-full flex-col ${!isSidebarOpen && 'lg:items-center'}`}>
           <div className="flex h-20 items-center justify-between px-6">
             <Link href="/" className={`flex items-center gap-2 ${!isSidebarOpen && 'lg:hidden'}`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-xl">E</div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-inner">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/logo_ecomplus.jpeg" alt="Ecom Plus Gabon" className="h-8 w-auto object-contain mix-blend-multiply dark:mix-blend-normal rounded-sm" />
+              </div>
               <span className="text-xl font-bold text-slate-900 dark:text-white">EcomPlus</span>
             </Link>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-xl ${isSidebarOpen ? 'hidden' : 'hidden lg:flex'}`}>E</div>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-inner bg-gradient-to-br from-primary/20 to-primary/5 ${isSidebarOpen ? 'hidden' : 'hidden lg:flex'}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icons/logo_ecomplus.jpeg" alt="E" className="h-8 w-auto object-contain mix-blend-multiply dark:mix-blend-normal rounded-sm" />
+            </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Fermer le menu de navigation"

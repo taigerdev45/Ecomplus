@@ -4,16 +4,33 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { useProduct } from '@/store/useProduct';
-import { Plus, Edit, Trash2, Search, FileUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileUp, X, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminProductsPage() {
-  const { products, isLoading, fetchProducts, deleteProduct } = useProduct();
+  const { products, categories, isLoading, fetchProducts, fetchCategories, deleteProduct, createProduct } = useProduct();
   const [search, setSearch] = useState('');
+  
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    nom: '',
+    description: '',
+    prix_fcfa: '',
+    poids_kg: '',
+    categorie_id: '',
+    stock: '1',
+    lien_fournisseur: ''
+  });
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+    fetchCategories();
+    // Ensure exchange rate is loaded to correctly calculate prices
+    useProduct.getState().fetchExchangeRate();
+  }, [fetchProducts, fetchCategories]);
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
@@ -28,8 +45,68 @@ export default function AdminProductsPage() {
   };
 
   const handleCSVImport = () => {
-    // Placeholder for CSV import logic
     toast.info('Fonctionnalité d\'importation CSV bientôt disponible');
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setImageFiles(prev => {
+        const combined = [...prev, ...newFiles];
+        if (combined.length > 4) toast.info('Maximum 4 images autorisées, les autres ont été ignorées.');
+        return combined.slice(0, 4);
+      });
+      // Reset input value to allow selecting the same file again if needed
+      e.target.value = '';
+    }
+  };
+  
+  const removeImage = (indexToRemove: number) => {
+    setImageFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.categorie_id) {
+      return toast.error('Veuillez sélectionner une catégorie');
+    }
+
+    setIsSubmitting(true);
+    
+    // Convert FCFA to CNY centimes before sending
+    const exchangeRate = useProduct.getState().exchangeRate || 95;
+    const prixCnyCentimes = Math.round((Number(formData.prix_fcfa) / exchangeRate) * 100);
+
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== 'prix_fcfa') {
+        data.append(key, value);
+      }
+    });
+    data.append('prix_cny', prixCnyCentimes.toString());
+    
+    imageFiles.forEach((file) => {
+      data.append('images', file);
+    });
+
+    try {
+      await createProduct(data);
+      toast.success('Produit ajouté avec succès');
+      setIsModalOpen(false);
+      setFormData({
+        nom: '', description: '', prix_fcfa: '', poids_kg: '', categorie_id: '', stock: '1', lien_fournisseur: ''
+      });
+      setImageFiles([]);
+      fetchProducts();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erreur lors de l'ajout");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredProducts = products.filter(p => 
@@ -51,7 +128,10 @@ export default function AdminProductsPage() {
             >
               <FileUp className="h-4 w-4" /> Importer CSV
             </button>
-            <button className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+            >
               <Plus className="h-4 w-4" /> Nouveau Produit
             </button>
           </div>
@@ -77,7 +157,7 @@ export default function AdminProductsPage() {
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-xs font-bold uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
                   <th className="px-6 py-4">Produit</th>
                   <th className="px-6 py-4">Catégorie</th>
-                  <th className="px-6 py-4">Prix (CNY)</th>
+                  <th className="px-6 py-4">Prix (FCFA)</th>
                   <th className="px-6 py-4">Stock</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -107,7 +187,7 @@ export default function AdminProductsPage() {
                       {product.categorie_id}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">
-                      {(product.prix_cny / 100).toFixed(2)} ¥
+                      {Math.round((product.prix_cny / 100) * (useProduct.getState().exchangeRate || 95)).toLocaleString('fr-FR')} FCFA
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
@@ -140,6 +220,115 @@ export default function AdminProductsPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal Ajout Produit */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl dark:bg-slate-900 flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Ajouter un produit</h2>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-full p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-6">
+              <form id="product-form" onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nom du produit *</label>
+                    <input required type="text" name="nom" value={formData.nom} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Ex: iPhone 15 Pro Max" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Catégorie *</label>
+                    <select required name="categorie_id" value={formData.categorie_id} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
+                      <option value="">Sélectionner une catégorie</option>
+                      {categories.map(c => (
+                        <option key={c.id} value={c.id}>{c.nom}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description *</label>
+                  <textarea required name="description" value={formData.description} onChange={handleInputChange} rows={3} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Description détaillée..." />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Prix (FCFA) *</label>
+                    <input required type="number" min="0" name="prix_fcfa" value={formData.prix_fcfa} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Ex: 5000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Poids estimé (KG) *</label>
+                    <input required type="number" step="0.01" min="0" name="poids_kg" value={formData.poids_kg} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Ex: 1.5" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Stock</label>
+                    <input required type="number" min="0" name="stock" value={formData.stock} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lien fournisseur (Optionnel)</label>
+                  <input type="url" name="lien_fournisseur" value={formData.lien_fournisseur} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="https://1688.com/..." />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Images (Maximum 4) *</label>
+                  <div className="mt-1 flex flex-col justify-center rounded-lg border border-dashed border-slate-300 px-6 py-8 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <div className="text-center">
+                      <Upload className="mx-auto h-8 w-8 text-slate-400" />
+                      <div className="mt-4 flex text-sm leading-6 text-slate-600 dark:text-slate-400 justify-center">
+                        <label className="relative cursor-pointer rounded-md bg-white font-semibold text-primary focus-within:outline-none hover:underline dark:bg-slate-900">
+                          <span>Sélectionner des fichiers</span>
+                          <input required={imageFiles.length === 0} type="file" multiple accept="image/*" className="sr-only" onChange={handleFileChange} />
+                        </label>
+                      </div>
+                      <p className="text-xs leading-5 text-slate-500">PNG, JPG, WEBP jusqu&apos;à 5MB</p>
+                    </div>
+                    {imageFiles.length > 0 && (
+                      <div className="mt-6">
+                        <p className="text-sm font-bold text-primary mb-2">{imageFiles.length}/4 fichier(s) prêt(s)</p>
+                        <ul className="grid grid-cols-2 gap-2 text-xs">
+                          {imageFiles.map((file, i) => (
+                            <li key={i} className="flex justify-between items-center bg-slate-100 p-2 rounded-md dark:bg-slate-800">
+                              <span className="truncate max-w-[120px]">{file.name}</span>
+                              <button type="button" onClick={() => removeImage(i)} className="text-red-500 hover:bg-red-50 rounded-full p-1"><X className="h-3 w-3" /></button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div className="border-t border-slate-100 p-6 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50 flex justify-end gap-3 rounded-b-2xl">
+              <button 
+                type="button" 
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                Annuler
+              </button>
+              <button 
+                form="product-form"
+                type="submit" 
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-70 min-w-[140px]"
+              >
+                {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Enregistrer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

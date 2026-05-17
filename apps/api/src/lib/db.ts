@@ -7,7 +7,10 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
@@ -31,9 +34,34 @@ export const initDb = async () => {
           user_agent TEXT,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS conversation (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          client_id UUID NOT NULL REFERENCES utilisateur(id) ON DELETE CASCADE,
+          agent_id UUID REFERENCES utilisateur(id) ON DELETE SET NULL,
+          status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS message (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          conversation_id UUID NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
+          sender_id UUID NOT NULL REFERENCES utilisateur(id) ON DELETE CASCADE,
+          content TEXT NOT NULL,
+          is_read BOOLEAN DEFAULT false,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS internal_message (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          sender_id UUID NOT NULL REFERENCES utilisateur(id) ON DELETE CASCADE,
+          content TEXT NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `);
-    console.log('Database tracking tables initialized successfully.');
+    console.log('Database tracking and chat tables initialized successfully.');
   } catch (error) {
-    console.error('Failed to initialize tracking database tables:', error);
+    console.error('Failed to initialize database tables:', error);
   }
 };

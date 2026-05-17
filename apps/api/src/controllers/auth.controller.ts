@@ -42,10 +42,11 @@ export const register = async (req: Request, res: Response) => {
       try {
         const ip = req.ip || req.socket.remoteAddress || '';
         const userAgent = req.headers['user-agent'] || '';
-        await query(
-          'INSERT INTO connexion_log (client_id, ip, user_agent) VALUES ($1, $2, $3)',
-          [newUser.id, ip, userAgent]
-        );
+        await supabase.from('connexion_log').insert({
+          client_id: newUser.id,
+          ip,
+          user_agent: userAgent
+        });
       } catch (err) {
         console.error('Error logging connection after register:', err);
       }
@@ -85,10 +86,11 @@ export const login = async (req: Request, res: Response) => {
       try {
         const ip = req.ip || req.socket.remoteAddress || '';
         const userAgent = req.headers['user-agent'] || '';
-        await query(
-          'INSERT INTO connexion_log (client_id, ip, user_agent) VALUES ($1, $2, $3)',
-          [user.id, ip, userAgent]
-        );
+        await supabase.from('connexion_log').insert({
+          client_id: user.id,
+          ip,
+          user_agent: userAgent
+        });
       } catch (err) {
         console.error('Error logging connection:', err);
       }

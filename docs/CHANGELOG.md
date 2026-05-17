@@ -9,6 +9,22 @@
 
 ---
 
+### [1.6.0] - Intégration identité visuelle Ecom Plus & Résolution CRUD Produits
+
+#### Added
+- Intégration d'une modale d'ajout de produit complète dans l'espace administrateur (`/admin/products`) incluant les catégories, prix, poids, stock et liens fournisseurs.
+- Gestion robuste de l'upload multiple d'images (jusqu'à 4 images) sélectionnables d'un coup ou consécutivement (1 par 1) optimisée pour supports mobiles et PC.
+
+#### Changed
+- Uniformisation monétaire : transition globale vers le Franc CFA (FCFA) comme devise de référence sur les fiches produits, page détails, panier d'achat et dashboard admin.
+- Conversion automatique transparente du prix FCFA saisi en CNY centimes en arrière-plan selon le taux de change dynamique de la plateforme.
+
+#### Fixed
+- Correction de l'erreur `400 Bad Request` à la création/mise à jour de produits en convertissant explicitement les chaînes envoyées par FormData en types numériques avant la validation Zod côté API.
+- Résolution des erreurs de validation ESLint (apostrophes et syntaxe dans l'espace Admin).
+
+---
+
 ### [1.5.0] - Statistiques Analytiques Admin & Visibilité de Sécurité
 
 #### Added

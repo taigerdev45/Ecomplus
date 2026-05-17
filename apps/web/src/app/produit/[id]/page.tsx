@@ -108,9 +108,6 @@ export default function ProductDetailsPage() {
                 <p className="text-4xl font-extrabold text-primary">
                   {prixXaf.toLocaleString()} F CFA
                 </p>
-                <p className="text-sm text-slate-500">
-                  Estimation basée sur le taux de change actuel ({(product.prix_cny / 100).toFixed(2)} CNY)
-                </p>
               </div>
             </div>
 

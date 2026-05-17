@@ -51,7 +51,13 @@ export const getProductById = async (req: Request, res: Response) => {
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const validatedData = productSchema.parse(req.body);
+    const bodyData = {
+      ...req.body,
+      prix_cny: req.body.prix_cny ? Number(req.body.prix_cny) : undefined,
+      poids_kg: req.body.poids_kg ? Number(req.body.poids_kg) : undefined,
+      stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined
+    };
+    const validatedData = productSchema.parse(bodyData);
     const files = req.files as Express.Multer.File[];
     
     const imageUrls: string[] = [];
@@ -77,7 +83,13 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
-    const validatedData = productSchema.partial().parse(req.body);
+    const bodyData = {
+      ...req.body,
+      prix_cny: req.body.prix_cny ? Number(req.body.prix_cny) : undefined,
+      poids_kg: req.body.poids_kg ? Number(req.body.poids_kg) : undefined,
+      stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined
+    };
+    const validatedData = productSchema.partial().parse(bodyData);
     const files = req.files as Express.Multer.File[];
 
     let imageUrls = req.body.existingImages ? JSON.parse(req.body.existingImages) : [];

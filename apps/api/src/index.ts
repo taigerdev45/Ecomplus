@@ -16,6 +16,7 @@ import orderRoutes from './routes/order.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
 import adminRoutes from './routes/admin.routes';
 import configRoutes from './routes/config.routes';
+import chatRoutes from './routes/chat.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -33,7 +34,7 @@ app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 3000, // Increase threshold to 3000 to accommodate frequent chat and visit pollings
   message: 'Trop de requêtes effectuées depuis cette adresse IP, veuillez réessayer après 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
@@ -58,6 +59,7 @@ app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/webhooks/whatsapp', whatsappRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/config', configRoutes);
+app.use('/api/v1/chat', chatRoutes);
 
 // Error Handling
 app.use(errorHandler);
