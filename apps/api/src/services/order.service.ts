@@ -48,9 +48,9 @@ export const calculateQuote = (
     product: { 
       prix_cny: number; 
       poids_kg: number; 
-      longueur_cm?: number | null; 
-      largeur_cm?: number | null; 
-      hauteur_cm?: number | null;
+      longueur_m?: number | null; 
+      largeur_m?: number | null; 
+      hauteur_m?: number | null;
     }; 
     quantity: number; 
   }[], 
@@ -71,11 +71,11 @@ export const calculateQuote = (
   const totalWeight = items.reduce((acc, item) => acc + (item.product.poids_kg * item.quantity), 0);
   
   const totalVolumeCbm = items.reduce((acc, item) => {
-    // Si dimensions manquantes ou égales à 0, valeur par défaut de 10x10x10 cm
-    const l = item.product.longueur_cm || 10;
-    const w = item.product.largeur_cm || 10;
-    const h = item.product.hauteur_cm || 10;
-    const itemVolumeCbm = (Number(l) * Number(w) * Number(h)) / 1000000;
+    // Si dimensions manquantes ou égales à 0, valeur par défaut de 0.1m (10cm)
+    const l = item.product.longueur_m || 0.1;
+    const w = item.product.largeur_m || 0.1;
+    const h = item.product.hauteur_m || 0.1;
+    const itemVolumeCbm = Number(l) * Number(w) * Number(h);
     return acc + (itemVolumeCbm * item.quantity);
   }, 0);
 

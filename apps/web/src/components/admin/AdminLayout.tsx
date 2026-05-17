@@ -34,17 +34,31 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    // Run on mount
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Mobile Backdrop */}
-      {!isSidebarOpen && (
+      {isSidebarOpen && (
         <div 
           className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={() => setIsSidebarOpen(false)}
         />
       )}
 

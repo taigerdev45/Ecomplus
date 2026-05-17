@@ -1,209 +1,403 @@
-import puppeteer from 'puppeteer';
+// @ts-ignore
+import PdfPrinter = require('pdfmake');
 import { Devis, Receipt } from '@ecom/types';
 import { generateQRCode } from './qr.service';
 import { supabase } from '../lib/supabase';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
-import { logoBase64 } from './logoBase64';
 
+// ── Fonts (pdfmake built-in Roboto via virtual file system) ─────────────────
+const fonts = {
+  Helvetica: {
+    normal: 'Helvetica',
+    bold: 'Helvetica-Bold',
+    italics: 'Helvetica-Oblique',
+    bolditalics: 'Helvetica-BoldOblique',
+  },
+};
+
+// @ts-ignore
+const printer = new PdfPrinter(fonts);
+
+// ── Colour palette ────────────────────────────────────────────────────────────
+const PRIMARY = '#4F46E5';       // indigo-600
+const PRIMARY_LIGHT = '#EEF2FF'; // indigo-50
+const DARK = '#1E293B';          // slate-800
+const GREY = '#64748B';          // slate-500
+const LIGHT_GREY = '#F8FAFC';    // slate-50
+const BORDER = '#E2E8F0';        // slate-200
+const GREEN = '#059669';         // emerald-600
+const GREEN_BG = '#ECFDF5';      // emerald-50
+
+// ── Helper: convert base64 dataURL to Buffer ─────────────────────────────────
+function base64ToBuffer(dataUrl: string): Buffer {
+  const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+  return Buffer.from(base64, 'base64');
+}
+
+// ── Shipping method label ────────────────────────────────────────────────────
+function shippingLabel(method: string): string {
+  const labels: Record<string, string> = {
+    AIR_NORMAL: 'Aérien standard (7-15 jours)',
+    AIR_EXPRESS: 'Aérien express (4-5 jours)',
+    SEA: 'Maritime (30-45 jours)',
+  };
+  return labels[method] || method;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DEVIS PDF
+// ═══════════════════════════════════════════════════════════════════════════════
 export const generateDevisPDF = async (devis: Devis, clientName: string): Promise<string> => {
   const qrCode = await generateQRCode(`https://ecomplus.ga/valider/${devis.id}`);
-  
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; position: relative; }
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; z-index: -1; width: 60%; max-width: 500px; pointer-events: none; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; align-items: flex-start; }
-        .logo-img { height: 60px; object-fit: contain; }
-        .title { font-size: 28px; font-weight: bold; margin: 20px 0; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
-        .info-box h4 { margin: 0 0 10px 0; color: #666; text-transform: uppercase; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        .totals { float: right; width: 300px; }
-        .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
-        .total-ttc { border-top: 2px solid #000; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 18px; }
-        .qr-section { margin-top: 100px; text-align: center; }
-        .qr-section img { width: 120px; }
-        .footer { position: fixed; bottom: 40px; left: 40px; right: 40px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
-      </style>
-    </head>
-    <body>
-      <img src="${logoBase64}" class="watermark" />
-      <div class="header">
-        <div>
-          <img src="${logoBase64}" class="logo-img" alt="ECOM PLUS GABON" />
-          <div style="font-size: 12px; margin-top: 5px;">Sourcing Chine-Gabon • Libreville, Gabon</div>
-        </div>
-        <div style="text-align: right; font-size: 12px;">
-          Reference: <strong>${devis.reference}</strong><br>
-          Date: ${new Date(devis.created_at).toLocaleDateString('fr-FR')}
-        </div>
-      </div>
 
-      <div class="title">DEVIS PROFESSIONNEL</div>
+  const docDefinition: any = {
+    pageSize: 'A4',
+    pageMargins: [40, 50, 40, 80],
+    defaultStyle: { font: 'Helvetica', fontSize: 10, color: DARK },
 
-      <div class="info-grid">
-        <div class="info-box">
-          <h4>DESTINATAIRE</h4>
-          <strong>${clientName}</strong><br>
-          Gabon
-        </div>
-        <div class="info-box">
-          <h4>EXPÉDITEUR</h4>
-          <strong>Ecom Plus Gabon Service Sourcing</strong><br>
-          Achat & Logistique Chine-Afrique
-        </div>
-      </div>
+    // ── Background watermark ─────────────────────────────────────────────────
+    background: (currentPage: number, pageSize: any) => ({
+      canvas: [
+        {
+          type: 'rect',
+          x: 0,
+          y: 0,
+          w: pageSize.width,
+          h: pageSize.height,
+          color: '#FAFAFE',
+        },
+      ],
+    }),
 
-      <table>
-        <thead>
-          <tr>
-            <th>PRODUIT</th>
-            <th style="text-align: center;">QTÉ</th>
-            <th style="text-align: right;">PRIX UNITAIRE</th>
-            <th style="text-align: right;">TOTAL</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${devis.items.map(item => `
-            <tr>
-              <td>${item.product.nom}</td>
-              <td style="text-align: center;">${item.quantity}</td>
-              <td style="text-align: right;">${(Math.round((item.product.prix_cny / 100) * 95)).toLocaleString()} F</td>
-              <td style="text-align: right;">${(Math.round((item.product.prix_cny / 100) * 95 * item.quantity)).toLocaleString()} F</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+    footer: (currentPage: number, pageCount: number) => ({
+      margin: [40, 0, 40, 0],
+      columns: [
+        {
+          text: 'Ecom Plus Gabon — RCCM 2026-B-1234 — IF 000123456 — Contact : +241 00 00 00 00',
+          fontSize: 8,
+          color: GREY,
+        },
+        {
+          text: `Page ${currentPage}/${pageCount}`,
+          alignment: 'right',
+          fontSize: 8,
+          color: GREY,
+        },
+      ],
+    }),
 
-      <div class="totals">
-        <div class="total-row">
-          <span>Sous-total produits</span>
-          <span>${devis.subtotal_products.toLocaleString()} F CFA</span>
-        </div>
-        <div class="total-row">
-          <span>Commission (${devis.commission.taux}%)</span>
-          <span>${devis.commission.montant.toLocaleString()} F CFA</span>
-        </div>
-        <div class="total-row">
-          <span>Livraison (${devis.shipping.method})</span>
-          <span>${devis.shipping.montant.toLocaleString()} F CFA</span>
-        </div>
-        <div class="total-row total-ttc">
-          <span>TOTAL TTC</span>
-          <span>${devis.total_ttc.toLocaleString()} F CFA</span>
-        </div>
-      </div>
+    content: [
+      // ── HEADER ─────────────────────────────────────────────────────────────
+      {
+        columns: [
+          {
+            stack: [
+              { text: 'ECOM PLUS GABON', fontSize: 18, bold: true, color: PRIMARY },
+              { text: 'Sourcing Chine-Gabon · Libreville, Gabon', fontSize: 9, color: GREY, margin: [0, 2, 0, 0] },
+            ],
+          },
+          {
+            alignment: 'right',
+            stack: [
+              { text: 'DEVIS PROFESSIONNEL', fontSize: 18, bold: true, color: DARK },
+              { text: `Réf. : ${devis.reference}`, fontSize: 10, bold: true, color: PRIMARY, margin: [0, 4, 0, 0] },
+              { text: `Date : ${new Date(devis.created_at).toLocaleDateString('fr-FR')}`, fontSize: 9, color: GREY },
+            ],
+          },
+        ],
+        margin: [0, 0, 0, 0],
+      },
+      // Separator
+      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 2, lineColor: PRIMARY }], margin: [0, 10, 0, 20] },
 
-      <div class="qr-section">
-        <img src="${qrCode}" alt="QR Validation"><br>
-        <span style="font-size: 10px; color: #666;">Scannez pour valider ce devis</span>
-      </div>
+      // ── PARTIES ──────────────────────────────────────────────────────────
+      {
+        columns: [
+          {
+            width: '50%',
+            stack: [
+              { text: 'DESTINATAIRE', fontSize: 8, bold: true, color: GREY, letterSpacing: 1 },
+              { text: clientName, fontSize: 12, bold: true, color: DARK, margin: [0, 4, 0, 2] },
+              { text: 'Gabon, Libreville', fontSize: 9, color: GREY },
+            ],
+          },
+          {
+            width: '50%',
+            alignment: 'right',
+            stack: [
+              { text: 'EXPÉDITEUR', fontSize: 8, bold: true, color: GREY, letterSpacing: 1 },
+              { text: 'Ecom Plus Gabon Service Sourcing', fontSize: 12, bold: true, color: DARK, margin: [0, 4, 0, 2] },
+              { text: 'Achat & Logistique Chine-Afrique', fontSize: 9, color: GREY },
+            ],
+          },
+        ],
+        margin: [0, 0, 0, 24],
+      },
 
-      <div class="footer">
-        Ecom Plus Gabon — RCCM 2026-B-1234 — IF 000123456 — Contact: +241 00 00 00 00<br>
-        Validité du devis: 7 jours à compter de la date d'émission. Les prix peuvent varier selon le taux de change.
-      </div>
-    </body>
-    </html>
-  `;
+      // ── PRODUCT TABLE ────────────────────────────────────────────────────
+      {
+        table: {
+          widths: ['*', 60, 90, 90],
+          headerRows: 1,
+          body: [
+            // Header row
+            [
+              { text: 'PRODUIT', style: 'tableHeader' },
+              { text: 'QTÉ', style: 'tableHeader', alignment: 'center' },
+              { text: 'PRIX UNITAIRE', style: 'tableHeader', alignment: 'right' },
+              { text: 'TOTAL', style: 'tableHeader', alignment: 'right' },
+            ],
+            // Data rows
+            ...devis.items.map((item, i) => {
+              const unitPriceXaf = Math.round((item.product.prix_cny / 100) * 95);
+              const totalXaf = unitPriceXaf * item.quantity;
+              const bg = i % 2 === 0 ? '#FFFFFF' : LIGHT_GREY;
+              return [
+                { text: item.product.nom, fillColor: bg, margin: [4, 8, 4, 8] },
+                { text: String(item.quantity), alignment: 'center', fillColor: bg, margin: [4, 8, 4, 8] },
+                { text: `${unitPriceXaf.toLocaleString('fr-FR')} F`, alignment: 'right', fillColor: bg, margin: [4, 8, 4, 8] },
+                { text: `${totalXaf.toLocaleString('fr-FR')} F`, alignment: 'right', fillColor: bg, bold: true, margin: [4, 8, 4, 8] },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5),
+          vLineWidth: () => 0,
+          hLineColor: (i: number) => (i === 0 || i === 1 ? PRIMARY : BORDER),
+          fillColor: (rowIndex: number) => rowIndex === 0 ? PRIMARY_LIGHT : null,
+        },
+        margin: [0, 0, 0, 20],
+      },
 
-  return await generatePDF(html, `devis_${devis.reference}.pdf`, 'quotes');
+      // ── TOTALS ───────────────────────────────────────────────────────────
+      {
+        alignment: 'right',
+        table: {
+          widths: [200, 100],
+          body: [
+            [
+              { text: 'Sous-total produits', color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
+              { text: `${devis.subtotal_products.toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+            ],
+            [
+              { text: `Commission (${devis.commission.taux}%)`, color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
+              { text: `${devis.commission.montant.toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+            ],
+            [
+              { text: `Livraison — ${shippingLabel(devis.shipping.method)}`, color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
+              { text: `${devis.shipping.montant.toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+            ],
+            [
+              { text: 'TOTAL TTC', bold: true, fontSize: 13, color: PRIMARY, border: [false, true, false, false], margin: [0, 8, 4, 8] },
+              { text: `${devis.total_ttc.toLocaleString('fr-FR')} F CFA`, bold: true, fontSize: 13, color: PRIMARY, alignment: 'right', border: [false, true, false, false], margin: [0, 8, 0, 8] },
+            ],
+          ],
+        },
+        layout: { hLineColor: () => BORDER },
+        margin: [0, 0, 0, 30],
+      },
+
+      // ── DISCLAIMER ───────────────────────────────────────────────────────
+      {
+        fillColor: '#FEF9C3',
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: '⚠  Les montants de transport indiqués sont des estimations. Le tarif définitif vous sera communiqué par un agent via le chat avant toute expédition.',
+              fontSize: 8.5,
+              color: '#92400E',
+              margin: [10, 8, 10, 8],
+              border: [false, false, false, false],
+            },
+          ]],
+        },
+        layout: 'noBorders',
+        margin: [0, 0, 0, 24],
+      },
+
+      // ── QR CODE ──────────────────────────────────────────────────────────
+      {
+        alignment: 'center',
+        stack: [
+          { image: qrCode, width: 100, alignment: 'center' },
+          { text: 'Scannez pour valider ce devis', fontSize: 9, color: GREY, alignment: 'center', margin: [0, 6, 0, 0] },
+        ],
+        margin: [0, 0, 0, 20],
+      },
+
+      // ── VALIDITY ─────────────────────────────────────────────────────────
+      {
+        text: 'Validité du devis : 7 jours à compter de la date d\'émission. Les prix peuvent varier selon le taux de change CNY/XAF.',
+        fontSize: 8,
+        color: GREY,
+        alignment: 'center',
+        italics: true,
+      },
+    ],
+
+    styles: {
+      tableHeader: {
+        bold: true,
+        fontSize: 9,
+        color: PRIMARY,
+        fillColor: PRIMARY_LIGHT,
+        margin: [4, 8, 4, 8],
+      },
+    },
+  };
+
+  return await buildAndUploadPDF(docDefinition, `devis_${devis.reference}.pdf`, 'quotes');
 };
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// REÇU PDF
+// ═══════════════════════════════════════════════════════════════════════════════
 export const generateReceiptPDF = async (receipt: Receipt, clientName: string): Promise<string> => {
   const qrCode = await generateQRCode(`https://ecomplus.ga/suivi/${receipt.tracking_number}`);
-  
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; position: relative; }
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; z-index: -1; width: 60%; max-width: 500px; pointer-events: none; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; align-items: flex-start; }
-        .logo-img { height: 60px; object-fit: contain; }
-        .title { font-size: 28px; font-weight: bold; margin: 20px 0; }
-        .tracking-box { background: #f0fdf4; border: 1px solid #10b981; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 40px; }
-        .tracking-number { font-size: 24px; font-weight: 900; color: #059669; letter-spacing: 2px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        .qr-section { margin-top: 50px; text-align: center; }
-        .qr-section img { width: 120px; }
-        .footer { position: fixed; bottom: 40px; left: 40px; right: 40px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
-      </style>
-    </head>
-    <body>
-      <img src="${logoBase64}" class="watermark" />
-      <div class="header">
-        <div>
-          <img src="${logoBase64}" class="logo-img" alt="ECOM PLUS GABON" />
-          <div style="font-size: 12px; margin-top: 5px;">Sourcing Chine-Gabon • Reçu Officiel</div>
-        </div>
-        <div style="text-align: right; font-size: 12px;">
-          Reference: <strong>${receipt.reference}</strong><br>
-          Date: ${new Date(receipt.created_at).toLocaleDateString('fr-FR')}
-        </div>
-      </div>
 
-      <div class="title">REÇU DE COMMANDE</div>
+  const docDefinition: any = {
+    pageSize: 'A4',
+    pageMargins: [40, 50, 40, 80],
+    defaultStyle: { font: 'Helvetica', fontSize: 10, color: DARK },
 
-      <div class="tracking-box">
-        <div style="font-size: 12px; color: #059669; font-weight: bold; margin-bottom: 5px;">NUMÉRO DE SUIVI (TRACKING)</div>
-        <div class="tracking-number">${receipt.tracking_number}</div>
-        <div style="font-size: 10px; margin-top: 5px; color: #666;">Utilisez ce numéro sur ecomplus.ga pour suivre votre colis</div>
-      </div>
+    footer: (currentPage: number, pageCount: number) => ({
+      margin: [40, 0, 40, 0],
+      columns: [
+        { text: 'Ecom Plus Gabon — Ce document est une preuve de prise en charge officielle.', fontSize: 8, color: GREY },
+        { text: `Page ${currentPage}/${pageCount}`, alignment: 'right', fontSize: 8, color: GREY },
+      ],
+    }),
 
-      <div style="margin-bottom: 40px;">
-        <strong>Client:</strong> ${clientName}<br>
-        <strong>Statut:</strong> Payé / Validé
-      </div>
+    content: [
+      // Header
+      {
+        columns: [
+          {
+            stack: [
+              { text: 'ECOM PLUS GABON', fontSize: 18, bold: true, color: PRIMARY },
+              { text: 'Sourcing Chine-Gabon · Reçu Officiel', fontSize: 9, color: GREY, margin: [0, 2, 0, 0] },
+            ],
+          },
+          {
+            alignment: 'right',
+            stack: [
+              { text: 'REÇU DE COMMANDE', fontSize: 18, bold: true, color: GREEN },
+              { text: `Réf. : ${receipt.reference}`, fontSize: 10, bold: true, color: GREEN, margin: [0, 4, 0, 0] },
+              { text: `Date : ${new Date(receipt.created_at).toLocaleDateString('fr-FR')}`, fontSize: 9, color: GREY },
+            ],
+          },
+        ],
+      },
+      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 2, lineColor: GREEN }], margin: [0, 10, 0, 24] },
 
-      <div class="qr-section">
-        <img src="${qrCode}" alt="QR Tracking"><br>
-        <span style="font-size: 10px; color: #666;">Scannez pour suivre l'expédition en temps réel</span>
-      </div>
+      // Tracking box (highlighted)
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              stack: [
+                { text: 'NUMÉRO DE SUIVI (TRACKING)', fontSize: 9, bold: true, color: GREEN, alignment: 'center' },
+                { text: receipt.tracking_number, fontSize: 22, bold: true, color: GREEN, alignment: 'center', margin: [0, 6, 0, 6], characterSpacing: 2 },
+                { text: 'Utilisez ce numéro sur ecomplus.ga pour suivre votre colis en temps réel', fontSize: 8, color: GREY, alignment: 'center' },
+              ],
+              margin: [20, 16, 20, 16],
+              border: [false, false, false, false],
+            },
+          ]],
+        },
+        fillColor: GREEN_BG,
+        margin: [0, 0, 0, 24],
+      },
 
-      <div class="footer">
-        Ecom Plus Gabon — RCCM 2026-B-1234 — IF 000123456<br>
-        Ce document sert de preuve d'achat et de prise en charge pour le transport international.
-      </div>
-    </body>
-    </html>
-  `;
+      // Client info
+      {
+        columns: [
+          {
+            stack: [
+              { text: 'CLIENT', fontSize: 8, bold: true, color: GREY, letterSpacing: 1 },
+              { text: clientName, fontSize: 12, bold: true, color: DARK, margin: [0, 4, 0, 2] },
+            ],
+          },
+          {
+            alignment: 'right',
+            stack: [
+              { text: 'STATUT', fontSize: 8, bold: true, color: GREY, letterSpacing: 1 },
+              { text: '✓ Payé / Validé', fontSize: 12, bold: true, color: GREEN, margin: [0, 4, 0, 2] },
+            ],
+          },
+        ],
+        margin: [0, 0, 0, 32],
+      },
 
-  return await generatePDF(html, `recu_${receipt.reference}.pdf`, 'receipts');
+      // QR Code
+      {
+        alignment: 'center',
+        stack: [
+          { image: qrCode, width: 120, alignment: 'center' },
+          { text: 'Scannez pour suivre l\'expédition en temps réel', fontSize: 9, color: GREY, alignment: 'center', margin: [0, 8, 0, 0] },
+        ],
+        margin: [0, 0, 0, 20],
+      },
+
+      {
+        text: 'Ce document sert de preuve d\'achat et de prise en charge pour le transport international.',
+        fontSize: 8, color: GREY, alignment: 'center', italics: true,
+      },
+    ],
+  };
+
+  return await buildAndUploadPDF(docDefinition, `recu_${receipt.reference}.pdf`, 'receipts');
 };
 
-const generatePDF = async (html: string, fileName: string, bucket: string): Promise<string> => {
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'load' });
-  const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-  await browser.close();
+// ═══════════════════════════════════════════════════════════════════════════════
+// INTERNAL: Build buffer → upload to Supabase Storage → return public URL
+// ═══════════════════════════════════════════════════════════════════════════════
+async function buildAndUploadPDF(docDefinition: any, fileName: string, bucket: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    try {
+      const pdfDoc = printer.createPdfKitDocument(docDefinition);
+      const chunks: Buffer[] = [];
 
-  const tempPath = path.join('/tmp', fileName);
-  if (!fs.existsSync('/tmp')) fs.mkdirSync('/tmp');
-  fs.writeFileSync(tempPath, pdfBuffer);
+      pdfDoc.on('data', (chunk: Buffer) => chunks.push(chunk));
+      pdfDoc.on('end', async () => {
+        try {
+          const pdfBuffer = Buffer.concat(chunks);
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(fileName, fs.readFileSync(tempPath), {
-      contentType: 'application/pdf',
-      upsert: true
-    });
+          // Write to OS temp dir (works on Windows + Linux/Render)
+          const tempPath = path.join(os.tmpdir(), fileName);
+          fs.writeFileSync(tempPath, pdfBuffer);
 
-  if (error) throw error;
+          const { error } = await supabase.storage
+            .from(bucket)
+            .upload(fileName, fs.readFileSync(tempPath), {
+              contentType: 'application/pdf',
+              upsert: true,
+            });
 
-  const { data: { publicUrl } } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(fileName);
+          // Clean up temp file
+          try { fs.unlinkSync(tempPath); } catch (_) {}
 
-  return publicUrl;
-};
+          if (error) return reject(error);
+
+          const { data: { publicUrl } } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(fileName);
+
+          resolve(publicUrl);
+        } catch (err) {
+          reject(err);
+        }
+      });
+
+      pdfDoc.on('error', reject);
+      pdfDoc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}

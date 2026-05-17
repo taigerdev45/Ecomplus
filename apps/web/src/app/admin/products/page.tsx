@@ -22,9 +22,9 @@ export default function AdminProductsPage() {
     categorie_id: '',
     stock: '1',
     lien_fournisseur: '',
-    longueur_cm: '0',
-    largeur_cm: '0',
-    hauteur_cm: '0'
+    longueur_m: '0',
+    largeur_m: '0',
+    hauteur_m: '0'
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
@@ -108,9 +108,9 @@ export default function AdminProductsPage() {
         categorie_id: '',
         stock: '1',
         lien_fournisseur: '',
-        longueur_cm: '0',
-        largeur_cm: '0',
-        hauteur_cm: '0'
+        longueur_m: '0',
+        largeur_m: '0',
+        hauteur_m: '0'
       });
       setImageFiles([]);
       fetchProducts();
@@ -292,16 +292,16 @@ export default function AdminProductsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longueur (cm)</label>
-                    <input type="number" min="0" name="longueur_cm" value={formData.longueur_cm} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="0" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longueur (mètres)</label>
+                    <input type="number" step="0.001" min="0" name="longueur_m" value={formData.longueur_m} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Ex: 0.15" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Largeur (cm)</label>
-                    <input type="number" min="0" name="largeur_cm" value={formData.largeur_cm} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="0" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Largeur (mètres)</label>
+                    <input type="number" step="0.001" min="0" name="largeur_m" value={formData.largeur_m} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Ex: 0.10" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hauteur (cm)</label>
-                    <input type="number" min="0" name="hauteur_cm" value={formData.hauteur_cm} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="0" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hauteur (mètres)</label>
+                    <input type="number" step="0.001" min="0" name="hauteur_m" value={formData.hauteur_m} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="Ex: 0.20" />
                   </div>
                 </div>
 

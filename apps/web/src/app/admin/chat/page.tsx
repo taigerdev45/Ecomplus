@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/store/useAuth';
 import api from '@/lib/axios';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { Search, Send, Clock, CheckCircle2, MessageSquare, Users, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -175,7 +176,8 @@ export default function AdminChat() {
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] bg-white shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl overflow-hidden">
+    <AdminLayout>
+    <div className="flex flex-col h-[calc(100vh-14rem)] bg-white shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl overflow-hidden">
       
       {/* Header Tab Selector */}
       <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-6 py-2 gap-4">
@@ -459,5 +461,6 @@ export default function AdminChat() {
 
       </div>
     </div>
+    </AdminLayout>
   );
 }

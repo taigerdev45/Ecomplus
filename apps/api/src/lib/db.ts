@@ -60,9 +60,9 @@ export const initDb = async () => {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
-      ALTER TABLE produit ADD COLUMN IF NOT EXISTS longueur_cm NUMERIC DEFAULT 0;
-      ALTER TABLE produit ADD COLUMN IF NOT EXISTS largeur_cm NUMERIC DEFAULT 0;
-      ALTER TABLE produit ADD COLUMN IF NOT EXISTS hauteur_cm NUMERIC DEFAULT 0;
+      ALTER TABLE produit ADD COLUMN IF NOT EXISTS longueur_m NUMERIC DEFAULT 0;
+      ALTER TABLE produit ADD COLUMN IF NOT EXISTS largeur_m NUMERIC DEFAULT 0;
+      ALTER TABLE produit ADD COLUMN IF NOT EXISTS hauteur_m NUMERIC DEFAULT 0;
     `);
     console.log('Database tracking, chat tables and product dimensions initialized successfully.');
   } catch (error) {

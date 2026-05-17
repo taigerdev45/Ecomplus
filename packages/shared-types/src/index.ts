@@ -46,9 +46,9 @@ export interface Product {
   thumbnails?: string[]; // URLs des versions 200x200
   stock: number;
   lien_fournisseur?: string;
-  longueur_cm?: number;
-  largeur_cm?: number;
-  hauteur_cm?: number;
+  longueur_m?: number;
+  largeur_m?: number;
+  hauteur_m?: number;
   created_at: string;
   updated_at: string;
 }
