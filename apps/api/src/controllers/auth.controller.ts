@@ -5,6 +5,15 @@ import { registerSchema, loginSchema } from '../schemas/auth.schema';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { query } from '../lib/db';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const getCookieOptions = (maxAge: number) => ({
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? 'none' as const : 'lax' as const,
+  maxAge,
+});
+
 export const register = async (req: Request, res: Response) => {
   try {
     const validatedData = registerSchema.parse(req.body);
@@ -82,8 +91,8 @@ export const register = async (req: Request, res: Response) => {
       }
     }
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('accessToken', accessToken, getCookieOptions(24 * 60 * 60 * 1000));
+    res.cookie('refreshToken', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
     res.status(201).json({ user: newUser, accessToken });
   } catch (error: any) {
@@ -144,8 +153,8 @@ export const login = async (req: Request, res: Response) => {
       }
     }
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('accessToken', accessToken, getCookieOptions(24 * 60 * 60 * 1000));
+    res.cookie('refreshToken', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
     const { mot_de_passe: _, ...userWithoutPassword } = user;
     res.json({ user: userWithoutPassword, accessToken });
@@ -155,8 +164,9 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = (req: Request, res: Response) => {
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
+  const options = getCookieOptions(0);
+  res.clearCookie('accessToken', options);
+  res.clearCookie('refreshToken', options);
   res.json({ message: 'Déconnexion réussie' });
 };
 
@@ -193,7 +203,7 @@ export const refresh = async (req: Request, res: Response) => {
     if (error || !user) throw new Error();
 
     const { accessToken } = generateTokens(user);
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 });
+    res.cookie('accessToken', accessToken, getCookieOptions(24 * 60 * 60 * 1000));
     
     res.json({ accessToken });
   } catch (error) {
