@@ -9,30 +9,60 @@ export const register = async (req: Request, res: Response) => {
   try {
     const validatedData = registerSchema.parse(req.body);
     
-    // Check if user exists
+    // Check if email already exists in either client or utilisateur
+    const { data: existingClient } = await supabase
+      .from('client')
+      .select('id')
+      .eq('email', validatedData.email)
+      .single();
+
     const { data: existingUser } = await supabase
       .from('utilisateur')
       .select('id')
       .eq('email', validatedData.email)
       .single();
 
-    if (existingUser) {
+    if (existingClient || existingUser) {
       return res.status(400).json({ message: 'Cet email est déjà utilisé' });
     }
 
     const hashedPassword = await hashPassword(validatedData.mot_de_passe);
 
-    const { data: newUser, error } = await supabase
-      .from('utilisateur')
-      .insert([{
-        email: validatedData.email,
-        mot_de_passe: hashedPassword,
-        nom: validatedData.nom,
-        telephone: validatedData.telephone,
-        role: validatedData.role
-      }])
-      .select('id, email, nom, telephone, role, created_at')
-      .single();
+    let newUser: any = null;
+    let error: any = null;
+
+    if (validatedData.role === 'client') {
+      const { data, error: insertError } = await supabase
+        .from('client')
+        .insert([{
+          email: validatedData.email,
+          mot_de_passe: hashedPassword,
+          nom: validatedData.nom,
+          telephone: validatedData.telephone
+        }])
+        .select('id, email, nom, telephone, created_at')
+        .single();
+      
+      if (data) {
+        newUser = { ...data, role: 'client' };
+      }
+      error = insertError;
+    } else {
+      const { data, error: insertError } = await supabase
+        .from('utilisateur')
+        .insert([{
+          email: validatedData.email,
+          mot_de_passe: hashedPassword,
+          nom: validatedData.nom,
+          telephone: validatedData.telephone,
+          role: validatedData.role
+        }])
+        .select('id, email, nom, telephone, role, created_at')
+        .single();
+      
+      newUser = data;
+      error = insertError;
+    }
 
     if (error) throw error;
 
@@ -65,13 +95,31 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, mot_de_passe } = loginSchema.parse(req.body);
 
-    const { data: user, error } = await supabase
-      .from('utilisateur')
+    let user: any = null;
+
+    // Try client table first
+    const { data: clientUser } = await supabase
+      .from('client')
       .select('*')
       .eq('email', email)
       .single();
 
-    if (error || !user) {
+    if (clientUser) {
+      user = { ...clientUser, role: 'client' };
+    } else {
+      // Try utilisateur table (admins/agents)
+      const { data: adminUser } = await supabase
+        .from('utilisateur')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (adminUser) {
+        user = adminUser;
+      }
+    }
+
+    if (!user) {
       return res.status(401).json({ message: 'Identifiants invalides' });
     }
 
@@ -117,12 +165,30 @@ export const refresh = async (req: Request, res: Response) => {
   if (!token) return res.status(401).json({ message: 'Refresh token manquant' });
 
   try {
-    const decoded = verifyRefreshToken(token);
-    const { data: user, error } = await supabase
-      .from('utilisateur')
-      .select('id, email, nom, telephone, role')
-      .eq('id', decoded.id)
-      .single();
+    const decoded = verifyRefreshToken(token) as any;
+    let user: any = null;
+    let error: any = null;
+
+    if (decoded.role === 'client') {
+      const { data, error: fetchErr } = await supabase
+        .from('client')
+        .select('id, email, nom, telephone')
+        .eq('id', decoded.id)
+        .single();
+      
+      if (data) {
+        user = { ...data, role: 'client' };
+      }
+      error = fetchErr;
+    } else {
+      const { data, error: fetchErr } = await supabase
+        .from('utilisateur')
+        .select('id, email, nom, telephone, role')
+        .eq('id', decoded.id)
+        .single();
+      user = data;
+      error = fetchErr;
+    }
 
     if (error || !user) throw new Error();
 
@@ -138,15 +204,27 @@ export const refresh = async (req: Request, res: Response) => {
 export const getMe = async (req: AuthRequest, res: Response) => {
   if (!req.user) return res.status(401).json({ message: 'Non autorisé' });
   
-  const { data: user, error } = await supabase
-    .from('utilisateur')
-    .select('id, email, nom, telephone, role, created_at')
-    .eq('id', req.user.id)
-    .single();
+  if (req.user.role === 'client') {
+    const { data: user, error } = await supabase
+      .from('client')
+      .select('id, email, nom, telephone, created_at')
+      .eq('id', req.user.id)
+      .single();
 
-  if (error) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    if (error) return res.status(404).json({ message: 'Client non trouvé' });
 
-  res.json({ user });
+    res.json({ user: { ...user, role: 'client' } });
+  } else {
+    const { data: user, error } = await supabase
+      .from('utilisateur')
+      .select('id, email, nom, telephone, role, created_at')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+
+    res.json({ user });
+  }
 };
 
 export const updateProfile = async (req: AuthRequest, res: Response) => {
@@ -154,9 +232,10 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
 
   try {
     const { nom, telephone, mot_de_passe_actuel, nouveau_mot_de_passe } = req.body;
+    const userTable = req.user.role === 'client' ? 'client' : 'utilisateur';
 
     const { data: user, error: fetchError } = await supabase
-      .from('utilisateur')
+      .from(userTable)
       .select('*')
       .eq('id', req.user.id)
       .single();
@@ -182,12 +261,32 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
       updates.mot_de_passe = await hashPassword(nouveau_mot_de_passe);
     }
 
-    const { data: updatedUser, error: updateError } = await supabase
-      .from('utilisateur')
-      .update(updates)
-      .eq('id', req.user.id)
-      .select('id, email, nom, telephone, role, created_at')
-      .single();
+    let updatedUser: any = null;
+    let updateError: any = null;
+
+    if (req.user.role === 'client') {
+      const { data, error } = await supabase
+        .from('client')
+        .update(updates)
+        .eq('id', req.user.id)
+        .select('id, email, nom, telephone, created_at')
+        .single();
+      
+      if (data) {
+        updatedUser = { ...data, role: 'client' };
+      }
+      updateError = error;
+    } else {
+      const { data, error } = await supabase
+        .from('utilisateur')
+        .update(updates)
+        .eq('id', req.user.id)
+        .select('id, email, nom, telephone, role, created_at')
+        .single();
+      
+      updatedUser = data;
+      updateError = error;
+    }
 
     if (updateError) throw updateError;
 

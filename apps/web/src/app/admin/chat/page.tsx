@@ -105,6 +105,21 @@ export default function AdminChat() {
     };
   }, [fetchConversations, fetchTeamMessages]);
 
+  // Select conversation from URL query parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined' && conversations.length > 0 && !selectedConversation) {
+      const params = new URLSearchParams(window.location.search);
+      const conversationId = params.get('conversation_id');
+      if (conversationId) {
+        const found = conversations.find(c => c.id === conversationId);
+        if (found) {
+          setSelectedConversation(found);
+          setActiveTab('support');
+        }
+      }
+    }
+  }, [conversations, selectedConversation]);
+
   // Poll active client conversation
   useEffect(() => {
     if (!selectedConversation || activeTab !== 'support') return;

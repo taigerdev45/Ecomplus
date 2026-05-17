@@ -16,6 +16,7 @@ router.post('/agents', adminController.createAgent);
 router.put('/agents/:id', adminController.updateAgent);
 router.delete('/agents/:id', adminController.deleteAgent);
 router.get('/clients', adminController.getClients);
-router.delete('/clients/:id', adminController.deleteAgent);
+router.put('/clients/:id', adminController.updateClient);
+router.delete('/clients/:id', adminController.deleteClient);
 
 export default router;

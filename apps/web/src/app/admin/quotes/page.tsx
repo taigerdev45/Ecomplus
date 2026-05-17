@@ -23,6 +23,7 @@ interface QuoteRow {
   total_ttc: number;
   created_at: string;
   client?: { nom: string; telephone: string };
+  pdf_url?: string;
 }
 
 export default function AdminQuotesPage() {
@@ -116,12 +117,25 @@ export default function AdminQuotesPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <button
-                        aria-label={`Voir PDF du devis ${quote.reference}`}
-                        className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800"
-                      >
-                        <FileText className="h-4 w-4" aria-hidden="true" />
-                      </button>
+                      {quote.pdf_url ? (
+                        <a
+                          href={quote.pdf_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Télécharger PDF du devis ${quote.reference}`}
+                          className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800"
+                        >
+                          <FileText className="h-4 w-4" aria-hidden="true" />
+                        </a>
+                      ) : (
+                        <button
+                          disabled
+                          aria-label={`Voir PDF du devis ${quote.reference}`}
+                          className="rounded-lg p-2 text-slate-300 dark:text-slate-700"
+                        >
+                          <FileText className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
                       <button
                         aria-label={`Renvoyer WhatsApp pour ${quote.reference}`}
                         className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-green-600 dark:hover:bg-slate-800"
@@ -159,12 +173,25 @@ export default function AdminQuotesPage() {
               <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
                 <p className="font-bold text-primary">{quote.total_ttc.toLocaleString()} F</p>
                 <div className="flex gap-2">
-                  <button
-                    aria-label={`Télécharger PDF du devis ${quote.reference}`}
-                    className="rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800"
-                  >
-                    <FileText className="h-4 w-4" aria-hidden="true" />
-                  </button>
+                  {quote.pdf_url ? (
+                    <a
+                      href={quote.pdf_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Télécharger PDF du devis ${quote.reference}`}
+                      className="rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800"
+                    >
+                      <FileText className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      aria-label={`Télécharger PDF du devis ${quote.reference}`}
+                      className="rounded-lg bg-slate-100 p-2 text-slate-400 dark:bg-slate-800"
+                    >
+                      <FileText className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
                   <button
                     aria-label={`Renvoyer WhatsApp pour le devis ${quote.reference}`}
                     className="rounded-lg bg-green-50 p-2 text-green-600 dark:bg-green-900/20"

@@ -200,6 +200,36 @@ Ecom Plus Gabon est une plateforme PWA permettant aux clients gabonais d'acheter
 - [x] Correction de la barre latérale admin pour `/agent/orders`
 - [x] Résolution des lints TypeScript et de mock JSX dans les tests
 
+### PHASE 13 — Espace Client Premium & Navigation Mobile (Jour 27) ✅
+
+- [x] Correction des préfixes Axios doublés sur les requêtes client (orders, quotes, dashboard, profil)
+- [x] Barre de navigation mobile sticky dynamique au sommet du portail client
+- [x] Boutons et actions de déconnexion explicites optimisés pour mobile dans la barre de navigation
+- [x] Redirection propre vers la page d'accueil public lors de la déconnexion
+
+### PHASE 14 — Statistiques Analytiques & Logs (Jour 28) ✅
+
+- [x] Tracking automatique de toutes les visites de pages et connexions client quotidiennes (tables `visite`, `connexion_log`)
+- [x] KPIs de visites globales et connexion clients par jour avec courbes Recharts sur `/admin/reports`
+- [x] Module analytique complet d'onboarding, de méthode de transit logistique préférée et d'export CSV
+- [x] Bouton d'activation de visibilité (oeil) sur les champs de saisie de mot de passe
+
+### PHASE 15 — Partition de Base, Chat Direct & Correction PDF (Jour 29) ✅
+
+- [x] Partition hermétique des tables de base de données `client` et `utilisateur` (admins/agents) avec RLS croisé par `EXISTS`
+- [x] Authentification multi-table (inscription, login, sessions) dynamique selon le rôle utilisateur
+- [x] Bouton d'action direct de support chat avec redirection automatique depuis la liste de gestion des clients admin
+- [x] Hook de focus automatique de conversation dans le workspace chat
+- [x] Correction de l'erreur `PdfPrinter` de `pdfmake` v0.3.x par génération asynchrone 100% en mémoire (`getBuffer`)
+
+### PHASE 16 — Fin du Stockage Physique des PDF & Génération En Mémoire à la Volée (Jour 30) ✅
+
+- [x] Remplacement du stockage physique et asynchrone des PDF sur Supabase Storage par une génération 100% à la volée.
+- [x] Stream direct des fichiers PDF (devis et reçus) en mémoire vive (RAM) via deux routes de téléchargement dynamique GET `/api/v1/orders/quotes/:id/download-pdf` et `/api/v1/orders/receipts/:id/download-pdf`.
+- [x] Injection automatique de `pdf_url` dynamique dans les retours de devis pour une intégration transparente avec l'interface frontend d'administration et client.
+- [x] Ajout du téléchargement direct des reçus PDF à côté du bouton "Suivre" dans l'espace client "Mes Commandes & Reçus".
+- [x] Désactivation complète et mise en no-op sécurisée des workers et files d'attente BullMQ asynchrones devenus redondants.
+
 ---
 
 ## 4. CONVENTION DE CODE

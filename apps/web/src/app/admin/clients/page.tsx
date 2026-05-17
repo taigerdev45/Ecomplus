@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Mail, Phone, Shield, Trash2, UserCheck, Search, Edit } from 'lucide-react';
+import { Mail, Phone, Shield, Trash2, UserCheck, Search, Edit, MessageSquare } from 'lucide-react';
 import { User } from '@ecom/types';
 import { toast } from 'sonner';
 
@@ -30,15 +30,28 @@ export default function AdminClientsPage() {
     }
   };
 
+  const handleStartChat = async (clientId: string) => {
+    try {
+      const res = await api.post('/chat/conversations', { client_id: clientId });
+      const data = res.data as any;
+      if (data?.success && data?.conversation) {
+        window.location.href = `/admin/chat?conversation_id=${data.conversation.id}`;
+      } else {
+        toast.error('Impossible de démarrer la messagerie');
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Erreur lors de l\'ouverture du chat');
+    }
+  };
+
   const handleEditClient = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingClient) return;
     try {
-      await api.put(`/admin/agents/${editingClient.id}`, {
+      await api.put(`/admin/clients/${editingClient.id}`, {
         nom: editingClient.nom,
         email: editingClient.email,
-        telephone: editingClient.telephone,
-        role: editingClient.role
+        telephone: editingClient.telephone
       });
       toast.success('Client modifié avec succès');
       setEditingClient(null);
@@ -125,21 +138,30 @@ export default function AdminClientsPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-100 pt-6 dark:border-slate-800">
+                <div className="mt-6 flex flex-col gap-2 border-t border-slate-100 pt-6 dark:border-slate-800">
                   <button
-                    onClick={() => setEditingClient(client)}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-850 dark:bg-slate-850 dark:text-slate-300 dark:hover:bg-slate-800"
+                    onClick={() => handleStartChat(client.id)}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2.5 text-xs font-bold text-white shadow-md shadow-primary/10 transition hover:bg-primary/90"
                   >
-                    <Edit className="h-4 w-4 text-violet-500" />
-                    Modifier
+                    <MessageSquare className="h-4 w-4" />
+                    Discuter avec le client
                   </button>
-                  <button
-                    onClick={() => handleDeleteClient(client.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-red-250 bg-red-50 px-3 py-2.5 text-xs font-bold text-red-600 shadow-sm transition hover:bg-red-100 dark:border-red-950/20 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-900/30"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Supprimer
-                  </button>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      onClick={() => setEditingClient(client)}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-850 dark:bg-slate-850 dark:text-slate-300 dark:hover:bg-slate-800"
+                    >
+                      <Edit className="h-4 w-4 text-violet-500" />
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClient(client.id)}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-red-250 bg-red-50 px-3 py-2.5 text-xs font-bold text-red-600 shadow-sm transition hover:bg-red-100 dark:border-red-950/20 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

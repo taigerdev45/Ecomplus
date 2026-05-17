@@ -29,5 +29,7 @@ router.get('/tracking/:number', orderController.getTrackingDetails);
 router.get('/client-quotes', authenticateJWT, orderController.getClientQuotes);
 router.get('/client-orders', authenticateJWT, orderController.getClientOrders);
 router.post('/quotes/:id/regenerate-pdf', authenticateJWT, orderController.regenerateQuotePdf);
+router.get('/quotes/:id/download-pdf', authenticateJWT, orderController.downloadQuotePdf);
+router.get('/receipts/:id/download-pdf', authenticateJWT, orderController.downloadReceiptPdf);
 
 export default router;

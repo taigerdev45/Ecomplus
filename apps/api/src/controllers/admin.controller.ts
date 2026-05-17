@@ -145,11 +145,18 @@ export const getAllQuotes = async (req: Request, res: Response) => {
   try {
     const { data: quotes, error } = await supabase
       .from('devis')
-      .select('*, client:utilisateur!client_id(nom, telephone, email)')
+      .select('*, client:client!client_id(nom, telephone, email)')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    res.json(quotes);
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const mappedQuotes = (quotes || []).map((quote: any) => ({
+      ...quote,
+      pdf_url: `${baseUrl}/api/v1/orders/quotes/${quote.id}/download-pdf`
+    }));
+
+    res.json(mappedQuotes);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
@@ -239,12 +246,60 @@ export const deleteAgent = async (req: Request, res: Response) => {
 export const getClients = async (req: Request, res: Response) => {
   try {
     const { data: clients, error } = await supabase
-      .from('utilisateur')
+      .from('client')
       .select('*')
-      .eq('role', 'client');
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
-    res.json(clients);
+
+    const formattedClients = clients?.map((c: any) => ({
+      ...c,
+      role: 'client'
+    })) || [];
+
+    res.json(formattedClients);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateClient = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { email, nom, telephone, password } = req.body;
+
+    const updateData: any = { email, nom, telephone };
+    if (password) {
+      updateData.mot_de_passe = await hashPassword(password);
+    }
+
+    const { data: client, error } = await supabase
+      .from('client')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    const formattedClient = client ? { ...client, role: 'client' } : null;
+    res.json(formattedClient);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const deleteClient = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const { error } = await supabase
+      .from('client')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    res.json({ message: 'Client supprimé avec succès' });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

@@ -7,6 +7,36 @@
 
 ## [Unreleased]
 
+### [1.10.0] - Fin du Stockage Physique des PDF, Génération En Mémoire & Téléchargement Direct (2026-05-17)
+
+#### Added
+- Nouveaux points d'accès HTTP GET `/api/v1/orders/quotes/:id/download-pdf` et `/api/v1/orders/receipts/:id/download-pdf` dans Express pour streamer les PDF.
+- Téléchargement instantané des reçus PDF directement depuis l'espace client "Mes Commandes & Reçus" pour toute commande validée.
+- Support du téléchargement direct des devis depuis la console d'administration via des liens hypertexte sécurisés.
+
+#### Changed
+- Suppression totale et définitive du stockage physique des PDF sur Supabase Storage.
+- Les devis et les reçus de paiement sont générés entièrement en mémoire vive (RAM) à la volée sur demande et streamés au navigateur.
+- Injection dynamique de la propriété `pdf_url` dans les API de devis client et d'administration pour une transition transparente sans modification complexe d'UI.
+- Remplacement du worker asynchrone de file d'attente BullMQ par une génération synchrone à la demande, éliminant toute latence et utilisation de ressources en arrière-plan.
+
+---
+
+### [1.9.0] - Cloisonnement Base de Données, Chat Direct Client & Correction Service PDF (2026-05-17)
+
+#### Added
+- Séparation physique hermétique de la table `client` (profils clients) et `utilisateur` (rôles `admin`, `agent`, `secretaire`).
+- Scripts SQL de migration (`migration_separate_tables.sql`) et schéma de base de données à jour (`db_schema.sql`).
+- Routage et middlewares d'authentification JWT hybrides adaptés aux deux tables selon le type d'utilisateur.
+- Bouton d'action premium "Discuter avec le client" dans la liste d'administration des clients, ouvrant ou reprenant instantanément la conversation d'assistance correspondante.
+- Hook réactif `conversation_id` pour charger automatiquement la discussion client ciblée à l'affichage de la messagerie administrative.
+
+#### Changed
+- Migration de `pdfmake` ^0.3.8 vers l'API unifiée en mémoire (`pdfmake.createPdf` et `.getBuffer()`), évitant toute écriture sur le stockage local temporaire (plus fiable pour Render).
+
+#### Fixed
+- Éradication définitive de l'erreur `TypeError: PdfPrinter is not a constructor` sur l'API backend lors de l'aperçu ou de la régénération des devis/reçus.
+
 ---
 
 ### [1.8.0] - Stabilisation Ecom Plus Gabon UI, Intégration pdfmake & Optimisations Mobiles

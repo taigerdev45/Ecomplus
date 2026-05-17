@@ -1,13 +1,9 @@
-// @ts-ignore
-import PdfPrinter = require('pdfmake');
+import pdfmake = require('pdfmake');
 import { Devis, Receipt } from '@ecom/types';
 import { generateQRCode } from './qr.service';
 import { supabase } from '../lib/supabase';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 
-// ── Fonts (pdfmake built-in Roboto via virtual file system) ─────────────────
+// ── Fonts (pdfmake built-in Helvetica via virtual file system) ───────────────
 const fonts = {
   Helvetica: {
     normal: 'Helvetica',
@@ -17,8 +13,8 @@ const fonts = {
   },
 };
 
-// @ts-ignore
-const printer = new PdfPrinter(fonts);
+// Register fonts in pdfmake instance
+pdfmake.addFonts(fonts);
 
 // ── Colour palette ────────────────────────────────────────────────────────────
 const PRIMARY = '#4F46E5';       // indigo-600
@@ -49,7 +45,7 @@ function shippingLabel(method: string): string {
 // ═══════════════════════════════════════════════════════════════════════════════
 // DEVIS PDF
 // ═══════════════════════════════════════════════════════════════════════════════
-export const generateDevisPDF = async (devis: Devis, clientName: string): Promise<string> => {
+export const generateDevisPDF = async (devis: Devis, clientName: string): Promise<Buffer> => {
   const qrCode = await generateQRCode(`https://ecomplus.ga/valider/${devis.id}`);
 
   const docDefinition: any = {
@@ -250,13 +246,14 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
     },
   };
 
-  return await buildAndUploadPDF(docDefinition, `devis_${devis.reference}.pdf`, 'quotes');
+  const pdf = pdfmake.createPdf(docDefinition);
+  return await pdf.getBuffer();
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // REÇU PDF
 // ═══════════════════════════════════════════════════════════════════════════════
-export const generateReceiptPDF = async (receipt: Receipt, clientName: string): Promise<string> => {
+export const generateReceiptPDF = async (receipt: Receipt, clientName: string): Promise<Buffer> => {
   const qrCode = await generateQRCode(`https://ecomplus.ga/suivi/${receipt.tracking_number}`);
 
   const docDefinition: any = {
@@ -351,53 +348,6 @@ export const generateReceiptPDF = async (receipt: Receipt, clientName: string): 
     ],
   };
 
-  return await buildAndUploadPDF(docDefinition, `recu_${receipt.reference}.pdf`, 'receipts');
+  const pdf = pdfmake.createPdf(docDefinition);
+  return await pdf.getBuffer();
 };
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// INTERNAL: Build buffer → upload to Supabase Storage → return public URL
-// ═══════════════════════════════════════════════════════════════════════════════
-async function buildAndUploadPDF(docDefinition: any, fileName: string, bucket: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const pdfDoc = printer.createPdfKitDocument(docDefinition);
-      const chunks: Buffer[] = [];
-
-      pdfDoc.on('data', (chunk: Buffer) => chunks.push(chunk));
-      pdfDoc.on('end', async () => {
-        try {
-          const pdfBuffer = Buffer.concat(chunks);
-
-          // Write to OS temp dir (works on Windows + Linux/Render)
-          const tempPath = path.join(os.tmpdir(), fileName);
-          fs.writeFileSync(tempPath, pdfBuffer);
-
-          const { error } = await supabase.storage
-            .from(bucket)
-            .upload(fileName, fs.readFileSync(tempPath), {
-              contentType: 'application/pdf',
-              upsert: true,
-            });
-
-          // Clean up temp file
-          try { fs.unlinkSync(tempPath); } catch (_) {}
-
-          if (error) return reject(error);
-
-          const { data: { publicUrl } } = supabase.storage
-            .from(bucket)
-            .getPublicUrl(fileName);
-
-          resolve(publicUrl);
-        } catch (err) {
-          reject(err);
-        }
-      });
-
-      pdfDoc.on('error', reject);
-      pdfDoc.end();
-    } catch (err) {
-      reject(err);
-    }
-  });
-}

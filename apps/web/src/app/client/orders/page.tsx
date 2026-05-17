@@ -109,6 +109,17 @@ export default function ClientOrders() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        {order.statut !== 'annule' && order.statut !== 'devis_envoye' && (
+                          <a 
+                            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/orders/receipts/${order.id}/download-pdf`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors text-xs"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                            Reçu PDF
+                          </a>
+                        )}
                         <a 
                           href={`/suivi/${order.numero_tracking}`} 
                           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition-colors text-xs"

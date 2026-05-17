@@ -1,8 +1,8 @@
 # ECOM PLUS GABON — MEMORY FILE
 
 > **Fichier de reprise de session**
-> **Dernière mise à jour** : 2026-05-16 13:40
-> **Session actuelle** : PHASE 10 — Polish & Audit Final (DÉBOGAGE AUTH ✅)
+> **Dernière mise à jour** : 2026-05-17 17:30
+> **Session actuelle** : PHASE 16 — Fin du Stockage Physique des PDF & Génération En Mémoire à la Volée (TÉLÉCHARGEMENT DIRECT ✅)
 
 ---
 
@@ -219,6 +219,31 @@
 
 ---
 
+---
+
+### PHASE 15 — Partition de Base, Chat Direct & Correction PDF [COMPLET ✅]
+
+**Objectif** : Cloisonner étanchement les données clients de l'espace admin, ajouter des raccourcis de messagerie directe et corriger le crash de génération PDF sur Render.
+
+- [x] **Base de données** : Séparation physique étanche de la table `client` (profils clients) et `utilisateur` (rôles `admin`, `agent`, `secretaire`).
+- [x] **API Backend** : Enregistrement de compte (`register`), vérification d'email unique, connexion (`login`), profil (`getMe`, `updateProfile`) et authentification JWT adaptées dynamiquement aux deux tables.
+- [x] **Sécurité & RLS** : Déclaration de règles de sécurité RLS croisées robustes dans [docs/db_schema.sql](file:///c:/Users/taige/Downloads/mes_projetsv1/Ecomplus/docs/db_schema.sql) à l'aide de requêtes `EXISTS (SELECT 1 FROM utilisateur WHERE ...)` pour éviter les boucles circulaires.
+- [x] **Chat Direct Client** : Intégration du bouton "Discuter avec le client" sur l'espace d'administration déclenchant l'ouverture ou la reprise automatique de la discussion avec redirection.
+- [x] **Focus Chat** : Implémentation d'un hook réactif dans l'espace de messagerie analysant l'URL pour charger et activer immédiatement la conversation ciblée.
+- [x] **Correction PDF (Render Crash)** : Éradication complète de l'erreur `TypeError: PdfPrinter is not a constructor` en adaptant le service de documents [apps/api/src/services/pdf.service.ts](file:///c:/Users/taige/Downloads/mes_projetsv1/Ecomplus/apps/api/src/services/pdf.service.ts) à la nouvelle API en mémoire de `pdfmake` v0.3.x (`createPdf` + `getBuffer`), évitant toute écriture sur le disque de production.
+
+### PHASE 16 — Fin du Stockage Physique des PDF & Génération En Mémoire à la Volée [COMPLET ✅]
+
+**Objectif** : Supprimer le téléversement des PDF dans le Supabase Storage pour des raisons de performance, d'espace et de sécurité, en calculant les devis et reçus à la volée en RAM et en les streamant directement.
+
+- [x] **Fin de Supabase Storage** : Suppression de tous les téléversements physiques de PDF sur Supabase Storage.
+- [x] **Stream dynamique en RAM** : Création de deux routes HTTP GET Express pour compiler en mémoire et envoyer directement en flux (stream) les devis et reçus au format PDF.
+- [x] **Intégration transparente** : Injection dynamique de `pdf_url` dans les API de devis côté administration et client pour une transition 100% transparente.
+- [x] **Espace Client Premium** : Ajout d'un bouton de téléchargement instantané du Reçu PDF pour toutes les commandes validées dans la liste des commandes du client.
+- [x] **Optimisation BullMQ** : Désactivation et no-op des workers et files d'attente de fond superflus pour éliminer les latences inutiles.
+
+---
+
 ## VARIABLES ENV A CONFIGURER
 
 ```env
@@ -259,4 +284,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 > 3. Lire `CHANGELOG.md` pour l'historique des modifications
 > 4. Lire `docs/DEPLOYMENT_GUIDE.md` pour le guide de déploiement
 
-**Prochaine action immédiate** : Déployer sur Vercel (frontend) + Render (backend) en suivant `docs/DEPLOYMENT_GUIDE.md`.
+**Prochaine action immédiate** : Inviter l'utilisateur à appliquer le script de migration de base de données [docs/migration_separate_tables.sql](file:///c:/Users/taige/Downloads/mes_projetsv1/Ecomplus/docs/migration_separate_tables.sql) sur son interface SQL Supabase, puis démarrer l'application.
