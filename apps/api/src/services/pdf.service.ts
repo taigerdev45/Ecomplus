@@ -2,6 +2,7 @@ import pdfmake = require('pdfmake');
 import { Devis, Receipt } from '@ecom/types';
 import { generateQRCode } from './qr.service';
 import { supabase } from '../lib/supabase';
+import { LOGO_BASE64 } from './logo';
 
 // ── Fonts (pdfmake built-in Helvetica via virtual file system) ───────────────
 const fonts = {
@@ -54,18 +55,26 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
     defaultStyle: { font: 'Helvetica', fontSize: 10, color: DARK },
 
     // ── Background watermark ─────────────────────────────────────────────────
-    background: (currentPage: number, pageSize: any) => ({
-      canvas: [
-        {
-          type: 'rect',
-          x: 0,
-          y: 0,
-          w: pageSize.width,
-          h: pageSize.height,
-          color: '#FAFAFE',
-        },
-      ],
-    }),
+    background: (currentPage: number, pageSize: any) => [
+      {
+        canvas: [
+          {
+            type: 'rect',
+            x: 0,
+            y: 0,
+            w: pageSize.width,
+            h: pageSize.height,
+            color: '#FAFAFE',
+          },
+        ],
+      },
+      {
+        image: 'data:image/png;base64,' + LOGO_BASE64,
+        width: 300,
+        opacity: 0.04,
+        absolutePosition: { x: (pageSize.width - 300) / 2, y: (pageSize.height - 300) / 2 }
+      }
+    ],
 
     footer: (currentPage: number, pageCount: number) => ({
       margin: [40, 0, 40, 0],
@@ -89,12 +98,20 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
       {
         columns: [
           {
+            image: 'data:image/png;base64,' + LOGO_BASE64,
+            width: 40,
+            height: 40,
+            margin: [0, 0, 10, 0]
+          },
+          {
+            width: '*',
             stack: [
               { text: 'ECOM PLUS GABON', fontSize: 18, bold: true, color: PRIMARY },
               { text: 'Sourcing Chine-Gabon · Libreville, Gabon', fontSize: 9, color: GREY, margin: [0, 2, 0, 0] },
             ],
           },
           {
+            width: 'auto',
             alignment: 'right',
             stack: [
               { text: 'DEVIS PROFESSIONNEL', fontSize: 18, bold: true, color: DARK },
@@ -261,6 +278,28 @@ export const generateReceiptPDF = async (receipt: Receipt, clientName: string): 
     pageMargins: [40, 50, 40, 80],
     defaultStyle: { font: 'Helvetica', fontSize: 10, color: DARK },
 
+    // ── Background watermark ─────────────────────────────────────────────────
+    background: (currentPage: number, pageSize: any) => [
+      {
+        canvas: [
+          {
+            type: 'rect',
+            x: 0,
+            y: 0,
+            w: pageSize.width,
+            h: pageSize.height,
+            color: '#FAFAFE',
+          },
+        ],
+      },
+      {
+        image: 'data:image/png;base64,' + LOGO_BASE64,
+        width: 300,
+        opacity: 0.04,
+        absolutePosition: { x: (pageSize.width - 300) / 2, y: (pageSize.height - 300) / 2 }
+      }
+    ],
+
     footer: (currentPage: number, pageCount: number) => ({
       margin: [40, 0, 40, 0],
       columns: [
@@ -274,12 +313,20 @@ export const generateReceiptPDF = async (receipt: Receipt, clientName: string): 
       {
         columns: [
           {
+            image: 'data:image/png;base64,' + LOGO_BASE64,
+            width: 40,
+            height: 40,
+            margin: [0, 0, 10, 0]
+          },
+          {
+            width: '*',
             stack: [
               { text: 'ECOM PLUS GABON', fontSize: 18, bold: true, color: PRIMARY },
               { text: 'Sourcing Chine-Gabon · Reçu Officiel', fontSize: 9, color: GREY, margin: [0, 2, 0, 0] },
             ],
           },
           {
+            width: 'auto',
             alignment: 'right',
             stack: [
               { text: 'REÇU DE COMMANDE', fontSize: 18, bold: true, color: GREEN },

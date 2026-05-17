@@ -114,6 +114,58 @@ export const validateQuote = async (req: Request, res: Response) => {
   }
 };
 
+export const rejectQuote = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { data: quote, error: fetchError } = await supabase
+      .from('devis')
+      .update({ status: 'EXPIRED' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (fetchError || !quote) throw new Error('Devis non trouvé');
+    res.status(200).json({ message: 'Devis rejeté', quote });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const submitOrderPayment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { transactionId } = req.body;
+
+    if (!transactionId) {
+      return res.status(400).json({ message: 'Référence de transaction requise' });
+    }
+
+    // 1. Fetch order
+    const { data: order, error: fetchError } = await supabase
+      .from('commande')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !order) throw new Error('Commande non trouvée');
+
+    // 2. Add tracking step
+    const { error: stepError } = await supabase
+      .from('suivi_commande')
+      .insert({
+        commande_id: id,
+        statut: order.statut,
+        commentaire: `💰 Paiement soumis par le client. Référence de transaction : ${transactionId}. En attente de validation par l'équipe Ecom Plus.`
+      });
+
+    if (stepError) throw stepError;
+
+    res.status(200).json({ message: 'Paiement soumis avec succès' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;

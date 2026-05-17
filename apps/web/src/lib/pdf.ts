@@ -1,6 +1,7 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import QRCode from 'qrcode';
+import { LOGO_BASE64 } from './logo';
 
 // Initialize fonts in browser safely
 if (typeof window !== 'undefined') {
@@ -8,6 +9,22 @@ if (typeof window !== 'undefined') {
     const vfs = (pdfFonts as any)?.pdfMake?.vfs || (pdfFonts as any)?.default?.pdfMake?.vfs || (pdfFonts as any)?.vfs;
     if (vfs) {
       (pdfMake as any).vfs = vfs;
+      // Configure standard fonts mapping to avoid character overlapping/sticking issues
+      const robotoFonts = {
+        Roboto: {
+          normal: 'Roboto-Regular.ttf',
+          bold: 'Roboto-Medium.ttf',
+          italics: 'Roboto-Italic.ttf',
+          bolditalics: 'Roboto-MediumItalic.ttf'
+        },
+        Helvetica: {
+          normal: 'Roboto-Regular.ttf',
+          bold: 'Roboto-Medium.ttf',
+          italics: 'Roboto-Italic.ttf',
+          bolditalics: 'Roboto-MediumItalic.ttf'
+        }
+      };
+      (pdfMake as any).fonts = robotoFonts;
     }
   } catch (err) {
     console.warn('pdfMake vfs fonts not found, falling back to standard fonts:', err);
@@ -96,18 +113,26 @@ export async function downloadDevisPDF(devis: ClientQuote, clientName: string) {
     pageMargins: [40, 50, 40, 80],
     defaultStyle: { font: 'Roboto', fontSize: 10, color: DARK },
 
-    background: (currentPage: number, pageSize: any) => ({
-      canvas: [
-        {
-          type: 'rect',
-          x: 0,
-          y: 0,
-          w: pageSize.width,
-          h: pageSize.height,
-          color: '#FAFAFE',
-        },
-      ],
-    }),
+    background: (currentPage: number, pageSize: any) => [
+      {
+        canvas: [
+          {
+            type: 'rect',
+            x: 0,
+            y: 0,
+            w: pageSize.width,
+            h: pageSize.height,
+            color: '#FAFAFE',
+          },
+        ],
+      },
+      {
+        image: 'data:image/png;base64,' + LOGO_BASE64,
+        width: 300,
+        opacity: 0.04,
+        absolutePosition: { x: (pageSize.width - 300) / 2, y: (pageSize.height - 300) / 2 }
+      }
+    ],
 
     footer: (currentPage: number, pageCount: number) => ({
       margin: [40, 0, 40, 0],
@@ -131,12 +156,20 @@ export async function downloadDevisPDF(devis: ClientQuote, clientName: string) {
       {
         columns: [
           {
+            image: 'data:image/png;base64,' + LOGO_BASE64,
+            width: 40,
+            height: 40,
+            margin: [0, 0, 10, 0]
+          },
+          {
+            width: '*',
             stack: [
               { text: 'ECOM PLUS GABON', fontSize: 18, bold: true, color: PRIMARY },
               { text: 'Sourcing Chine-Gabon · Libreville, Gabon', fontSize: 9, color: GREY, margin: [0, 2, 0, 0] },
             ],
           },
           {
+            width: 'auto',
             alignment: 'right',
             stack: [
               { text: 'DEVIS PROFESSIONNEL', fontSize: 18, bold: true, color: DARK },
@@ -308,6 +341,28 @@ export async function downloadReceiptPDF(order: ClientOrder, clientName: string)
     pageMargins: [40, 50, 40, 80],
     defaultStyle: { font: 'Roboto', fontSize: 10, color: DARK },
 
+    // ── Background watermark ─────────────────────────────────────────────────
+    background: (currentPage: number, pageSize: any) => [
+      {
+        canvas: [
+          {
+            type: 'rect',
+            x: 0,
+            y: 0,
+            w: pageSize.width,
+            h: pageSize.height,
+            color: '#FAFAFE',
+          },
+        ],
+      },
+      {
+        image: 'data:image/png;base64,' + LOGO_BASE64,
+        width: 300,
+        opacity: 0.04,
+        absolutePosition: { x: (pageSize.width - 300) / 2, y: (pageSize.height - 300) / 2 }
+      }
+    ],
+
     footer: (currentPage: number, pageCount: number) => ({
       margin: [40, 0, 40, 0],
       columns: [
@@ -321,12 +376,20 @@ export async function downloadReceiptPDF(order: ClientOrder, clientName: string)
       {
         columns: [
           {
+            image: 'data:image/png;base64,' + LOGO_BASE64,
+            width: 40,
+            height: 40,
+            margin: [0, 0, 10, 0]
+          },
+          {
+            width: '*',
             stack: [
               { text: 'ECOM PLUS GABON', fontSize: 18, bold: true, color: PRIMARY },
               { text: 'Sourcing Chine-Gabon · Reçu Officiel', fontSize: 9, color: GREY, margin: [0, 2, 0, 0] },
             ],
           },
           {
+            width: 'auto',
             alignment: 'right',
             stack: [
               { text: 'REÇU DE COMMANDE', fontSize: 18, bold: true, color: GREEN },

@@ -48,6 +48,7 @@ export default function Sidebar({ isOpen, onClose, sections, portalLabel }: Side
 
       {/* ——— Sidebar Drawer ——— */}
       <aside
+        id="main-sidebar"
         className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-slate-900 lg:shadow-none lg:border-r lg:border-slate-200/70 dark:lg:border-slate-800/70 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}

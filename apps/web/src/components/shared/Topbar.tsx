@@ -42,8 +42,9 @@ export default function Topbar({ onMenuClick, isSidebarOpen, rightSlot, showSear
         <button
           onClick={onMenuClick}
           aria-label={isSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-          aria-expanded={isSidebarOpen}
+          aria-expanded={isSidebarOpen ? 'true' : 'false'}
           aria-controls="main-sidebar"
+          title={isSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <Menu className="h-5 w-5" />

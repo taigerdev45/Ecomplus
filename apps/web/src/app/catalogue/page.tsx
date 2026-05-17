@@ -195,7 +195,7 @@ export default function CataloguePage() {
               <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:hidden">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-black uppercase tracking-widest text-slate-500">Filtres</span>
-                  <button onClick={() => setFiltersOpen(false)} className="text-slate-400">
+                  <button onClick={() => setFiltersOpen(false)} aria-label="Fermer les filtres" title="Fermer les filtres" className="text-slate-400">
                     <X className="h-4 w-4" />
                   </button>
                 </div>

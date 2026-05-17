@@ -204,11 +204,13 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="text-right">
                     <div className="flex justify-end gap-1">
-                      <button className="btn-ghost btn-icon p-1.5 text-slate-400 hover:text-primary rounded-lg">
+                      <button aria-label="Modifier le produit" title="Modifier le produit" className="btn-ghost btn-icon p-1.5 text-slate-400 hover:text-primary rounded-lg">
                         <Edit className="h-4 w-4" />
                       </button>
                       <button 
                         onClick={() => handleDelete(product.id)}
+                        aria-label="Supprimer le produit"
+                        title="Supprimer le produit"
                         className="btn-ghost btn-icon p-1.5 text-slate-400 hover:text-red-600 rounded-lg"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -272,7 +274,7 @@ export default function AdminProductsPage() {
             
             <div className="flex items-center justify-between border-b border-slate-100 p-5 dark:border-slate-800">
               <h2 className="text-base font-black text-slate-900 dark:text-white">Ajouter un produit</h2>
-              <button onClick={() => setIsModalOpen(false)} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button aria-label="Fermer" title="Fermer" onClick={() => setIsModalOpen(false)} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X className="h-4.5 w-4.5" />
               </button>
             </div>
@@ -281,12 +283,12 @@ export default function AdminProductsPage() {
               <form id="product-form" onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Nom du produit *</label>
-                    <input required type="text" name="nom" value={formData.nom} onChange={handleInputChange} className="field" placeholder="Ex: iPhone 15 Pro Max" />
+                    <label htmlFor="product-name" className="block text-xs font-black uppercase tracking-wider text-slate-400">Nom du produit *</label>
+                    <input id="product-name" required type="text" name="nom" value={formData.nom} onChange={handleInputChange} className="field" placeholder="Ex: iPhone 15 Pro Max" title="Nom du produit" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Catégorie *</label>
-                    <select required name="categorie_id" value={formData.categorie_id} onChange={handleInputChange} className="field">
+                    <label htmlFor="product-category" className="block text-xs font-black uppercase tracking-wider text-slate-400">Catégorie *</label>
+                    <select id="product-category" required name="categorie_id" value={formData.categorie_id} onChange={handleInputChange} className="field" title="Catégorie">
                       <option value="">Sélectionner</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.id}>{c.nom}</option>
@@ -296,52 +298,52 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Description *</label>
-                  <textarea required name="description" value={formData.description} onChange={handleInputChange} rows={3} className="field" placeholder="Description détaillée..." />
+                  <label htmlFor="product-description" className="block text-xs font-black uppercase tracking-wider text-slate-400">Description *</label>
+                  <textarea id="product-description" required name="description" value={formData.description} onChange={handleInputChange} rows={3} className="field" placeholder="Description détaillée..." title="Description" />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Prix (FCFA) *</label>
-                    <input required type="number" min="0" name="prix_fcfa" value={formData.prix_fcfa} onChange={handleInputChange} className="field" placeholder="5000" />
+                    <label htmlFor="product-price" className="block text-xs font-black uppercase tracking-wider text-slate-400">Prix (FCFA) *</label>
+                    <input id="product-price" required type="number" min="0" name="prix_fcfa" value={formData.prix_fcfa} onChange={handleInputChange} className="field" placeholder="5000" title="Prix en FCFA" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Poids (KG) *</label>
-                    <input required type="number" step="0.01" min="0" name="poids_kg" value={formData.poids_kg} onChange={handleInputChange} className="field" placeholder="1.5" />
+                    <label htmlFor="product-weight" className="block text-xs font-black uppercase tracking-wider text-slate-400">Poids (KG) *</label>
+                    <input id="product-weight" required type="number" step="0.01" min="0" name="poids_kg" value={formData.poids_kg} onChange={handleInputChange} className="field" placeholder="1.5" title="Poids en KG" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Stock *</label>
-                    <input required type="number" min="0" name="stock" value={formData.stock} onChange={handleInputChange} className="field" />
+                    <label htmlFor="product-stock" className="block text-xs font-black uppercase tracking-wider text-slate-400">Stock *</label>
+                    <input id="product-stock" required type="number" min="0" name="stock" value={formData.stock} onChange={handleInputChange} className="field" placeholder="10" title="Stock disponible" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Lien fournisseur (Optionnel)</label>
-                  <input type="url" name="lien_fournisseur" value={formData.lien_fournisseur} onChange={handleInputChange} className="field" placeholder="https://1688.com/..." />
+                  <label htmlFor="product-supplier" className="block text-xs font-black uppercase tracking-wider text-slate-400">Lien fournisseur (Optionnel)</label>
+                  <input id="product-supplier" type="url" name="lien_fournisseur" value={formData.lien_fournisseur} onChange={handleInputChange} className="field" placeholder="https://1688.com/..." title="Lien fournisseur" />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Long. (m)</label>
-                    <input type="number" step="0.001" min="0" name="longueur_m" value={formData.longueur_m} onChange={handleInputChange} className="field" />
+                    <label htmlFor="product-length" className="block text-xs font-black uppercase tracking-wider text-slate-400">Long. (m)</label>
+                    <input id="product-length" type="number" step="0.001" min="0" name="longueur_m" value={formData.longueur_m} onChange={handleInputChange} className="field" placeholder="0.0" title="Longueur en mètres" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Larg. (m)</label>
-                    <input type="number" step="0.001" min="0" name="largeur_m" value={formData.largeur_m} onChange={handleInputChange} className="field" />
+                    <label htmlFor="product-width" className="block text-xs font-black uppercase tracking-wider text-slate-400">Larg. (m)</label>
+                    <input id="product-width" type="number" step="0.001" min="0" name="largeur_m" value={formData.largeur_m} onChange={handleInputChange} className="field" placeholder="0.0" title="Largeur en mètres" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Haut. (m)</label>
-                    <input type="number" step="0.001" min="0" name="hauteur_m" value={formData.hauteur_m} onChange={handleInputChange} className="field" />
+                    <label htmlFor="product-height" className="block text-xs font-black uppercase tracking-wider text-slate-400">Haut. (m)</label>
+                    <input id="product-height" type="number" step="0.001" min="0" name="hauteur_m" value={formData.hauteur_m} onChange={handleInputChange} className="field" placeholder="0.0" title="Hauteur en mètres" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-400">Images (Max 4) *</label>
+                  <span className="block text-xs font-black uppercase tracking-wider text-slate-400">Images (Max 4) *</span>
                   <div className="flex flex-col justify-center rounded-2xl border border-dashed border-slate-200 px-6 py-5 text-center dark:border-slate-800 hover:bg-slate-50/50 transition-colors">
                     <Upload className="mx-auto h-6 w-6 text-slate-400" />
                     <label className="mt-2 relative cursor-pointer font-bold text-xs text-primary focus-within:outline-none hover:underline">
                       <span>Sélectionner des images</span>
-                      <input required={imageFiles.length === 0} type="file" multiple accept="image/*" className="sr-only" onChange={handleFileChange} />
+                      <input id="product-images" required={imageFiles.length === 0} type="file" multiple accept="image/*" className="sr-only" onChange={handleFileChange} title="Sélectionner des images" />
                     </label>
                     <p className="text-[10px] text-slate-400 mt-1">PNG, JPG, WEBP jusqu&apos;à 5MB</p>
                     
@@ -352,7 +354,7 @@ export default function AdminProductsPage() {
                           {imageFiles.map((file, i) => (
                             <div key={i} className="flex justify-between items-center bg-slate-50 border p-2 rounded-xl text-[10px] font-semibold dark:bg-slate-800 dark:border-slate-700">
                               <span className="truncate max-w-[100px]">{file.name}</span>
-                              <button type="button" onClick={() => removeImage(i)} className="text-red-500 hover:bg-red-50 p-1 rounded-full"><X className="h-3 w-3" /></button>
+                              <button type="button" aria-label="Supprimer l'image" title="Supprimer l'image" onClick={() => removeImage(i)} className="text-red-500 hover:bg-red-50 p-1 rounded-full"><X className="h-3 w-3" /></button>
                             </div>
                           ))}
                         </div>

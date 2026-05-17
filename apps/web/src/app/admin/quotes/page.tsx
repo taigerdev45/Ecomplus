@@ -100,7 +100,7 @@ export default function AdminQuotesPage() {
                 className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2 text-xs outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 sm:w-64"
               />
             </div>
-            <button className="btn-outline btn-icon py-2 px-2.5 rounded-xl">
+            <button aria-label="Filtrer les devis" title="Filtrer les devis" className="btn-outline btn-icon py-2 px-2.5 rounded-xl">
               <Filter className="h-4.5 w-4.5" />
             </button>
           </div>

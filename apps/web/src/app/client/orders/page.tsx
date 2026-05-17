@@ -12,6 +12,9 @@ export default function ClientOrders() {
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [selectedOrderForPayment, setSelectedOrderForPayment] = useState<ClientOrder | null>(null);
+  const [transactionId, setTransactionId] = useState('');
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -26,6 +29,26 @@ export default function ClientOrders() {
       toast.error('Erreur lors de la récupération des commandes');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSubmitPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOrderForPayment || !transactionId.trim()) return;
+
+    setIsSubmittingPayment(true);
+    try {
+      await api.post(`/orders/${selectedOrderForPayment.id}/submit-payment`, {
+        transactionId: transactionId.trim()
+      });
+      toast.success('Paiement soumis avec succès ! Notre équipe va procéder à la vérification sous peu.');
+      setSelectedOrderForPayment(null);
+      setTransactionId('');
+      fetchOrders();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la soumission du paiement');
+    } finally {
+      setIsSubmittingPayment(false);
     }
   };
 
@@ -59,6 +82,7 @@ export default function ClientOrders() {
   const getStatusColor = (status: string) => {
     if (status === 'livre') return 'badge-success';
     if (status === 'annule') return 'badge-danger';
+    if (status === 'valide') return 'badge-warning';
     return 'badge-primary';
   };
 
@@ -66,7 +90,7 @@ export default function ClientOrders() {
     const statusMap: Record<string, string> = {
       'devis_envoye': 'Devis envoyé',
       'en_attente_validation': 'En attente',
-      'valide': 'Validé',
+      'valide': 'En attente de paiement',
       'commande_fournisseur': 'Commandé au fournisseur',
       'en_preparation': 'En préparation',
       'expedie_chine': 'Expédié de Chine',
@@ -123,7 +147,15 @@ export default function ClientOrders() {
                     </td>
                     <td className="text-right">
                       <div className="flex justify-end gap-2">
-                        {order.statut !== 'annule' && order.statut !== 'devis_envoye' && (
+                        {order.statut === 'valide' && (
+                          <button
+                            onClick={() => setSelectedOrderForPayment(order)}
+                            className="btn-success btn-sm inline-flex items-center gap-1.5 font-bold"
+                          >
+                            Payer 💸
+                          </button>
+                        )}
+                        {order.statut !== 'annule' && order.statut !== 'devis_envoye' && order.statut !== 'valide' && (
                           <button
                             onClick={() => handleDownloadReceiptPdf(order.id)}
                             disabled={downloadingId === order.id}
@@ -174,8 +206,16 @@ export default function ClientOrders() {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
-                  {order.statut !== 'annule' && order.statut !== 'devis_envoye' && (
+                 <div className="flex gap-2">
+                  {order.statut === 'valide' && (
+                    <button
+                      onClick={() => setSelectedOrderForPayment(order)}
+                      className="btn-success w-full flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold"
+                    >
+                      Payer 💸
+                    </button>
+                  )}
+                  {order.statut !== 'annule' && order.statut !== 'devis_envoye' && order.statut !== 'valide' && (
                     <button
                       onClick={() => handleDownloadReceiptPdf(order.id)}
                       disabled={downloadingId === order.id}
@@ -210,6 +250,103 @@ export default function ClientOrders() {
           <p>Les documents PDF sont générés de manière sécurisée en local dans votre navigateur. Cela vous évite toute attente réseau ou erreur de téléchargement.</p>
         </div>
       </div>
+
+      {selectedOrderForPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="card w-full max-w-lg p-6 space-y-6 bg-white dark:bg-slate-900 shadow-2xl relative border border-slate-200/50 dark:border-slate-800/50">
+            <button
+              onClick={() => setSelectedOrderForPayment(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold"
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+
+            <div className="text-center">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Procéder au Paiement</h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Commande N° <span className="font-bold text-primary">{selectedOrderForPayment.numero_tracking}</span> · Montant : <span className="font-black text-primary">{selectedOrderForPayment.total_ttc.toLocaleString()} F</span>
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Choisissez votre méthode de paiement Mobile Money :</p>
+              
+              {/* Airtel Money Card */}
+              <div className="flex items-center justify-between p-4 rounded-xl border border-red-100 bg-red-50/50 dark:border-red-950/20 dark:bg-red-950/10">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-black text-xs shrink-0">
+                    Airtel
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white">Airtel Money</h3>
+                    <p className="text-[10px] text-slate-500">Nom : ECOM PLUS GABON</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-black text-slate-900 dark:text-white block">+241 77 00 00 00</span>
+                  <span className="text-[9px] text-red-600 font-bold bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded">Recommandé</span>
+                </div>
+              </div>
+
+              {/* Moov Money Card */}
+              <div className="flex items-center justify-between p-4 rounded-xl border border-blue-100 bg-blue-50/50 dark:border-blue-950/20 dark:bg-blue-950/10">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shrink-0">
+                    Moov
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white">Moov Money</h3>
+                    <p className="text-[10px] text-slate-500">Nom : ECOM PLUS GABON</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-black text-slate-900 dark:text-white block">+241 66 00 00 00</span>
+                  <span className="text-[9px] text-blue-600 font-bold bg-blue-100 dark:bg-blue-950 px-1.5 py-0.5 rounded">Disponible</span>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitPayment} className="space-y-4">
+              <div>
+                <label htmlFor="txn-id" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Référence de la transaction (ID de transaction)
+                </label>
+                <input
+                  id="txn-id"
+                  type="text"
+                  required
+                  placeholder="Ex : TXN123456789 ou Numéro de dépôt"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value)}
+                  className="field"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForPayment(null)}
+                  className="btn-outline w-full py-3 rounded-xl font-bold"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingPayment}
+                  className="btn-success w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+                >
+                  {isSubmittingPayment ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Confirmer le paiement 💰'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

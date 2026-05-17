@@ -12,6 +12,8 @@ router.post('/quote-request', authenticateJWT, orderController.submitQuoteReques
 
 // Devis validation (QR Code target)
 router.post('/validate/:id', authenticateJWT, orderController.validateQuote);
+router.post('/reject/:id', authenticateJWT, orderController.rejectQuote);
+router.post('/:id/submit-payment', authenticateJWT, orderController.submitOrderPayment);
 
 // Order creation from quote (Admin/Agent)
 router.post('/from-quote/:quoteId', authenticateJWT, orderController.createOrder);

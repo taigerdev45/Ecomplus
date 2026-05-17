@@ -177,12 +177,15 @@ export default function ClientProfile() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-400">
+                <label htmlFor="profile-email" className="block text-xs font-black uppercase tracking-wider text-slate-400">
                   Adresse E-mail (Non modifiable)
                 </label>
                 <input
+                  id="profile-email"
                   type="email"
                   disabled
+                  title="Adresse e-mail"
+                  placeholder="Adresse e-mail"
                   value={user?.email || ''}
                   className="field bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-950 dark:border-slate-800/60"
                 />

@@ -11,6 +11,7 @@ export default function ClientQuotes() {
   const [quotes, setQuotes] = useState<ClientQuote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [actionId, setActionId] = useState<string | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -38,6 +39,33 @@ export default function ClientQuotes() {
       toast.error('Erreur lors du téléchargement du devis');
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleAcceptQuote = async (quote: ClientQuote) => {
+    setActionId(quote.id);
+    try {
+      await api.post(`/orders/validate/${quote.id}`);
+      toast.success('Félicitations ! Votre devis a été validé et transformé en commande. Vous pouvez maintenant procéder au paiement.');
+      fetchQuotes();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la validation du devis');
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handleRejectQuote = async (quote: ClientQuote) => {
+    if (!confirm('Voulez-vous vraiment rejeter ce devis ?')) return;
+    setActionId(quote.id);
+    try {
+      await api.post(`/orders/reject/${quote.id}`);
+      toast.success('Le devis a été rejeté.');
+      fetchQuotes();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors du rejet du devis');
+    } finally {
+      setActionId(null);
     }
   };
 
@@ -101,18 +129,38 @@ export default function ClientQuotes() {
                     <td className="font-black text-primary">{quote.total_ttc.toLocaleString()} F</td>
                     <td>{getStatusBadge(quote.status)}</td>
                     <td className="text-right">
-                      <button
-                        onClick={() => handleDownloadPdf(quote)}
-                        disabled={downloadingId === quote.id}
-                        className="btn-primary btn-sm inline-flex items-center gap-1.5"
-                      >
-                        {downloadingId === quote.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Download className="h-3.5 w-3.5" />
+                      <div className="flex justify-end items-center gap-2">
+                        <button
+                          onClick={() => handleDownloadPdf(quote)}
+                          disabled={downloadingId === quote.id || actionId === quote.id}
+                          className="btn-outline btn-sm inline-flex items-center gap-1.5"
+                        >
+                          {downloadingId === quote.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Download className="h-3.5 w-3.5" />
+                          )}
+                          PDF
+                        </button>
+                        {quote.status === 'PENDING' && (
+                          <>
+                            <button
+                              onClick={() => handleAcceptQuote(quote)}
+                              disabled={actionId !== null || downloadingId !== null}
+                              className="btn-success btn-sm inline-flex items-center gap-1"
+                            >
+                              Accepter
+                            </button>
+                            <button
+                              onClick={() => handleRejectQuote(quote)}
+                              disabled={actionId !== null || downloadingId !== null}
+                              className="btn-danger btn-outline btn-sm inline-flex items-center gap-1"
+                            >
+                              Rejeter
+                            </button>
+                          </>
                         )}
-                        Télécharger PDF
-                      </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -143,18 +191,38 @@ export default function ClientQuotes() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleDownloadPdf(quote)}
-                  disabled={downloadingId === quote.id}
-                  className="btn-primary w-full flex items-center justify-center gap-2 py-3 rounded-xl"
-                >
-                  {downloadingId === quote.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleDownloadPdf(quote)}
+                    disabled={downloadingId === quote.id || actionId === quote.id}
+                    className="btn-outline w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs"
+                  >
+                    {downloadingId === quote.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4" />
+                    )}
+                    Télécharger PDF
+                  </button>
+                  {quote.status === 'PENDING' && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleAcceptQuote(quote)}
+                        disabled={actionId !== null || downloadingId !== null}
+                        className="btn-success w-full py-2.5 rounded-xl text-xs font-bold"
+                      >
+                        Accepter
+                      </button>
+                      <button
+                        onClick={() => handleRejectQuote(quote)}
+                        disabled={actionId !== null || downloadingId !== null}
+                        className="btn-danger btn-outline w-full py-2.5 rounded-xl text-xs font-bold"
+                      >
+                        Rejeter
+                      </button>
+                    </div>
                   )}
-                  Télécharger PDF
-                </button>
+                </div>
               </div>
             ))}
           </div>
