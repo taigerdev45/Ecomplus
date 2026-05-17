@@ -38,7 +38,11 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, checkAuth } = useAuth();
+
+  React.useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   React.useEffect(() => {
     const handleResize = () => {
