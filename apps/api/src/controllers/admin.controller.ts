@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { supabase } from '../lib/supabase';
+import { query } from '../lib/db';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
@@ -21,7 +22,6 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     const totalRevenue = revenueData?.reduce((acc, curr) => acc + curr.total_ttc, 0) || 0;
 
     // 3. Stats by day (for Recharts)
-    // In a real app, this would be a more complex SQL query or a dedicated view
     const { data: chartData } = await supabase
       .from('commande')
       .select('created_at, total_ttc')
@@ -39,14 +39,101 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       return acc;
     }, []);
 
+    // 4. Global visits count
+    const visitCountRes = await query('SELECT COUNT(*) as count FROM visite');
+    const totalVisits = parseInt(visitCountRes.rows[0]?.count || '0', 10);
+
+    // 5. Daily visits (last 30 days)
+    const dailyVisitsRes = await query(`
+      SELECT TO_CHAR(created_at, 'DD/MM') as date, COUNT(*)::integer as count 
+      FROM visite 
+      WHERE created_at >= NOW() - INTERVAL '30 days' 
+      GROUP BY TO_CHAR(created_at, 'DD/MM') 
+      ORDER BY MIN(created_at) ASC
+    `);
+    const dailyVisits = dailyVisitsRes.rows;
+
+    // 6. Daily logins (last 30 days)
+    const dailyLoginsRes = await query(`
+      SELECT TO_CHAR(created_at, 'DD/MM') as date, COUNT(*)::integer as count 
+      FROM connexion_log 
+      WHERE created_at >= NOW() - INTERVAL '30 days' 
+      GROUP BY TO_CHAR(created_at, 'DD/MM') 
+      ORDER BY MIN(created_at) ASC
+    `);
+    const dailyLogins = dailyLoginsRes.rows;
+
     res.json({
       kpis: {
         totalOrders: ordersCount,
         pendingQuotes,
         totalRevenue,
-        avgOrderValue: ordersCount ? Math.round(totalRevenue / ordersCount) : 0
+        avgOrderValue: ordersCount ? Math.round(totalRevenue / ordersCount) : 0,
+        totalVisits
       },
-      chartData: formattedChartData
+      chartData: formattedChartData,
+      dailyVisits,
+      dailyLogins
+    });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getReportsStats = async (req: Request, res: Response) => {
+  try {
+    const onboardingRolesRes = await query(`
+      SELECT role, COUNT(*)::integer as count
+      FROM utilisateur
+      GROUP BY role
+    `);
+
+    const registrationsTrendRes = await query(`
+      SELECT TO_CHAR(created_at, 'DD/MM') as date, COUNT(*)::integer as count
+      FROM utilisateur
+      WHERE created_at >= NOW() - INTERVAL '30 days'
+      GROUP BY TO_CHAR(created_at, 'DD/MM')
+      ORDER BY MIN(created_at) ASC
+    `);
+
+    const shippingMethodStatsRes = await query(`
+      SELECT shipping_method, COUNT(*)::integer as count, SUM(shipping_montant)::integer as total_shipping_revenue
+      FROM devis
+      GROUP BY shipping_method
+    `);
+
+    const commissionStatsRes = await query(`
+      SELECT 
+        COALESCE(AVG(commission_taux), 0)::float as avg_commission_rate, 
+        COALESCE(SUM(commission_montant), 0)::integer as total_commission_revenue
+      FROM devis
+    `);
+
+    const categoryStatsRes = await query(`
+      SELECT c.nom as category_name, COUNT(p.id)::integer as product_count
+      FROM categorie c
+      LEFT JOIN produit p ON p.categorie_id = c.id
+      GROUP BY c.nom
+    `);
+
+    const popularProductsRes = await query(`
+      SELECT nom, stock, prix_cny, poids_kg 
+      FROM produit 
+      ORDER BY stock DESC 
+      LIMIT 5
+    `);
+
+    res.json({
+      onboarding: {
+        roles: onboardingRolesRes.rows,
+        trend: registrationsTrendRes.rows
+      },
+      metadata: {
+        shipping: shippingMethodStatsRes.rows,
+        commission: commissionStatsRes.rows[0] || { avg_commission_rate: 0, total_commission_revenue: 0 },
+        categories: categoryStatsRes.rows,
+        popularProducts: popularProductsRes.rows
+      }
     });
   } catch (error: any) {
     res.status(400).json({ message: error.message });

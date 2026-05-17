@@ -70,7 +70,9 @@ app.use((err, req, res, next) => {
     });
 });
 const cleanup_service_1 = require("./services/cleanup.service");
+const db_1 = require("./lib/db");
 (0, cleanup_service_1.startCleanupScheduler)();
+(0, db_1.initDb)();
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

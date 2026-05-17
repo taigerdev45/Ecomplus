@@ -22,8 +22,11 @@ interface DashboardStats {
     pendingQuotes: number;
     totalRevenue: number;
     avgOrderValue: number;
+    totalVisits?: number;
   };
   chartData: Array<{ date: string; amount: number }>;
+  dailyVisits?: Array<{ date: string; count: number }>;
+  dailyLogins?: Array<{ date: string; count: number }>;
 }
 
 import api from '@/lib/axios';
@@ -49,6 +52,7 @@ export default function AdminDashboard() {
   };
 
   const kpis = [
+    { name: 'Visites Globales', value: stats?.kpis.totalVisits || 0, icon: Users, color: 'text-teal-600', bg: 'bg-teal-50' },
     { name: 'Commandes', value: stats?.kpis.totalOrders || 0, icon: ShoppingBag, color: 'text-blue-600', bg: 'bg-blue-50' },
     { name: 'Devis en attente', value: stats?.kpis.pendingQuotes || 0, icon: FileText, color: 'text-amber-600', bg: 'bg-amber-50' },
     { name: 'CA Total', value: `${(stats?.kpis.totalRevenue || 0).toLocaleString()} F`, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
@@ -75,7 +79,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
@@ -164,6 +168,68 @@ export default function AdminDashboard() {
               <button className="mt-6 w-full rounded-xl bg-white/20 py-3 text-sm font-bold backdrop-blur-md hover:bg-white/30 transition-all">
                 Modifier les paliers
               </button>
+            </div>
+
+            <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h3 className="text-lg font-bold text-slate-950 dark:text-white">Analyses Avancées</h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Visualisez l&apos;onboarding des utilisateurs, les performances des catégories et les métadonnées de livraison en détail.
+              </p>
+              <a 
+                href="/admin/reports" 
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 py-3 text-sm font-bold text-white hover:bg-slate-800 transition-all shadow-md dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+              >
+                Accéder aux Statistiques <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Tracking & Connexions Charts */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* Daily Visits Chart */}
+          <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
+            <h3 className="mb-6 text-lg font-bold">Visites Globales (30j)</h3>
+            <div className="h-[250px] w-full">
+              {stats?.dailyVisits && stats.dailyVisits.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.dailyVisits}>
+                    <defs>
+                      <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0d9488" stopOpacity={0.1}/>
+                        <stop offset="95%" stopColor="#0d9488" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                    <Area type="monotone" dataKey="count" name="Visites" stroke="#0d9488" strokeWidth={3} fillOpacity={1} fill="url(#colorVisits)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-slate-400">Aucune donnée de visite pour le moment</div>
+              )}
+            </div>
+          </div>
+
+          {/* Daily Client Logins Chart */}
+          <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
+            <h3 className="mb-6 text-lg font-bold">Connexions Clients par Jour (30j)</h3>
+            <div className="h-[250px] w-full">
+              {stats?.dailyLogins && stats.dailyLogins.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.dailyLogins}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                    <Bar dataKey="count" name="Connexions" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-slate-400">Aucune donnée de connexion pour le moment</div>
+              )}
             </div>
           </div>
         </div>

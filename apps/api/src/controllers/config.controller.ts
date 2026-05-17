@@ -2,6 +2,24 @@ import { Request, Response } from 'express';
 import { supabase } from '../lib/supabase';
 import { processAndUploadImage } from '../services/upload.service';
 import { z } from 'zod';
+import { query } from '../lib/db';
+
+export const recordVisit = async (req: Request, res: Response) => {
+  try {
+    const { page } = req.body;
+    const ip = req.ip || req.socket.remoteAddress || '';
+    const userAgent = req.headers['user-agent'] || '';
+
+    await query(
+      'INSERT INTO visite (ip, user_agent, page) VALUES ($1, $2, $3)',
+      [ip, userAgent, page || '/']
+    );
+
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 const configSchema = z.object({
   logo_url: z.string().optional(),

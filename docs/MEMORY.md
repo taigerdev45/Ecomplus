@@ -205,6 +205,20 @@
 
 ---
 
+### PHASE 14 — Statistiques Analytiques, Suivi de Trafic & Masquage de Sécurité [COMPLET ✅]
+
+**Objectif** : Implémenter l'analyse approfondie d'onboarding, de trafic global de visite, les logs de connexions client quotidiennes et l'affichage/masquage des mots de passe.
+
+- [x] Backend : Migration automatique des tables SQL `visite` (pages vues globales) et `connexion_log` (logs de connexions client).
+- [x] Backend : Enregistrement des connexions client lors du login et de la création de compte.
+- [x] Frontend : Tracking automatique de toutes les visites de pages via un intercepteur de transitions de routes (`AuthProvider.tsx`).
+- [x] Admin : Enregistrement et restitution dynamique des KPIs de visites globales et connexion clients par jour avec courbes Recharts.
+- [x] Admin : Module analytique complet d'onboarding, de méthode de transit logistique préférée et de métadonnées de commissions sur `/admin/reports`.
+- [x] Admin : Bouton d'exportation de données analytiques complètes au format CSV.
+- [x] Sécurité : Ajout de l'icône oeil avec gestion d'état réactive pour masquer/démasquer les mots de passe sur `/login`, `/register`, et `/client/profil`.
+
+---
+
 ## VARIABLES ENV A CONFIGURER
 
 ```env

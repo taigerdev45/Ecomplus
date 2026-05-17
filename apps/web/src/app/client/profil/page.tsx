@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/store/useAuth';
-import { User, Phone, Mail, Lock, ShieldCheck, Loader2, Save } from 'lucide-react';
+import { User, Phone, Mail, Lock, ShieldCheck, Loader2, Save, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/axios';
 
@@ -21,6 +21,9 @@ export default function ClientProfile() {
 
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,15 +215,25 @@ export default function ClientProfile() {
                 <label htmlFor="mot-passe-actuel" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                   Mot de passe actuel
                 </label>
-                <input
-                  id="mot-passe-actuel"
-                  type="password"
-                  required
-                  placeholder="Saisissez votre mot de passe actuel"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  value={passwordData.mot_de_passe_actuel}
-                  onChange={(e) => setPasswordData({ ...passwordData, mot_de_passe_actuel: e.target.value })}
-                />
+                <div className="relative">
+                  <input
+                    id="mot-passe-actuel"
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    required
+                    placeholder="Saisissez votre mot de passe actuel"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    value={passwordData.mot_de_passe_actuel}
+                    onChange={(e) => setPasswordData({ ...passwordData, mot_de_passe_actuel: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    aria-label={showCurrentPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  >
+                    {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -228,29 +241,49 @@ export default function ClientProfile() {
                   <label htmlFor="nouveau-mot-passe" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                     Nouveau mot de passe
                   </label>
-                  <input
-                    id="nouveau-mot-passe"
-                    type="password"
-                    required
-                    placeholder="Min. 8 caractères"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                    value={passwordData.nouveau_mot_de_passe}
-                    onChange={(e) => setPasswordData({ ...passwordData, nouveau_mot_de_passe: e.target.value })}
-                  />
+                  <div className="relative">
+                    <input
+                      id="nouveau-mot-passe"
+                      type={showNewPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Min. 8 caractères"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                      value={passwordData.nouveau_mot_de_passe}
+                      onChange={(e) => setPasswordData({ ...passwordData, nouveau_mot_de_passe: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      aria-label={showNewPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    >
+                      {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="confirm-nouveau-mot-passe" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                     Confirmer le nouveau mot de passe
                   </label>
-                  <input
-                    id="confirm-nouveau-mot-passe"
-                    type="password"
-                    required
-                    placeholder="Confirmez le mot de passe"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                    value={passwordData.confirm_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-                  />
+                  <div className="relative">
+                    <input
+                      id="confirm-nouveau-mot-passe"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Confirmez le mot de passe"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                      value={passwordData.confirm_password}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 

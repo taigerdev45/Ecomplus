@@ -9,6 +9,7 @@ router.use(authenticateJWT);
 router.use(checkRole(['admin']));
 
 router.get('/dashboard-stats', adminController.getDashboardStats);
+router.get('/reports-stats', adminController.getReportsStats);
 router.get('/quotes', adminController.getAllQuotes);
 router.get('/agents', adminController.getAgents);
 router.post('/agents', adminController.createAgent);

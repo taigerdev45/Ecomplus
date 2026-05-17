@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { hashPassword, comparePassword, generateTokens, verifyRefreshToken } from '../services/auth.service';
 import { registerSchema, loginSchema } from '../schemas/auth.schema';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { query } from '../lib/db';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -37,6 +38,19 @@ export const register = async (req: Request, res: Response) => {
 
     const { accessToken, refreshToken } = generateTokens(newUser);
 
+    if (newUser.role === 'client') {
+      try {
+        const ip = req.ip || req.socket.remoteAddress || '';
+        const userAgent = req.headers['user-agent'] || '';
+        await query(
+          'INSERT INTO connexion_log (client_id, ip, user_agent) VALUES ($1, $2, $3)',
+          [newUser.id, ip, userAgent]
+        );
+      } catch (err) {
+        console.error('Error logging connection after register:', err);
+      }
+    }
+
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
@@ -66,6 +80,19 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const { accessToken, refreshToken } = generateTokens(user);
+
+    if (user.role === 'client') {
+      try {
+        const ip = req.ip || req.socket.remoteAddress || '';
+        const userAgent = req.headers['user-agent'] || '';
+        await query(
+          'INSERT INTO connexion_log (client_id, ip, user_agent) VALUES ($1, $2, $3)',
+          [user.id, ip, userAgent]
+        );
+      } catch (err) {
+        console.error('Error logging connection:', err);
+      }
+    }
 
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 * 1000 });

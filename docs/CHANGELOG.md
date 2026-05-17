@@ -9,6 +9,17 @@
 
 ---
 
+### [1.5.0] - Statistiques Analytiques Admin & Visibilité de Sécurité
+
+#### Added
+- Architecture de tracking temps-réel avec tables SQL de suivi `visite` (pages vues globales, IP, User Agents) et `connexion_log` (logins/inscriptions journalières des clients).
+- Endpoints analytiques `/admin/dashboard-stats` (KPIs, visites 30j, connexions 30j) et `/admin/reports-stats` (Cohortes d'onboarding, préférences transit/méthode logistique, taux de commissions moyens, top produits).
+- Tableaux de bord interactifs et graphiques avec Recharts sur le Dashboard Admin (`/admin`) et l'interface d'Analyses Avancées (`/admin/reports`).
+- Option d'exportation instantanée du rapport analytique de la plateforme au format CSV.
+- Boutons d'activation de visibilité (oeil pour afficher/masquer) sur tous les champs de saisie et confirmation de mot de passe (Formulaire de Connexion `/login`, Inscription `/register`, et sécurité du Profil Client `/client/profil`).
+
+---
+
 ### [1.4.0] - Espace Client Premium & Améliorations de Navigation
 
 #### Added
