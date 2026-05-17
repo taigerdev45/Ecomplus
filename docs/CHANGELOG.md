@@ -20,6 +20,7 @@
 - Conversion automatique transparente du prix FCFA saisi en CNY centimes en arrière-plan selon le taux de change dynamique de la plateforme.
 
 #### Fixed
+- Correction de l'erreur `400 Bad Request` sur l'aperçu du devis (`/orders/quote-preview`) en scindant les schémas de validation (nouveau `quotePreviewSchema` sans obligation de fournir un numéro WhatsApp).
 - Correction de l'erreur `400 Bad Request` à la création/mise à jour de produits en convertissant explicitement les chaînes envoyées par FormData en types numériques avant la validation Zod côté API.
 - Résolution des erreurs de validation ESLint (apostrophes et syntaxe dans l'espace Admin).
 

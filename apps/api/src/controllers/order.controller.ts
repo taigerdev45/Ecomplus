@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { quoteRequestSchema } from '../schemas/order.schema';
+import { quoteRequestSchema, quotePreviewSchema } from '../schemas/order.schema';
 import * as orderService from '../services/order.service';
 import { supabase } from '../lib/supabase';
 import { AuthRequest } from '../middlewares/auth.middleware';
 
 export const getQuotePreview = async (req: Request, res: Response) => {
   try {
-    const validatedData = quoteRequestSchema.parse(req.body);
+    const validatedData = quotePreviewSchema.parse(req.body);
     
     // Get current exchange rate from DB
     const { data: rateData } = await supabase
