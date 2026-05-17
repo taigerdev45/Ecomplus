@@ -49,6 +49,8 @@ export interface Product {
   longueur_m?: number;
   largeur_m?: number;
   hauteur_m?: number;
+  moq: number;
+  couleurs?: string[];
   created_at: string;
   updated_at: string;
 }

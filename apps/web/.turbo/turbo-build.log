@@ -44,13 +44,13 @@ Route (app)                              Size     First Load JS
 ├ ○ /admin/chat                          5.98 kB         141 kB
 ├ ○ /admin/clients                       2.87 kB         142 kB
 ├ ○ /admin/config                        5.72 kB         141 kB
-├ ○ /admin/products                      7.23 kB         143 kB
+├ ○ /admin/products                      8.18 kB         144 kB
 ├ ○ /admin/quotes                        4.59 kB        1.02 MB
 ├ ○ /admin/receipts                      4.26 kB        1.02 MB
 ├ ○ /admin/reports                       12.4 kB         260 kB
 ├ ○ /agent/orders                        5.2 kB          141 kB
 ├ ○ /apple-icon.png                      0 B                0 B
-├ ○ /catalogue                           7.16 kB         140 kB
+├ ○ /catalogue                           8 kB            140 kB
 ├ ○ /client/chat                         3.64 kB         124 kB
 ├ ○ /client/dashboard                    3.65 kB         121 kB
 ├ ○ /client/orders                       4.61 kB        1.01 MB
@@ -59,8 +59,8 @@ Route (app)                              Size     First Load JS
 ├ ○ /devis-envoye                        2.58 kB        96.7 kB
 ├ ○ /icon.png                            0 B                0 B
 ├ ○ /login                               4.25 kB         137 kB
-├ ○ /panier                              6.87 kB         139 kB
-├ ƒ /produit/[id]                        5.06 kB         132 kB
+├ ○ /panier                              6.96 kB         139 kB
+├ ƒ /produit/[id]                        5.15 kB         132 kB
 ├ ○ /register                            4.7 kB          137 kB
 ├ ○ /robots.txt                          0 B                0 B
 ├ ○ /sitemap.xml                         0 B                0 B

@@ -113,7 +113,7 @@ export const createOrderFromQuote = async (quoteId: string) => {
   if (fetchError || !devis) throw new Error('Devis non trouvé');
   if (devis.status === 'VALIDATED') throw new Error('Ce devis a déjà été transformé en commande');
 
-  const trackingNumber = generateTrackingNumber();
+  const trackingNumber = `TEMP-${devis.reference}`;
 
   // 2. Create order
   const { data: order, error: orderError } = await supabase
@@ -157,10 +157,26 @@ export const updateOrderStatus = async (
   comment?: string, 
   photos: string[] = []
 ) => {
-  // 1. Update order
+  // 1. Fetch current order to check tracking number
+  const { data: currentOrder } = await supabase
+    .from('commande')
+    .select('numero_tracking')
+    .eq('id', orderId)
+    .single();
+
+  let updateFields: any = { statut: status, updated_at: new Date().toISOString() };
+  
+  if (currentOrder && (!currentOrder.numero_tracking || currentOrder.numero_tracking.startsWith('TEMP-'))) {
+    // Generate tracking number only if transitioning to a paid/validated status
+    if (status !== 'valide' && status !== 'annule') {
+      updateFields.numero_tracking = generateTrackingNumber();
+    }
+  }
+
+  // 2. Update order
   const { data: order, error: orderError } = await supabase
     .from('commande')
-    .update({ statut: status, updated_at: new Date().toISOString() })
+    .update(updateFields)
     .eq('id', orderId)
     .select()
     .single();

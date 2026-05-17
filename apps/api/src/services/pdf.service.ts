@@ -27,6 +27,14 @@ const BORDER = '#E2E8F0';        // slate-200
 const GREEN = '#059669';         // emerald-600
 const GREEN_BG = '#ECFDF5';      // emerald-50
 
+// ── Helper: clean non-breaking spaces for PDF ────────────────────────────────
+const formatFCFA = (val: number): string => {
+  return val.toLocaleString('fr-FR').replace(/[\u00a0\xa0\s]/g, ' ') + ' F';
+};
+const formatFCFACFA = (val: number): string => {
+  return val.toLocaleString('fr-FR').replace(/[\u00a0\xa0\s]/g, ' ') + ' F CFA';
+};
+
 // ── Helper: convert base64 dataURL to Buffer ─────────────────────────────────
 function base64ToBuffer(dataUrl: string): Buffer {
   const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
@@ -170,8 +178,8 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
               return [
                 { text: item.product.nom, fillColor: bg, margin: [4, 8, 4, 8] },
                 { text: String(item.quantity), alignment: 'center', fillColor: bg, margin: [4, 8, 4, 8] },
-                { text: `${unitPriceXaf.toLocaleString('fr-FR')} F`, alignment: 'right', fillColor: bg, margin: [4, 8, 4, 8] },
-                { text: `${totalXaf.toLocaleString('fr-FR')} F`, alignment: 'right', fillColor: bg, bold: true, margin: [4, 8, 4, 8] },
+                { text: formatFCFA(unitPriceXaf), alignment: 'right', fillColor: bg, margin: [4, 8, 4, 8] },
+                { text: formatFCFA(totalXaf), alignment: 'right', fillColor: bg, bold: true, margin: [4, 8, 4, 8] },
               ];
             }),
           ],
@@ -193,19 +201,19 @@ export const generateDevisPDF = async (devis: Devis, clientName: string): Promis
           body: [
             [
               { text: 'Sous-total produits', color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
-              { text: `${devis.subtotal_products.toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+              { text: formatFCFACFA(devis.subtotal_products), alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
             ],
             [
               { text: `Commission (${devis.commission.taux}%)`, color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
-              { text: `${devis.commission.montant.toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+              { text: formatFCFACFA(devis.commission.montant), alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
             ],
             [
               { text: `Livraison — ${shippingLabel(devis.shipping.method)}`, color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
-              { text: `${devis.shipping.montant.toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+              { text: formatFCFACFA(devis.shipping.montant), alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
             ],
             [
               { text: 'TOTAL TTC', bold: true, fontSize: 13, color: PRIMARY, border: [false, true, false, false], margin: [0, 8, 4, 8] },
-              { text: `${devis.total_ttc.toLocaleString('fr-FR')} F CFA`, bold: true, fontSize: 13, color: PRIMARY, alignment: 'right', border: [false, true, false, false], margin: [0, 8, 0, 8] },
+              { text: formatFCFACFA(devis.total_ttc), bold: true, fontSize: 13, color: PRIMARY, alignment: 'right', border: [false, true, false, false], margin: [0, 8, 0, 8] },
             ],
           ],
         },

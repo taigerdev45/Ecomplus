@@ -9,6 +9,7 @@ interface ProductState {
   exchangeRate: number;
   settings: Record<string, string>;
   isLoading: boolean;
+  likedProductIds: string[];
   
   fetchProducts: (filters?: ProductFilters) => Promise<void>;
   fetchCategories: () => Promise<void>;
@@ -18,6 +19,8 @@ interface ProductState {
   createProduct: (data: FormData) => Promise<void>;
   updateProduct: (id: string, data: FormData) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  fetchLikedProducts: () => Promise<void>;
+  toggleLikeProduct: (id: string) => Promise<void>;
 }
 
 export const useProduct = create<ProductState>((set) => ({
@@ -27,6 +30,7 @@ export const useProduct = create<ProductState>((set) => ({
   exchangeRate: 95, // Default
   settings: {},
   isLoading: false,
+  likedProductIds: [],
 
   fetchProducts: async (filters) => {
     const state = useProduct.getState();
@@ -107,5 +111,24 @@ export const useProduct = create<ProductState>((set) => ({
 
   deleteProduct: async (id) => {
     await api.delete(`/products/${id}`);
+  },
+
+  fetchLikedProducts: async () => {
+    try {
+      const res = await api.get<string[]>('/products/likes/my');
+      set({ likedProductIds: res.data });
+    } catch (error) {}
+  },
+
+  toggleLikeProduct: async (id) => {
+    try {
+      const res = await api.post<{ liked: boolean }>(`/products/${id}/like`);
+      const likedProductIds = useProduct.getState().likedProductIds;
+      if (res.data.liked) {
+        set({ likedProductIds: [...likedProductIds, id] });
+      } else {
+        set({ likedProductIds: likedProductIds.filter((pid: string) => pid !== id) });
+      }
+    } catch (error) {}
   }
 }));

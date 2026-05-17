@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export default function CataloguePage() {
-  const { products, categories, exchangeRate, isLoading, fetchProducts, fetchCategories, fetchExchangeRate } = useProduct();
+  const { products, categories, exchangeRate, isLoading, fetchProducts, fetchCategories, fetchExchangeRate, fetchLikedProducts } = useProduct();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [page, setPage] = useState(1);
@@ -26,7 +26,11 @@ export default function CataloguePage() {
   useEffect(() => {
     fetchCategories();
     fetchExchangeRate();
-  }, [fetchCategories, fetchExchangeRate]);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      fetchLikedProducts();
+    }
+  }, [fetchCategories, fetchExchangeRate, fetchLikedProducts]);
 
   useEffect(() => {
     setPage(1);

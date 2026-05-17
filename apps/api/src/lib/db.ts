@@ -80,6 +80,21 @@ export const initDb = async () => {
       ALTER TABLE produit ADD COLUMN IF NOT EXISTS longueur_m NUMERIC DEFAULT 0;
       ALTER TABLE produit ADD COLUMN IF NOT EXISTS largeur_m NUMERIC DEFAULT 0;
       ALTER TABLE produit ADD COLUMN IF NOT EXISTS hauteur_m NUMERIC DEFAULT 0;
+      ALTER TABLE produit ADD COLUMN IF NOT EXISTS moq INTEGER DEFAULT 1;
+      ALTER TABLE produit ADD COLUMN IF NOT EXISTS couleurs TEXT[] DEFAULT '{}';
+
+      ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS airtel_money_number TEXT DEFAULT '+241 77 00 00 00';
+      ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS airtel_money_name TEXT DEFAULT 'ECOM PLUS GABON';
+      ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS moov_money_number TEXT DEFAULT '+241 66 00 00 00';
+      ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS moov_money_name TEXT DEFAULT 'ECOM PLUS GABON';
+
+      CREATE TABLE IF NOT EXISTS favoris (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          client_id UUID NOT NULL REFERENCES utilisateur(id) ON DELETE CASCADE,
+          produit_id UUID NOT NULL REFERENCES produit(id) ON DELETE CASCADE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(client_id, produit_id)
+      );
     `);
     console.log('Database tracking, chat tables and product dimensions initialized successfully.');
   } catch (error) {

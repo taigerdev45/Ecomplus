@@ -51,6 +51,14 @@ function shippingLabel(method: string): string {
   return labels[method] || method;
 }
 
+// Helper: clean non-breaking spaces for PDF
+const formatFCFA = (val: number): string => {
+  return val.toLocaleString('fr-FR').replace(/[\u00a0\xa0\s]/g, ' ') + ' F';
+};
+const formatFCFACFA = (val: number): string => {
+  return val.toLocaleString('fr-FR').replace(/[\u00a0\xa0\s]/g, ' ') + ' F CFA';
+};
+
 // Generate client-side QR Code
 async function generateQRCode(text: string): Promise<string> {
   try {
@@ -228,8 +236,8 @@ export async function downloadDevisPDF(devis: ClientQuote, clientName: string) {
               return [
                 { text: item.product?.nom || 'Produit', fillColor: bg, margin: [4, 8, 4, 8] },
                 { text: String(item.quantity), alignment: 'center', fillColor: bg, margin: [4, 8, 4, 8] },
-                { text: `${unitPriceXaf.toLocaleString('fr-FR')} F`, alignment: 'right', fillColor: bg, margin: [4, 8, 4, 8] },
-                { text: `${totalXaf.toLocaleString('fr-FR')} F`, alignment: 'right', fillColor: bg, bold: true, margin: [4, 8, 4, 8] },
+                { text: formatFCFA(unitPriceXaf), alignment: 'right', fillColor: bg, margin: [4, 8, 4, 8] },
+                { text: formatFCFA(totalXaf), alignment: 'right', fillColor: bg, bold: true, margin: [4, 8, 4, 8] },
               ];
             }),
           ],
@@ -251,19 +259,19 @@ export async function downloadDevisPDF(devis: ClientQuote, clientName: string) {
           body: [
             [
               { text: 'Sous-total produits', color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
-              { text: `${(devis.subtotal_products || 0).toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+              { text: formatFCFACFA(devis.subtotal_products || 0), alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
             ],
             [
               { text: `Commission (${devis.commission?.taux || 0}%)`, color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
-              { text: `${(devis.commission?.montant || 0).toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+              { text: formatFCFACFA(devis.commission?.montant || 0), alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
             ],
             [
               { text: `Livraison — ${shippingLabel(devis.shipping?.method || '')}`, color: GREY, border: [false, false, false, false], margin: [0, 4, 4, 4] },
-              { text: `${(devis.shipping?.montant || 0).toLocaleString('fr-FR')} F CFA`, alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
+              { text: formatFCFACFA(devis.shipping?.montant || 0), alignment: 'right', border: [false, false, false, false], margin: [0, 4, 0, 4] },
             ],
             [
               { text: 'TOTAL TTC', bold: true, fontSize: 13, color: PRIMARY, border: [false, true, false, false], margin: [0, 8, 4, 8] },
-              { text: `${(devis.total_ttc || 0).toLocaleString('fr-FR')} F CFA`, bold: true, fontSize: 13, color: PRIMARY, alignment: 'right', border: [false, true, false, false], margin: [0, 8, 0, 8] },
+              { text: formatFCFACFA(devis.total_ttc || 0), bold: true, fontSize: 13, color: PRIMARY, alignment: 'right', border: [false, true, false, false], margin: [0, 8, 0, 8] },
             ],
           ],
         },

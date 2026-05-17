@@ -58,7 +58,9 @@ export const createProduct = async (req: Request, res: Response) => {
       stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined,
       longueur_m: req.body.longueur_m !== undefined ? Number(req.body.longueur_m) : undefined,
       largeur_m: req.body.largeur_m !== undefined ? Number(req.body.largeur_m) : undefined,
-      hauteur_m: req.body.hauteur_m !== undefined ? Number(req.body.hauteur_m) : undefined
+      hauteur_m: req.body.hauteur_m !== undefined ? Number(req.body.hauteur_m) : undefined,
+      moq: req.body.moq !== undefined ? Number(req.body.moq) : undefined,
+      couleurs: req.body.couleurs ? (typeof req.body.couleurs === 'string' ? JSON.parse(req.body.couleurs) : req.body.couleurs) : undefined
     };
     const validatedData = productSchema.parse(bodyData);
     const files = req.files as Express.Multer.File[];
@@ -93,7 +95,9 @@ export const updateProduct = async (req: Request, res: Response) => {
       stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined,
       longueur_m: req.body.longueur_m !== undefined ? Number(req.body.longueur_m) : undefined,
       largeur_m: req.body.largeur_m !== undefined ? Number(req.body.largeur_m) : undefined,
-      hauteur_m: req.body.hauteur_m !== undefined ? Number(req.body.hauteur_m) : undefined
+      hauteur_m: req.body.hauteur_m !== undefined ? Number(req.body.hauteur_m) : undefined,
+      moq: req.body.moq !== undefined ? Number(req.body.moq) : undefined,
+      couleurs: req.body.couleurs ? (typeof req.body.couleurs === 'string' ? JSON.parse(req.body.couleurs) : req.body.couleurs) : undefined
     };
     const validatedData = productSchema.partial().parse(bodyData);
     const files = req.files as Express.Multer.File[];
@@ -178,6 +182,59 @@ export const getPublicSettings = async (req: Request, res: Response) => {
     }, {});
 
     res.json(settings);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const likeProduct = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const client_id = req.user.id;
+
+    // Check if already liked
+    const { data: existing, error: checkError } = await supabase
+      .from('favoris')
+      .select('id')
+      .eq('client_id', client_id)
+      .eq('produit_id', id)
+      .maybeSingle();
+
+    if (checkError) throw checkError;
+
+    if (existing) {
+      // Unlike
+      const { error: deleteError } = await supabase
+        .from('favoris')
+        .delete()
+        .eq('id', existing.id);
+      if (deleteError) throw deleteError;
+      return res.json({ liked: false, message: 'Produit retiré des favoris' });
+    } else {
+      // Like
+      const { error: insertError } = await supabase
+        .from('favoris')
+        .insert({ client_id, produit_id: id });
+      if (insertError) throw insertError;
+      return res.json({ liked: true, message: 'Produit ajouté aux favoris' });
+    }
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getLikedProducts = async (req: any, res: Response) => {
+  try {
+    const client_id = req.user.id;
+    const { data, error } = await supabase
+      .from('favoris')
+      .select('produit_id')
+      .eq('client_id', client_id);
+
+    if (error) throw error;
+
+    const likedIds = (data || []).map((item: any) => item.produit_id);
+    res.json(likedIds);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

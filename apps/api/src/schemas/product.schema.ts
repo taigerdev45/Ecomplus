@@ -12,6 +12,8 @@ export const productSchema = z.object({
   longueur_m: z.number().nonnegative().optional().default(0),
   largeur_m: z.number().nonnegative().optional().default(0),
   hauteur_m: z.number().nonnegative().optional().default(0),
+  moq: z.coerce.number().int().min(1).default(1),
+  couleurs: z.array(z.string()).optional().default([]),
 });
 
 export const categorySchema = z.object({

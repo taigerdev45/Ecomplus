@@ -12,6 +12,10 @@ router.get('/rate', productController.getExchangeRate);
 router.get('/settings', productController.getPublicSettings);
 router.get('/:id', productController.getProductById);
 
+// Wishlist routes
+router.get('/likes/my', authenticateJWT, productController.getLikedProducts);
+router.post('/:id/like', authenticateJWT, productController.likeProduct);
+
 // Admin routes
 router.post(
   '/',
