@@ -119,3 +119,52 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 
   res.json({ user });
 };
+
+export const updateProfile = async (req: AuthRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Non autorisé' });
+
+  try {
+    const { nom, telephone, mot_de_passe_actuel, nouveau_mot_de_passe } = req.body;
+
+    const { data: user, error: fetchError } = await supabase
+      .from('utilisateur')
+      .select('*')
+      .eq('id', req.user.id)
+      .single();
+
+    if (fetchError || !user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    const updates: any = {};
+    if (nom) updates.nom = nom;
+    if (telephone !== undefined) updates.telephone = telephone;
+
+    if (nouveau_mot_de_passe) {
+      if (!mot_de_passe_actuel) {
+        return res.status(400).json({ message: 'Le mot de passe actuel est requis pour le modifier' });
+      }
+
+      const isMatch = await comparePassword(mot_de_passe_actuel, user.mot_de_passe);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Le mot de passe actuel est incorrect' });
+      }
+
+      updates.mot_de_passe = await hashPassword(nouveau_mot_de_passe);
+    }
+
+    const { data: updatedUser, error: updateError } = await supabase
+      .from('utilisateur')
+      .update(updates)
+      .eq('id', req.user.id)
+      .select('id, email, nom, telephone, role, created_at')
+      .single();
+
+    if (updateError) throw updateError;
+
+    res.json({ success: true, user: updatedUser, message: 'Profil mis à jour avec succès' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message || 'Erreur lors de la mise à jour du profil' });
+  }
+};
+

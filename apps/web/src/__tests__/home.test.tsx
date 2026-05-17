@@ -1,27 +1,25 @@
+import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Home from '../app/page';
 
-// ── Mocks Next.js ──────────────────────────────────────────────────────────────
 jest.mock('next/link', () => {
-  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  );
-  MockLink.displayName = 'MockLink';
-  return MockLink;
+  // @ts-ignore
+  return function MockLink({ children, href }) {
+    return React.createElement('a', { href }, children);
+  };
 });
 
 jest.mock('next/image', () => {
-  const MockImage = ({ src, alt }: { src: string; alt: string }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
-  );
-  MockImage.displayName = 'MockImage';
-  return MockImage;
+  // @ts-ignore
+  return function MockImage({ src, alt }) {
+    return React.createElement('img', { src, alt });
+  };
 });
 
 // ── Mock fetch ─────────────────────────────────────────────────────────────────
 beforeEach(() => {
+  // @ts-ignore
   global.fetch = jest.fn(() =>
     Promise.resolve({
       json: () =>
@@ -30,7 +28,7 @@ beforeEach(() => {
           data: { description_services: 'Test description' },
         }),
     })
-  ) as jest.Mock;
+  );
 });
 
 afterEach(() => {

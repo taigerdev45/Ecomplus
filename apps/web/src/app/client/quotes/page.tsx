@@ -5,8 +5,17 @@ import { FileText, Download, Loader2, RefreshCw } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 
+interface ClientQuote {
+  id: string;
+  reference: string;
+  created_at: string;
+  total_ttc: number;
+  status: string;
+  pdf_url?: string;
+}
+
 export default function ClientQuotes() {
-  const [quotes, setQuotes] = useState<any[]>([]);
+  const [quotes, setQuotes] = useState<ClientQuote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
 
@@ -16,8 +25,8 @@ export default function ClientQuotes() {
 
   const fetchQuotes = async () => {
     try {
-      const res = await api.get('/api/v1/orders/client-quotes');
-      setQuotes(res.data as any[]);
+      const res = await api.get('/orders/client-quotes');
+      setQuotes(res.data as ClientQuote[]);
     } catch (error) {
       toast.error('Erreur lors de la récupération des devis');
     } finally {
@@ -28,8 +37,8 @@ export default function ClientQuotes() {
   const handleRegeneratePdf = async (id: string) => {
     setRegeneratingId(id);
     try {
-      const res = await api.post(`/api/v1/orders/quotes/${id}/regenerate-pdf`);
-      toast.success(res.data.message || 'Génération lancée');
+      const res = await api.post(`/orders/quotes/${id}/regenerate-pdf`);
+      toast.success((res.data as { message?: string }).message || 'Génération lancée');
       
       // On recharge la liste après quelques secondes pour voir si l'URL est mise à jour
       setTimeout(() => {

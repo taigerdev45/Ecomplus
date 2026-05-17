@@ -7,7 +7,38 @@
 
 ## [Unreleased]
 
-### CHANGELOG - ECOM PLUS GABON
+---
+
+### [1.4.0] - Espace Client Premium & Améliorations de Navigation
+
+#### Added
+- Barre d'entête mobile sticky (Mobile Top Bar) dans le Portail Client (`layout.tsx`) affichant l'identité, le nom de l'utilisateur et un raccourci de déconnexion rapide.
+- Option de déconnexion explicite à la fin du défilement horizontal de la barre de navigation sur mobile.
+- Redirection automatique vers la page d'accueil (`/`) lors de la déconnexion, depuis l'Espace Client comme depuis la barre de navigation globale.
+
+#### Fixed
+- Correction des requêtes Axios de l'espace client (dashboard, quotes, orders, profil) en supprimant le préfixe `/api/v1` doublé pour éviter les erreurs 404 (Not Found).
+- Résolution des problèmes d'accessibilité (labels reliés aux inputs) dans le formulaire de modification de profil client.
+
+---
+
+### [1.3.0] - Optimisation Stockage & Fixes
+
+#### Added
+- Implémentation du hachage SHA-256 des images d'origine dans `upload.service.ts` pour dédupliquer les fichiers stockés.
+- Service de purge automatique des documents PDF (`cleanup.service.ts`) planifié toutes les 24h pour nettoyer les fichiers de plus de 7 jours sur Supabase Storage.
+- Intégration du scheduler de nettoyage dans l'index du serveur API.
+
+#### Changed
+- Compression d'images WebP optimisée via Sharp : Qualité réduite à 75 (principale) / 65 (miniature) avec effort de compression maximal (`effort: 6`).
+- Cache-Control des images augmenté à `31536000` (1 an) pour optimiser les performances de cache.
+
+#### Fixed
+- Correction du bug de disparition de la barre latérale sur l'espace admin lors de la navigation vers la gestion des commandes (`agent/orders/page.tsx`) en la wrappant proprement dans `AdminLayout`.
+- Correction de l'erreur TypeScript de type `unknown` dans le Tableau de Bord client.
+- Correction d'une erreur de parsing syntaxique JSX/TSX dans les mocks des tests unitaires Jest (`home.test.tsx`).
+
+---
 
 ### [1.2.0] - Pivot Espace Client & Sécurisation
 

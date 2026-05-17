@@ -19,17 +19,25 @@ export default function ClientDashboard() {
     const fetchDashboardData = async () => {
       try {
         const [quotesRes, ordersRes] = await Promise.all([
-          api.get('/api/v1/orders/client-quotes'),
-          api.get('/api/v1/orders/client-orders')
+          api.get('/orders/client-quotes'),
+          api.get('/orders/client-orders')
         ]);
         
-        const quotes = quotesRes.data;
-        const orders = ordersRes.data;
+        interface Quote {
+          status: string;
+        }
+        interface Order {
+          statut: string;
+          total_ttc: number;
+        }
 
+        const quotes = quotesRes.data as Quote[];
+        const orders = ordersRes.data as Order[];
+        
         setStats({
-          pendingQuotes: quotes.filter((q: any) => q.status === 'PENDING').length,
-          activeOrders: orders.filter((o: any) => o.statut !== 'livre' && o.statut !== 'annule').length,
-          totalSpent: orders.reduce((sum: number, o: any) => sum + o.total_ttc, 0)
+          pendingQuotes: quotes.filter((q) => q.status === 'PENDING').length,
+          activeOrders: orders.filter((o) => o.statut !== 'livre' && o.statut !== 'annule').length,
+          totalSpent: orders.reduce((sum: number, o) => sum + o.total_ttc, 0)
         });
       } catch (error) {
         console.error("Erreur lors de la récupération des données", error);

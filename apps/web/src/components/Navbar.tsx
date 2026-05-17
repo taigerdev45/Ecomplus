@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/store/useAuth';
 import { useCart } from '@/store/useCart';
 import { ShoppingCart, LogOut, User, LayoutDashboard, Menu } from 'lucide-react';
@@ -11,6 +12,12 @@ export function Navbar() {
   const { getTotalItems } = useCart();
   const cartCount = getTotalItems();
   const [logoUrl, setLogoUrl] = React.useState<string>('');
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   React.useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
@@ -42,8 +49,13 @@ export function Navbar() {
           <div className="hidden items-center gap-6 md:flex">
             <Link href="/catalogue" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Catalogue</Link>
             <Link href="/panier" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Panier</Link>
-            {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') && (
-              <Link href="/admin/products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Admin</Link>
+            {isAuthenticated && (
+              <Link 
+                href={user?.role === 'admin' || user?.role === 'agent' ? '/admin/products' : '/client/dashboard'} 
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              >
+                {user?.role === 'admin' || user?.role === 'agent' ? 'Admin' : 'Mon Espace'}
+              </Link>
             )}
           </div>
         </div>
@@ -65,12 +77,21 @@ export function Navbar() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="hidden flex-col items-end sm:flex">
-                <span className="text-xs font-bold leading-none">{user?.nom}</span>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{user?.role}</span>
-              </div>
+              <Link
+                href={user?.role === 'admin' || user?.role === 'agent' ? '/admin/products' : '/client/dashboard'}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-muted transition-all duration-200"
+                title="Accéder à mon espace"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm shadow-inner">
+                  {user?.nom?.charAt(0).toUpperCase()}
+                </div>
+                <div className="hidden flex-col items-start sm:flex text-left">
+                  <span className="text-xs font-bold leading-none text-slate-800 dark:text-slate-200">{user?.nom}</span>
+                  <span className="text-[9px] text-muted-foreground uppercase tracking-widest mt-0.5">{user?.role === 'client' ? 'Client' : user?.role}</span>
+                </div>
+              </Link>
               <button 
-                onClick={() => logout()}
+                onClick={handleLogout}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-all hover:bg-muted hover:scale-105 active:scale-95"
                 aria-label="Se déconnecter"
                 title="Se déconnecter"

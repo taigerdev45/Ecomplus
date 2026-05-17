@@ -75,6 +75,10 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
+import { startCleanupScheduler } from './services/cleanup.service';
+
+startCleanupScheduler();
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

@@ -5,8 +5,16 @@ import { Package, Download, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 
+interface ClientOrder {
+  id: string;
+  numero_tracking: string;
+  created_at: string;
+  total_ttc: number;
+  statut: string;
+}
+
 export default function ClientOrders() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -15,8 +23,8 @@ export default function ClientOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await api.get('/api/v1/orders/client-orders');
-      setOrders(res.data as any[]);
+      const res = await api.get('/orders/client-orders');
+      setOrders(res.data as ClientOrder[]);
     } catch (error) {
       toast.error('Erreur lors de la récupération des commandes');
     } finally {

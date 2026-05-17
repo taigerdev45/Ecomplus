@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/store/useAuth';
 import { Package, Search, Filter, ChevronRight, Camera, CheckCircle2, MoreHorizontal } from 'lucide-react';
 import { Order, OrderStatus } from '@ecom/types';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { toast } from 'sonner';
 
 const statusLabels: Record<OrderStatus, string> = {
@@ -83,7 +84,8 @@ export default function AgentOrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 dark:bg-slate-950 lg:p-8">
+    <AdminLayout>
+      <div className="min-h-screen bg-slate-50 p-4 dark:bg-slate-950 lg:p-8">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -217,6 +219,7 @@ export default function AgentOrdersPage() {
         </div>
       </div>
     </div>
+  </AdminLayout>
   );
 }
 

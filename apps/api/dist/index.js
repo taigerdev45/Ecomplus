@@ -11,29 +11,51 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const compression_1 = __importDefault(require("compression"));
+const hpp_1 = __importDefault(require("hpp"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const product_routes_1 = __importDefault(require("./routes/product.routes"));
 const order_routes_1 = __importDefault(require("./routes/order.routes"));
 const whatsapp_routes_1 = __importDefault(require("./routes/whatsapp.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
+const config_routes_1 = __importDefault(require("./routes/config.routes"));
 const error_middleware_1 = require("./middlewares/error.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 4000;
+// Security Middlewares
+app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:3000',
     credentials: true
 }));
-app.use((0, helmet_1.default)());
-app.use((0, morgan_1.default)('dev'));
-app.use(express_1.default.json());
+app.use((0, hpp_1.default)()); // Prevent HTTP Parameter Pollution
+const limiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Trop de requêtes effectuées depuis cette adresse IP, veuillez réessayer après 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api/', limiter);
+// Performance Middlewares
+app.use((0, compression_1.default)()); // Gzip compression
+app.use(express_1.default.json({
+    limit: '10kb',
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    }
+})); // Limit body size
 app.use((0, cookie_parser_1.default)());
+app.use((0, morgan_1.default)('dev'));
 // Routes
 app.use('/api/v1/auth', auth_routes_1.default);
 app.use('/api/v1/products', product_routes_1.default);
 app.use('/api/v1/orders', order_routes_1.default);
 app.use('/api/v1/webhooks/whatsapp', whatsapp_routes_1.default);
 app.use('/api/v1/admin', admin_routes_1.default);
+app.use('/api/v1/config', config_routes_1.default);
 // Error Handling
 app.use(error_middleware_1.errorHandler);
 app.get('/health', (req, res) => {
@@ -47,6 +69,8 @@ app.use((err, req, res, next) => {
         error: process.env.NODE_ENV === 'development' ? err : {}
     });
 });
+const cleanup_service_1 = require("./services/cleanup.service");
+(0, cleanup_service_1.startCleanupScheduler)();
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

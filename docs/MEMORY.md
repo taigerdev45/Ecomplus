@@ -179,6 +179,32 @@
 
 ---
 
+### PHASE 12 — Optimisation Stockage & Résolution des Bugs [COMPLET ✅]
+
+**Objectif** : Optimiser l'espace de stockage Supabase par déduplication/compression et corriger les anomalies d'interface.
+
+- [x] Photos : Implémentation du hachage SHA-256 pour éviter les images en doublon
+- [x] Photos : Compression Sharp WebP optimisée (qualité 75/65, effort 6)
+- [x] Documents : Création du service de nettoyage automatique à 7 jours (`cleanup.service.ts`)
+- [x] Backend : Intégration du scheduler de nettoyage au lancement du serveur API
+- [x] UI Admin : Correction du bug de disparition de la barre latérale sur la gestion des commandes (`agent/orders`)
+- [x] TypeScript : Correction des types `unknown` dans le dashboard client
+- [x] Tests : Correction de la syntaxe de mock TSX dans les tests Jest (`home.test.tsx`)
+
+---
+
+### PHASE 13 — Espace Client Premium, Navigation Mobile & Correction API [COMPLET ✅]
+
+**Objectif** : Améliorer l'expérience utilisateur globale, le responsive du portail client et corriger les bugs d'appels d'API.
+
+- [x] API Client : Correction des préfixes Axios doublés `/api/v1` sur les requêtes client (orders, quotes, dashboard, profil) évitant les erreurs 404 (Not Found).
+- [x] Accessibilité : Ajout et mappage des attributs `label` / `htmlFor` sur le formulaire de mise à jour des informations personnelles et de mot de passe.
+- [x] Portail Mobile : Ajout d'une barre de navigation mobile sticky dynamique au sommet du portail client (`layout.tsx`).
+- [x] Portail Mobile : Intégration de boutons et actions de déconnexion explicites optimisés pour mobile dans la barre de navigation.
+- [x] Déconnexion : Redirection propre vers la page d'accueil public (`/`) lors de la déconnexion depuis toutes les interfaces.
+
+---
+
 ## VARIABLES ENV A CONFIGURER
 
 ```env

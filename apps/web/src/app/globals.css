@@ -66,7 +66,20 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 236 82% 65%;
   }
+
+  /* Sleek Emerald/Teal Client Portal Theme */
+  .theme-client {
+    --primary: 160 84% 33%;
+    --ring: 160 84% 33%;
+  }
+
+  .dark .theme-client,
+  .theme-client.dark {
+    --primary: 160 80% 42%;
+    --ring: 160 80% 42%;
+  }
 }
+
 
 @layer base {
   * {

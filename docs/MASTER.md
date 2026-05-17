@@ -191,6 +191,15 @@ Ecom Plus Gabon est une plateforme PWA permettant aux clients gabonais d'acheter
 - [x] Liste des devis et commandes côté client
 - [x] API : `client-quotes`, `client-orders`, `regenerate-pdf`
 
+### PHASE 12 — Optimisation Stockage & Résolution des Bugs (Jour 26) ✅
+
+- [x] Déduplication par hachage SHA-256 des images d'origine
+- [x] Compression Sharp WebP optimisée (qualité 75/65, effort: 6)
+- [x] Nettoyage planifié toutes les 24h pour purger les PDF de plus de 7 jours
+- [x] Intégration du scheduler de nettoyage dans l'index de l'API
+- [x] Correction de la barre latérale admin pour `/agent/orders`
+- [x] Résolution des lints TypeScript et de mock JSX dans les tests
+
 ---
 
 ## 4. CONVENTION DE CODE
