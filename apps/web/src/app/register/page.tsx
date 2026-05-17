@@ -4,8 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/store/useAuth';
 import { toast } from 'sonner';
-import { UserPlus, Mail, Lock, User, Phone, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, User, Phone, Package, ShieldCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+const features = [
+  { icon: Package, label: 'Sourcing direct depuis la Chine' },
+  { icon: Truck, label: 'Livraison jusqu\'à Libreville' },
+  { icon: ShieldCheck, label: 'Suivi en temps réel sécurisé' },
+];
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -41,7 +48,7 @@ export default function RegisterPage() {
         mot_de_passe: formData.password,
         role: 'client'
       });
-      toast.success('Compte créé avec succès');
+      toast.success('Compte créé avec succès !');
       router.push('/');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de l\'inscription');
@@ -51,128 +58,208 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-900">
-        <div className="text-center flex flex-col items-center">
-          <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/logo_ecomplus.jpeg" alt="Logo Ecom Plus Gabon" className="h-20 w-auto object-contain rounded-xl" />
+    <div className="flex min-h-screen">
+      {/* ── Left panel (desktop only) ── */}
+      <div className="relative hidden w-[480px] shrink-0 flex-col justify-between overflow-hidden gradient-hero p-12 lg:flex">
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+        {/* Logo */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <Image src="/icons/logo_ecomplus.jpeg" alt="Ecom Plus" width={32} height={32} className="rounded-lg" />
           </div>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Inscription
-          </h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Rejoignez Ecom Plus Gabon
-          </p>
+          <span className="text-lg font-black text-white tracking-tight">
+            Ecom<span className="text-white/60">Plus</span> Gabon
+          </span>
         </div>
-        
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-3">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                name="nom"
-                type="text"
-                autoComplete="name"
-                required
-                className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
-                placeholder="Nom complet"
-                value={formData.nom}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
-                placeholder="Adresse email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                name="telephone"
-                type="tel"
-                autoComplete="tel"
-                className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
-                placeholder="Téléphone (WhatsApp)"
-                value={formData.telephone}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                required
-                className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-10 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
-                placeholder="Mot de passe"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                required
-                className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-10 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
-                placeholder="Confirmer le mot de passe"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-              >
-                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
+
+        {/* Center content */}
+        <div className="relative z-10 space-y-6">
+          <div>
+            <h2 className="text-3xl font-black text-white leading-tight">
+              Créez votre compte en quelques secondes
+            </h2>
+            <p className="mt-3 text-base text-white/70 leading-relaxed">
+              Démarrez vos importations dès aujourd&apos;hui et bénéficiez de nos tarifs directs d&apos;usines.
+            </p>
+          </div>
+          <ul className="space-y-3">
+            {features.map(({ icon: Icon, label }) => (
+              <li key={label} className="flex items-center gap-3 text-white/90">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+                  <Icon className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium">{label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Bottom quote */}
+        <div className="relative z-10">
+          <p className="text-xs text-white/50">© 2026 Ecom Plus Gabon — Tous droits réservés</p>
+        </div>
+      </div>
+
+      {/* ── Right panel — Form ── */}
+      <div className="flex flex-1 flex-col items-center justify-center bg-white dark:bg-slate-950 px-4 py-12 sm:px-8">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <Image src="/icons/logo_ecomplus.jpeg" alt="Ecom Plus" width={40} height={40} className="rounded-xl" />
+            <span className="text-xl font-black text-slate-900 dark:text-white">EcomPlus Gabon</span>
           </div>
 
-          <div className="pt-4">
+          <div className="mb-6">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white">Inscription</h1>
+            <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+              Rejoignez la plus grande plateforme d&apos;importation du Gabon.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Nom complet */}
+            <div className="space-y-1.5">
+              <label htmlFor="nom" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Nom complet
+              </label>
+              <div className="relative">
+                <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="nom"
+                  name="nom"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  placeholder="Jean Dupont"
+                  value={formData.nom}
+                  onChange={handleChange}
+                  className="field pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Adresse email
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder="votre@email.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="field pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Téléphone */}
+            <div className="space-y-1.5">
+              <label htmlFor="telephone" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Téléphone (WhatsApp)
+              </label>
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="telephone"
+                  name="telephone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="Ex: 066XXXXXX"
+                  value={formData.telephone}
+                  onChange={handleChange}
+                  className="field pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Mot de passe
+              </label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  placeholder="Min. 8 caractères"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="field pl-10 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Masquer' : 'Afficher'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Confirmer le mot de passe
+              </label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  placeholder="Confirmez votre mot de passe"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="field pl-10 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Masquer' : 'Afficher'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative flex w-full justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70"
+              className="btn-primary btn-lg w-full mt-2"
             >
               {isSubmitting ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                "S&apos;inscrire"
+                <>S&apos;inscrire <ArrowRight className="h-4 w-4" /></>
               )}
             </button>
-          </div>
+          </form>
 
-          <div className="text-center">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Déjà un compte ?{' '}
-              <Link href="/login" className="font-medium text-primary hover:underline">
-                Se connecter
-              </Link>
-            </p>
-          </div>
-        </form>
+          <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            Déjà un compte ?{' '}
+            <Link href="/login" className="font-semibold text-primary hover:underline">
+              Se connecter
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

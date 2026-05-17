@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/store/useAuth';
 import api from '@/lib/axios';
-import { Send, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Send, MessageSquare, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Message {
@@ -24,7 +24,6 @@ export default function ClientChat() {
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Optimize: useCallback for stable dependencies
   const loadConversation = useCallback(async () => {
     try {
       const convRes = await api.get('/chat/conversations');
@@ -60,12 +59,11 @@ export default function ClientChat() {
       if (convId) {
         await loadMessages(convId);
         
-        // Smart polling: Only poll messages if document is visible
         interval = setInterval(() => {
           if (document.visibilityState === 'visible') {
             loadMessages(convId);
           }
-        }, 3000);
+        }, 4000);
       } else {
         setIsLoading(false);
       }
@@ -73,7 +71,6 @@ export default function ClientChat() {
     
     initChat();
 
-    // Restart polling logic when tab visibility changes
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && conversationId) {
         loadMessages(conversationId);
@@ -104,13 +101,11 @@ export default function ClientChat() {
     setNewMessage('');
 
     try {
-      // The backend creates the conversation automatically if conversationId is null
       await api.post('/chat/messages', {
         conversationId: conversationId,
         content: tempMessage
       });
       
-      // Si c'est le premier message, il faut recharger la conversation pour avoir l'ID
       if (!conversationId) {
         const newConvId = await loadConversation();
         if (newConvId) {
@@ -127,40 +122,40 @@ export default function ClientChat() {
 
   if (isLoading && messages.length === 0) {
     return (
-      <div className="flex h-[calc(100vh-12rem)] items-center justify-center rounded-2xl bg-white shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-        <div className="text-slate-400 flex flex-col items-center">
-          <MessageSquare className="h-10 w-10 mb-4 animate-pulse opacity-50" />
-          Chargement de la messagerie...
+      <div className="flex h-[calc(100vh-10rem)] items-center justify-center rounded-3xl bg-white shadow-sm border border-slate-200/60 dark:bg-slate-900 dark:border-slate-800">
+        <div className="text-slate-400 flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="text-sm font-semibold">Initialisation du chat...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] rounded-2xl bg-white shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-10rem)] rounded-3xl bg-white border border-slate-200/60 shadow-sm overflow-hidden dark:bg-slate-900 dark:border-slate-800 animate-fade-in">
       
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10">
+      {/* Chat header */}
+      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+          <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary dark:bg-primary/20">
             <ShieldCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="font-bold text-slate-900 dark:text-white">Support EcomPlus</h1>
-            <p className="text-xs text-slate-500">Nous vous répondons dans les plus brefs délais</p>
+            <h1 className="text-sm font-black text-slate-900 dark:text-white leading-tight">Service Client EcomPlus</h1>
+            <p className="text-[10px] font-semibold text-slate-400">Agent connecté de 8h à 18h</p>
           </div>
         </div>
       </div>
 
-      {/* Messages Flow */}
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
+      {/* Messages list */}
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-slate-950/20">
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400">
-            <MessageSquare className="h-12 w-12 mb-3 opacity-20" />
-            <p className="text-center max-w-sm">
-              {"Vous n'avez pas encore de messages."} <br />
-              {"Posez-nous vos questions ici, notre équipe vous répondra très vite !"}
-            </p>
+          <div className="h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
+            <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800 mb-3">
+              <MessageSquare className="h-8 w-8 text-slate-300" />
+            </div>
+            <p className="text-sm font-bold text-slate-800 dark:text-white">Aucun message pour le moment</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-xs">Une question sur vos commandes, les frais ou l&apos;importation ? Écrivez-nous ci-dessous.</p>
           </div>
         ) : (
           messages.map((msg, idx) => {
@@ -171,25 +166,26 @@ export default function ClientChat() {
               <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex max-w-[80%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
                   
-                  {/* Avatar */}
-                  <div className={`h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+                  {/* Miniature Avatar / Badge */}
+                  <div className={`h-7 w-7 rounded-xl flex-shrink-0 flex items-center justify-center text-[10px] font-black ${
                     isAdmin 
-                      ? 'bg-primary/10 text-primary' 
+                      ? 'bg-primary text-white shadow-sm shadow-primary/30' 
                       : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                   }`}>
-                    {isAdmin ? <ShieldCheck className="h-4 w-4" /> : user?.nom?.charAt(0).toUpperCase()}
+                    {isAdmin ? 'A' : user?.nom?.charAt(0).toUpperCase()}
                   </div>
                   
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                    <span className="text-[10px] text-slate-400 mb-1 px-1">
+                    {/* Timestamp bubble header */}
+                    <span className="text-[9px] text-slate-400 font-semibold mb-0.5 px-1">
                       {isAdmin ? 'Agent EcomPlus' : 'Vous'} • {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </span>
-                    <div className={`px-4 py-3 rounded-2xl ${
+                    <div className={`px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
                       isMe 
-                        ? 'bg-primary text-white rounded-br-sm shadow-md shadow-primary/20' 
-                        : 'bg-white border border-slate-200 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded-bl-sm shadow-sm'
+                        ? 'bg-primary text-white rounded-br-none shadow-sm shadow-primary/25' 
+                        : 'bg-white border border-slate-200/80 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded-bl-none shadow-xs'
                     }`}>
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
                   </div>
                 </div>
@@ -199,24 +195,23 @@ export default function ClientChat() {
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <form onSubmit={handleSendMessage} className="flex gap-2 relative max-w-4xl mx-auto">
+      {/* Input panel */}
+      <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto relative">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Écrivez votre message à l'équipe..."
-            className="flex-1 rounded-full border border-slate-200 bg-slate-50 py-3 pl-6 pr-14 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
+            placeholder="Écrivez votre message..."
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-4 pr-12 text-xs text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 dark:bg-slate-950 dark:border-slate-800 dark:text-white"
           />
           <button
             type="submit"
             disabled={!newMessage.trim()}
-            aria-label="Envoyer le message"
-            title="Envoyer le message"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-xl bg-primary text-white transition-transform hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+            aria-label="Envoyer"
           >
-            <Send className="h-4 w-4 -ml-0.5" />
+            <Send className="h-3.5 w-3.5" />
           </button>
         </form>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/store/useAuth';
-import { Package, FileText, Clock, CheckCircle2 } from 'lucide-react';
+import { Package, FileText, CheckCircle2, ShoppingBag, MessageSquare, User, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/axios';
 
@@ -50,77 +50,117 @@ export default function ClientDashboard() {
   }, []);
 
   if (isLoading) {
-    return <div className="animate-pulse space-y-6">
-      <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/4"></div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[1, 2, 3].map(i => <div key={i} className="h-32 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>)}
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-32 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
+          ))}
+        </div>
       </div>
-    </div>;
+    );
   }
 
+  const kpis = [
+    {
+      title: 'Devis en attente',
+      value: stats.pendingQuotes,
+      desc: 'En attente de validation',
+      icon: FileText,
+      color: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
+      link: '/client/quotes'
+    },
+    {
+      title: 'Commandes actives',
+      value: stats.activeOrders,
+      desc: 'En cours d\'importation',
+      icon: Package,
+      color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400',
+      link: '/client/orders'
+    },
+    {
+      title: 'Total investi',
+      value: `${stats.totalSpent.toLocaleString()} F`,
+      desc: 'Total de vos achats',
+      icon: CheckCircle2,
+      color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400',
+      link: null
+    }
+  ];
+
+  const quickActions = [
+    { title: 'Passer une commande', desc: 'Consulter notre catalogue', icon: ShoppingBag, link: '/catalogue' },
+    { title: 'Contacter un agent', desc: 'Une question ? Discutez avec nous', icon: MessageSquare, link: '/client/chat' },
+    { title: 'Gérer mon profil', desc: 'Mettre à jour vos coordonnées', icon: User, link: '/client/profil' },
+  ];
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Bonjour, {user?.nom}</h1>
-        <p className="mt-2 text-slate-500">Bienvenue sur votre espace client Ecom Plus Gabon.</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Devis en attente</p>
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-2">{stats.pendingQuotes}</h3>
-            </div>
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">
-              <FileText className="h-6 w-6" />
-            </div>
-          </div>
-          <Link href="/client/quotes" className="text-sm text-blue-600 font-medium mt-4 inline-block hover:underline">
-            Voir mes devis →
-          </Link>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Commandes en cours</p>
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-2">{stats.activeOrders}</h3>
-            </div>
-            <div className="p-3 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl">
-              <Package className="h-6 w-6" />
-            </div>
-          </div>
-          <Link href="/client/orders" className="text-sm text-green-600 font-medium mt-4 inline-block hover:underline">
-            Suivre mes commandes →
-          </Link>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Total des achats</p>
-              <h3 className="text-3xl font-black text-primary mt-2">{stats.totalSpent.toLocaleString()} F</h3>
-            </div>
-            <div className="p-3 bg-primary/10 text-primary rounded-xl">
-              <CheckCircle2 className="h-6 w-6" />
-            </div>
-          </div>
+    <div className="space-y-8 animate-fade-in">
+      
+      {/* ── Welcome Banner ── */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 via-primary/95 to-indigo-950 p-8 text-white shadow-lg">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 10% 20%, #ffffff 0%, transparent 40%)' }} />
+        <div className="relative z-10 max-w-xl space-y-2">
+          <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white/90 backdrop-blur-sm">
+            Portail Client EcomPlus
+          </span>
+          <h1 className="text-3xl font-black">Bonjour, {user?.nom} !</h1>
+          <p className="text-sm text-white/70">
+            Bienvenue sur votre espace client Ecom Plus Gabon. Suivez vos devis, factures et colis importés de Chine.
+          </p>
         </div>
       </div>
 
-      <div className="bg-slate-900 dark:bg-primary/10 rounded-2xl p-8 text-center text-white dark:text-slate-900">
-        <h2 className="text-2xl font-bold dark:text-primary mb-2">Besoin d&apos;un nouveau produit ?</h2>
-        <p className="text-slate-300 dark:text-slate-500 mb-6 max-w-lg mx-auto">
-          Parcourez notre catalogue et ajoutez des articles à votre panier pour obtenir une estimation immédiate.
-        </p>
-        <Link 
-          href="/catalogue" 
-          className="inline-block bg-white dark:bg-primary text-slate-900 dark:text-white font-bold px-8 py-3 rounded-xl hover:bg-slate-50 transition-all shadow-lg"
-        >
-          Voir le catalogue
-        </Link>
+      {/* ── KPI cards ── */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {kpis.map((kpi) => {
+          const Icon = kpi.icon;
+          return (
+            <div key={kpi.title} className="kpi-card justify-between group">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{kpi.title}</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{kpi.value}</p>
+                </div>
+                <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${kpi.color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-50 dark:border-slate-800/40">
+                <span className="text-[11px] font-medium text-slate-400">{kpi.desc}</span>
+                {kpi.link && (
+                  <Link href={kpi.link} className="text-[11px] font-black text-primary uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    Gérer <ArrowRight className="h-3 w-3" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* ── Quick Actions ── */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Actions rapides</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link key={action.title} href={action.link} className="card-hover p-5 flex items-start gap-4 group">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors dark:bg-slate-800 dark:text-slate-400">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{action.title}</h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{action.desc}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
     </div>
   );
 }

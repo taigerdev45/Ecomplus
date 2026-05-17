@@ -90,107 +90,109 @@ export default function ClientProfile() {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white">Mon Profil</h1>
-        <p className="mt-2 text-slate-500">Gérez vos informations de contact et la sécurité de votre compte.</p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Mon Profil</h1>
+          <p className="page-subtitle">Gérez vos informations de contact et la sécurité de votre compte.</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Profile Card & Info overview */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm text-center relative overflow-hidden">
-            {/* Emerald ambient accent */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary/80 to-primary"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column: Avatar & Overview card */}
+        <div className="lg:col-span-1">
+          <div className="card p-6 text-center flex flex-col items-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-primary" />
             
-            <div className="relative w-24 h-24 mx-auto mt-4 rounded-full overflow-hidden border-4 border-slate-50 dark:border-slate-800 shadow-md">
+            <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm mt-4 dark:border-slate-800">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
-                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.nom || 'Client')}&background=10b981&color=fff&size=150`} 
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.nom || 'Client')}&background=2563eb&color=fff&size=128&bold=true`} 
                 alt={user?.nom} 
                 className="w-full h-full object-cover"
               />
             </div>
 
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-4">{user?.nom}</h3>
-            <p className="text-xs font-bold text-primary bg-primary/10 uppercase px-3 py-1 rounded-full inline-block mt-2 tracking-wider">
-              {user?.role === 'client' ? 'Client ecomplus' : user?.role}
-            </p>
+            <h3 className="text-base font-black text-slate-900 dark:text-white mt-4">{user?.nom}</h3>
+            <span className="badge-primary mt-2 uppercase tracking-wider text-[9px] font-black px-3 py-1 rounded-full">
+              {user?.role === 'client' ? 'Client EcomPlus' : user?.role}
+            </span>
 
-            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-left space-y-4">
-              <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+            <div className="w-full mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-left space-y-4">
+              <div className="flex items-center gap-3 text-xs text-slate-500">
                 <Mail className="h-4 w-4 text-slate-400 shrink-0" />
                 <span className="truncate">{user?.email}</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-3 text-xs text-slate-500">
                 <Phone className="h-4 w-4 text-slate-400 shrink-0" />
                 <span>{user?.telephone || 'Non renseigné'}</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-3 text-xs text-slate-500">
                 <ShieldCheck className="h-4 w-4 text-slate-400 shrink-0" />
-                <span>Compte sécurisé et actif</span>
+                <span>Compte actif et vérifié</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Profile forms */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Form: General info */}
-          <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
+        {/* Right Column: Forms */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* General profile form */}
+          <div className="card p-6">
+            <h3 className="section-title">
+              <User className="h-4.5 w-4.5 text-primary" />
               Informations Personnelles
             </h3>
 
-            <form onSubmit={handleProfileSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="nom-complet" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+            <form onSubmit={handleProfileSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="nom" className="block text-xs font-black uppercase tracking-wider text-slate-400">
                     Nom Complet
                   </label>
                   <input
-                    id="nom-complet"
+                    id="nom"
                     type="text"
                     required
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
                     value={profileData.nom}
                     onChange={(e) => setProfileData({ ...profileData, nom: e.target.value })}
+                    className="field"
                   />
                 </div>
-                <div>
-                  <label htmlFor="telephone-input" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                <div className="space-y-1.5">
+                  <label htmlFor="telephone" className="block text-xs font-black uppercase tracking-wider text-slate-400">
                     Numéro de Téléphone
                   </label>
                   <input
-                    id="telephone-input"
-                    type="text"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    id="telephone"
+                    type="tel"
                     placeholder="Ex: 066XXXXXX"
                     value={profileData.telephone}
                     onChange={(e) => setProfileData({ ...profileData, telephone: e.target.value })}
+                    className="field"
                   />
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="email-input" className="block text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wider text-xs">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-400">
                   Adresse E-mail (Non modifiable)
                 </label>
                 <input
-                  id="email-input"
                   type="email"
                   disabled
-                  className="w-full rounded-xl border border-slate-100 bg-slate-100/50 dark:bg-slate-950/20 dark:border-slate-800/50 p-4 text-sm text-slate-400 cursor-not-allowed"
                   value={user?.email || ''}
+                  className="field bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-950 dark:border-slate-800/60"
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-primary text-white font-bold px-6 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                  className="btn-primary flex items-center gap-1.5"
                 >
                   {savingProfile ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -203,107 +205,107 @@ export default function ClientProfile() {
             </form>
           </div>
 
-          {/* Form: Password */}
-          <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <Lock className="h-5 w-5 text-primary" />
+          {/* Password change form */}
+          <div className="card p-6">
+            <h3 className="section-title">
+              <Lock className="h-4.5 w-4.5 text-primary" />
               Sécurité & Mot de Passe
             </h3>
 
-            <form onSubmit={handlePasswordSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="mot-passe-actuel" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label htmlFor="mot_de_passe_actuel" className="block text-xs font-black uppercase tracking-wider text-slate-400">
                   Mot de passe actuel
                 </label>
                 <div className="relative">
                   <input
-                    id="mot-passe-actuel"
+                    id="mot_de_passe_actuel"
                     type={showCurrentPassword ? 'text' : 'password'}
                     required
                     placeholder="Saisissez votre mot de passe actuel"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
                     value={passwordData.mot_de_passe_actuel}
                     onChange={(e) => setPasswordData({ ...passwordData, mot_de_passe_actuel: e.target.value })}
+                    className="field pr-10"
                   />
                   <button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    aria-label={showCurrentPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
-                    {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="nouveau-mot-passe" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="nouveau_mot_de_passe" className="block text-xs font-black uppercase tracking-wider text-slate-400">
                     Nouveau mot de passe
                   </label>
                   <div className="relative">
                     <input
-                      id="nouveau-mot-passe"
+                      id="nouveau_mot_de_passe"
                       type={showNewPassword ? 'text' : 'password'}
                       required
                       placeholder="Min. 8 caractères"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
                       value={passwordData.nouveau_mot_de_passe}
                       onChange={(e) => setPasswordData({ ...passwordData, nouveau_mot_de_passe: e.target.value })}
+                      className="field pr-10"
                     />
                     <button
                       type="button"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      aria-label={showNewPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     >
-                      {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="confirm-nouveau-mot-passe" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                    Confirmer le nouveau mot de passe
+
+                <div className="space-y-1.5">
+                  <label htmlFor="confirm_password" className="block text-xs font-black uppercase tracking-wider text-slate-400">
+                    Confirmer le mot de passe
                   </label>
                   <div className="relative">
                     <input
-                      id="confirm-nouveau-mot-passe"
+                      id="confirm_password"
                       type={showConfirmPassword ? 'text' : 'password'}
                       required
-                      placeholder="Confirmez le mot de passe"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-950 dark:border-slate-800 p-4 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                      placeholder="Confirmez"
                       value={passwordData.confirm_password}
                       onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                      className="field pr-10"
                     />
                     <button
                       type="button"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      aria-label={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="flex items-center gap-2 bg-primary text-white font-bold px-6 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                  className="btn-primary flex items-center gap-1.5"
                 >
                   {savingPassword ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
-                  Mettre à jour le mot de passe
+                  Enregistrer
                 </button>
               </div>
             </form>
           </div>
+
         </div>
+
       </div>
     </div>
   );

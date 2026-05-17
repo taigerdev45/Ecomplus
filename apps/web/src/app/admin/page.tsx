@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { TrendingUp, Users, ShoppingBag, FileText, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { TrendingUp, Users, ShoppingBag, FileText, ArrowUpRight, AlertCircle, Sparkles } from 'lucide-react';
 import { 
   AreaChart, 
   Area, 
@@ -52,189 +52,203 @@ export default function AdminDashboard() {
   };
 
   const kpis = [
-    { name: 'Visites Globales', value: stats?.kpis.totalVisits || 0, icon: Users, color: 'text-teal-600', bg: 'bg-teal-50' },
-    { name: 'Commandes', value: stats?.kpis.totalOrders || 0, icon: ShoppingBag, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { name: 'Devis en attente', value: stats?.kpis.pendingQuotes || 0, icon: FileText, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { name: 'CA Total', value: `${(stats?.kpis.totalRevenue || 0).toLocaleString()} F`, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
-    { name: 'Moyenne / Cmd', value: `${(stats?.kpis.avgOrderValue || 0).toLocaleString()} F`, icon: ArrowUpRight, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { name: 'Visites Globales', value: stats?.kpis.totalVisits || 0, icon: Users, color: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/20' },
+    { name: 'Commandes', value: stats?.kpis.totalOrders || 0, icon: ShoppingBag, color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20' },
+    { name: 'Devis en attente', value: stats?.kpis.pendingQuotes || 0, icon: FileText, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20' },
+    { name: 'CA Total', value: `${(stats?.kpis.totalRevenue || 0).toLocaleString()} F`, icon: TrendingUp, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20' },
+    { name: 'Moyenne / Cmd', value: `${(stats?.kpis.avgOrderValue || 0).toLocaleString()} F`, icon: ArrowUpRight, color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20' },
   ];
 
-  if (loading) return <AdminLayout>Chargement...</AdminLayout>;
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-primary to-primary/80 p-8 text-white shadow-lg">
-          <div className="relative z-10">
-            <h1 className="text-3xl font-black mb-2">Tableau de Bord</h1>
-            <p className="text-white/80 text-lg max-w-xl">Aperçu global de l&apos;activité EcomPlus et pilotage de vos performances en temps réel.</p>
-          </div>
-          
-          {/* Floating Admin Illustration */}
-          <div className="absolute right-8 -top-4 z-0 hidden lg:block animate-float">
-            <div className="relative h-40 w-40">
-              <Image src="/images/admin.png" alt="Admin Dashboard" fill className="object-contain drop-shadow-2xl" />
+      <div className="space-y-6 animate-fade-in">
+        
+        {/* Welcome Admin banner */}
+        <div className="relative overflow-hidden rounded-[2.2rem] bg-gradient-to-br from-slate-900 via-primary/95 to-indigo-950 p-6 md:p-8 text-white shadow-xl">
+          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 40%, #ffffff 0%, transparent 40%)' }} />
+          <div className="relative z-10 flex flex-col justify-between h-full gap-4 md:flex-row md:items-center">
+            <div className="space-y-2 max-w-xl">
+              <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white/95 backdrop-blur-sm inline-flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" /> Espace Administration
+              </span>
+              <h1 className="text-2xl md:text-3xl font-black">Tableau de Bord</h1>
+              <p className="text-xs md:text-sm text-white/70 leading-relaxed">
+                Visualisez globalement l&apos;activité d&apos;EcomPlus, gérez l&apos;onboarding, suivez les commissions et pilotez les performances.
+              </p>
+            </div>
+            
+            {/* Animated avatar / graphic */}
+            <div className="relative h-28 w-28 shrink-0 self-center hidden md:block animate-float">
+              <Image src="/icons/logo_ecomplus.jpeg" alt="EcomPlus Logo" fill className="object-cover rounded-2xl border-2 border-white/20 shadow-md" />
             </div>
           </div>
         </div>
 
-        {/* KPI Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        {/* KPI Row */}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
-              <div key={kpi.name} className="rounded-2xl bg-white p-6 shadow-sm dark:bg-slate-900">
+              <div key={kpi.name} className="card p-4 flex flex-col justify-between gap-3 hover:-translate-y-0.5 transition-all">
                 <div className="flex items-center justify-between">
-                  <div className={`rounded-xl ${kpi.bg} p-3 ${kpi.color}`}>
-                    <Icon className="h-6 w-6" />
+                  <div className={`rounded-xl p-2 flex items-center justify-center shrink-0 ${kpi.color}`}>
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <span className="flex items-center gap-1 text-xs font-medium text-green-600">
-                    +12% <ArrowUpRight className="h-3 w-3" />
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
+                    +12% <ArrowUpRight className="h-2.5 w-2.5" />
                   </span>
                 </div>
-                <div className="mt-4">
-                  <p className="text-sm text-slate-500">{kpi.name}</p>
-                  <h3 className="text-2xl font-bold">{kpi.value}</h3>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{kpi.name}</p>
+                  <h3 className="text-lg font-black text-slate-900 mt-1 dark:text-white truncate">{kpi.value}</h3>
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Chart */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900 lg:col-span-2">
-            <h3 className="mb-6 text-lg font-bold">Évolution des ventes (30j)</h3>
-            <div className="h-[350px] w-full">
+          <div className="card p-5 lg:col-span-2 space-y-4">
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest text-slate-400 dark:text-white">Évolution des ventes (30j)</h3>
+            <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats?.chartData}>
                   <defs>
                     <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15}/>
+                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} tickFormatter={(val) => `${val/1000}k`} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} tickFormatter={(val) => `${val/1000}k`} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', fontSize: 12 }}
                   />
-                  <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
+                  <Area type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Side Info */}
+          {/* Action side cards */}
           <div className="space-y-6 lg:col-span-1">
-            <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
-              <h3 className="mb-4 text-lg font-bold">Alertes</h3>
-              <div className="space-y-4">
-                <div className="flex gap-4 rounded-2xl bg-red-50 p-4 text-red-600 dark:bg-red-900/10">
-                  <AlertCircle className="h-5 w-5 shrink-0" />
+            <div className="card p-5 space-y-4">
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest text-slate-400 dark:text-white">Alertes urgentes</h3>
+              <div className="space-y-3">
+                <div className="flex gap-3 rounded-2xl bg-red-50 p-3.5 text-red-700 border border-red-100 dark:bg-red-950/20 dark:border-red-900/30">
+                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-bold">5 Devis en retard</p>
-                    <p className="text-xs opacity-80">Plus de 48h sans validation.</p>
+                    <p className="text-xs font-black">5 Devis en retard</p>
+                    <p className="text-[10px] opacity-80 mt-0.5">Plus de 48h sans modification ou validation client.</p>
                   </div>
                 </div>
-                <div className="flex gap-4 rounded-2xl bg-amber-50 p-4 text-amber-600 dark:bg-amber-900/10">
-                  <TrendingUp className="h-5 w-5 shrink-0" />
+                <div className="flex gap-3 rounded-2xl bg-amber-50 p-3.5 text-amber-700 border border-amber-100 dark:bg-amber-950/20 dark:border-amber-900/30">
+                  <TrendingUp className="h-4 w-4 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-bold">Objectif CA</p>
-                    <p className="text-xs opacity-80">Vous êtes à 85% de l&apos;objectif mensuel.</p>
+                    <p className="text-xs font-black">Objectif mensuel</p>
+                    <p className="text-[10px] opacity-80 mt-0.5">Vous avez atteint 85% de l&apos;objectif de ventes.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-3xl bg-primary p-6 text-white shadow-lg shadow-primary/20">
-              <h3 className="text-lg font-bold">Commissions</h3>
-              <p className="mt-2 text-sm opacity-80">Configuration actuelle des paliers :</p>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>&lt; 350k F</span>
-                  <span className="font-bold">10%</span>
+            <div className="card p-5 bg-primary text-white border-0 shadow-lg relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at bottom right, #ffffff 0%, transparent 65%)' }} />
+              <h3 className="text-sm font-black uppercase tracking-wider text-white/90">Paliers de Commissions</h3>
+              <p className="text-[11px] opacity-75 mt-1">Modifiez la structure de commissionnement du sourcing :</p>
+              
+              <div className="mt-4 space-y-2 text-xs">
+                <div className="flex justify-between border-b border-white/10 pb-1.5">
+                  <span className="opacity-80">&lt; 350k F</span>
+                  <span className="font-black">10%</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>350k - 1M F</span>
-                  <span className="font-bold">15%</span>
+                <div className="flex justify-between border-b border-white/10 pb-1.5">
+                  <span className="opacity-80">350k - 1M F</span>
+                  <span className="font-black">15%</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>&gt; 1M F</span>
-                  <span className="font-bold">20%</span>
+                <div className="flex justify-between">
+                  <span className="opacity-80">&gt; 1M F</span>
+                  <span className="font-black">20%</span>
                 </div>
               </div>
-              <button className="mt-6 w-full rounded-xl bg-white/20 py-3 text-sm font-bold backdrop-blur-md hover:bg-white/30 transition-all">
+              <button className="mt-5 w-full btn bg-white/20 text-white font-black py-2.5 rounded-xl hover:bg-white/30 transition-all text-xs">
                 Modifier les paliers
               </button>
-            </div>
-
-            <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h3 className="text-lg font-bold text-slate-950 dark:text-white">Analyses Avancées</h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Visualisez l&apos;onboarding des utilisateurs, les performances des catégories et les métadonnées de livraison en détail.
-              </p>
-              <a 
-                href="/admin/reports" 
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 py-3 text-sm font-bold text-white hover:bg-slate-800 transition-all shadow-md dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
-              >
-                Accéder aux Statistiques <ArrowUpRight className="h-4 w-4" />
-              </a>
             </div>
           </div>
         </div>
 
-        {/* Tracking & Connexions Charts */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Daily Visits Chart */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
-            <h3 className="mb-6 text-lg font-bold">Visites Globales (30j)</h3>
-            <div className="h-[250px] w-full">
+        {/* Double charts */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Daily Visits */}
+          <div className="card p-5 space-y-4">
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest text-slate-400 dark:text-white">Visites Globales (30j)</h3>
+            <div className="h-[200px] w-full">
               {stats?.dailyVisits && stats.dailyVisits.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats.dailyVisits}>
                     <defs>
                       <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0d9488" stopOpacity={0.1}/>
+                        <stop offset="5%" stopColor="#0d9488" stopOpacity={0.15}/>
                         <stop offset="95%" stopColor="#0d9488" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                    <Area type="monotone" dataKey="count" name="Visites" stroke="#0d9488" strokeWidth={3} fillOpacity={1} fill="url(#colorVisits)" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', fontSize: 11 }} />
+                    <Area type="monotone" dataKey="count" name="Visites" stroke="#0d9488" strokeWidth={2.5} fillOpacity={1} fill="url(#colorVisits)" />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex h-full items-center justify-center text-sm text-slate-400">Aucune donnée de visite pour le moment</div>
+                <div className="flex h-full items-center justify-center text-xs text-slate-400">Aucune donnée disponible</div>
               )}
             </div>
           </div>
 
-          {/* Daily Client Logins Chart */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
-            <h3 className="mb-6 text-lg font-bold">Connexions Clients par Jour (30j)</h3>
-            <div className="h-[250px] w-full">
+          {/* Daily Logins */}
+          <div className="card p-5 space-y-4">
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest text-slate-400 dark:text-white">Connexions Clients (30j)</h3>
+            <div className="h-[200px] w-full">
               {stats?.dailyLogins && stats.dailyLogins.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.dailyLogins}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', fontSize: 11 }} />
                     <Bar dataKey="count" name="Connexions" fill="#4f46e5" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex h-full items-center justify-center text-sm text-slate-400">Aucune donnée de connexion pour le moment</div>
+                <div className="flex h-full items-center justify-center text-xs text-slate-400">Aucune donnée disponible</div>
               )}
             </div>
           </div>
         </div>
+
       </div>
     </AdminLayout>
   );
 }
 
+// Inline Loader2 mock if missing
+const Loader2 = ({ className }: { className?: string }) => (
+  <svg className={`animate-spin ${className}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  </svg>
+);
