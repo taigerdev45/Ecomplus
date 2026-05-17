@@ -73,6 +73,7 @@ export default function RegisterPage() {
               <input
                 name="nom"
                 type="text"
+                autoComplete="name"
                 required
                 className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Nom complet"
@@ -85,6 +86,7 @@ export default function RegisterPage() {
               <input
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
                 className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Adresse email"
@@ -97,6 +99,7 @@ export default function RegisterPage() {
               <input
                 name="telephone"
                 type="tel"
+                autoComplete="tel"
                 className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Téléphone (WhatsApp)"
                 value={formData.telephone}
@@ -108,6 +111,7 @@ export default function RegisterPage() {
               <input
                 name="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 required
                 className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-10 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Mot de passe"
@@ -128,6 +132,7 @@ export default function RegisterPage() {
               <input
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 required
                 className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-10 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Confirmer le mot de passe"

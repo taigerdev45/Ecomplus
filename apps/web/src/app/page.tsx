@@ -62,14 +62,14 @@ export default function Home() {
         </div>
 
         {/* Floating Animated Illustrations */}
-        <div className="hidden lg:block absolute left-10 top-32 z-20 animate-float" style={{ animationDelay: '0s' }}>
-          <div className="relative h-48 w-48 rounded-full bg-white/50 backdrop-blur-sm shadow-xl p-4 flex items-center justify-center border border-white/20">
-            <Image src="/images/shopping.png" alt="Shopping" width={150} height={150} className="object-contain" />
+        <div className="absolute left-2 bottom-4 sm:left-10 sm:top-32 z-20 animate-float" style={{ animationDelay: '0s' }}>
+          <div className="relative w-20 h-20 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-full bg-white/50 backdrop-blur-sm shadow-xl p-2 sm:p-4 flex items-center justify-center border border-white/20">
+            <Image src="/images/shopping.png" alt="Shopping" width={150} height={150} className="object-contain w-14 h-14 sm:w-24 sm:h-24 lg:w-[150px] lg:h-[150px]" />
           </div>
         </div>
-        <div className="hidden lg:block absolute right-10 top-40 z-20 animate-float" style={{ animationDelay: '1.5s' }}>
-          <div className="relative h-56 w-56 rounded-full bg-white/50 backdrop-blur-sm shadow-xl p-4 flex items-center justify-center border border-white/20">
-            <Image src="/images/delivery.png" alt="Delivery" width={180} height={180} className="object-contain" />
+        <div className="absolute right-2 bottom-8 sm:right-10 sm:top-40 z-20 animate-float" style={{ animationDelay: '1.5s' }}>
+          <div className="relative w-24 h-24 sm:w-36 sm:h-36 lg:w-56 lg:h-56 rounded-full bg-white/50 backdrop-blur-sm shadow-xl p-2 sm:p-4 flex items-center justify-center border border-white/20">
+            <Image src="/images/delivery.png" alt="Delivery" width={180} height={180} className="object-contain w-16 h-16 sm:w-28 sm:h-28 lg:w-[180px] lg:h-[180px]" />
           </div>
         </div>
 

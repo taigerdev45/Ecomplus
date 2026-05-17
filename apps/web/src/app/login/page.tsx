@@ -55,6 +55,7 @@ export default function LoginPage() {
                 id="email-address"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
                 className="block w-full rounded-lg border border-slate-300 py-3 pl-10 pr-3 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Adresse email"
@@ -68,6 +69,7 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
                 required
                 className="block w-full rounded-lg border border-slate-300 py-3 pl-10 pr-10 placeholder-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-sm"
                 placeholder="Mot de passe"

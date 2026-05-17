@@ -1,25 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/store/useAuth';
 import { useCart } from '@/store/useCart';
-import { ShoppingCart, LogOut, User, LayoutDashboard, Menu } from 'lucide-react';
+import { ShoppingCart, LogOut, User, LayoutDashboard, Menu, X } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const { getTotalItems } = useCart();
   const cartCount = getTotalItems();
-  const [logoUrl, setLogoUrl] = React.useState<string>('');
+  const [logoUrl, setLogoUrl] = useState<string>('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   const handleLogout = () => {
     logout();
+    setIsMobileMenuOpen(false);
     router.push('/');
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
       .then(res => {
         if (!res.ok) throw new Error('Config not found');
@@ -34,10 +36,10 @@ export function Navbar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm relative">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-black tracking-tighter text-primary transition-transform hover:scale-105 active:scale-95">
+          <Link href="/" className="text-xl font-black tracking-tighter text-primary transition-transform hover:scale-105 active:scale-95" onClick={() => setIsMobileMenuOpen(false)}>
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain drop-shadow-sm" />
@@ -61,12 +63,13 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Link 
             href="/panier" 
             className="relative flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-all hover:bg-secondary/80 hover:scale-105 active:scale-95"
             aria-label="Voir le panier"
             title="Mon panier"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
@@ -77,11 +80,12 @@ export function Navbar() {
           </Link>
 
           {isAuthenticated ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href={user?.role === 'admin' || user?.role === 'agent' ? '/admin/products' : '/client/dashboard'}
-                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-muted transition-all duration-200"
+                className="flex items-center gap-2.5 px-2 sm:px-3 py-1.5 rounded-full hover:bg-muted transition-all duration-200"
                 title="Accéder à mon espace"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm shadow-inner">
                   {user?.nom?.charAt(0).toUpperCase()}
@@ -93,7 +97,7 @@ export function Navbar() {
               </Link>
               <button 
                 onClick={handleLogout}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-all hover:bg-muted hover:scale-105 active:scale-95"
+                className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-all hover:bg-muted hover:scale-105 active:scale-95"
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
@@ -101,12 +105,54 @@ export function Navbar() {
               </button>
             </div>
           ) : (
-            <Link href="/login" className="flex h-10 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">
+            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="hidden sm:flex h-10 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">
               <User className="h-4 w-4" /> Connexion
             </Link>
           )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 transition-all hover:bg-slate-200 dark:hover:bg-slate-700"
+            aria-label="Menu"
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full border-t border-border bg-background shadow-lg flex flex-col px-4 py-4 gap-4 animate-in slide-in-from-top-2">
+          <Link href="/catalogue" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-bold text-slate-800 dark:text-slate-200 py-2 border-b border-border/50">
+            Catalogue
+          </Link>
+          <Link href="/panier" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-bold text-slate-800 dark:text-slate-200 py-2 border-b border-border/50">
+            Mon Panier
+          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link 
+                href={user?.role === 'admin' || user?.role === 'agent' ? '/admin/products' : '/client/dashboard'} 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-bold text-primary py-2 border-b border-border/50"
+              >
+                {user?.role === 'admin' || user?.role === 'agent' ? 'Administration' : 'Mon Espace'}
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-base font-bold text-red-500 py-2"
+              >
+                <LogOut className="h-5 w-5" /> Se déconnecter
+              </button>
+            </>
+          ) : (
+            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground">
+              <User className="h-4 w-4" /> Se connecter
+            </Link>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
