@@ -9,6 +9,7 @@ import {
   Package, 
   FileText, 
   Users, 
+  Shield,
   BarChart3, 
   Settings, 
   Menu, 
@@ -28,7 +29,8 @@ const navItems = [
   { name: 'Commandes', href: '/agent/orders', icon: Package },
   { name: 'Reçus', href: '/admin/receipts', icon: FileText },
   { name: 'Messages', href: '/admin/chat', icon: MessageSquare },
-  { name: 'Agents', href: '/admin/agents', icon: Users },
+  { name: 'Clients', href: '/admin/clients', icon: Users },
+  { name: 'Agents', href: '/admin/agents', icon: Shield },
   { name: 'Rapports', href: '/admin/reports', icon: BarChart3 },
   { name: 'Configuration', href: '/admin/config', icon: Settings },
 ];

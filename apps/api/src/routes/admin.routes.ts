@@ -13,5 +13,9 @@ router.get('/reports-stats', adminController.getReportsStats);
 router.get('/quotes', adminController.getAllQuotes);
 router.get('/agents', adminController.getAgents);
 router.post('/agents', adminController.createAgent);
+router.put('/agents/:id', adminController.updateAgent);
+router.delete('/agents/:id', adminController.deleteAgent);
+router.get('/clients', adminController.getClients);
+router.delete('/clients/:id', adminController.deleteAgent);
 
 export default router;
