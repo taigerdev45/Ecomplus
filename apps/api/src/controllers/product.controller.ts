@@ -55,7 +55,10 @@ export const createProduct = async (req: Request, res: Response) => {
       ...req.body,
       prix_cny: req.body.prix_cny ? Number(req.body.prix_cny) : undefined,
       poids_kg: req.body.poids_kg ? Number(req.body.poids_kg) : undefined,
-      stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined
+      stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined,
+      longueur_cm: req.body.longueur_cm !== undefined ? Number(req.body.longueur_cm) : undefined,
+      largeur_cm: req.body.largeur_cm !== undefined ? Number(req.body.largeur_cm) : undefined,
+      hauteur_cm: req.body.hauteur_cm !== undefined ? Number(req.body.hauteur_cm) : undefined
     };
     const validatedData = productSchema.parse(bodyData);
     const files = req.files as Express.Multer.File[];
@@ -87,7 +90,10 @@ export const updateProduct = async (req: Request, res: Response) => {
       ...req.body,
       prix_cny: req.body.prix_cny ? Number(req.body.prix_cny) : undefined,
       poids_kg: req.body.poids_kg ? Number(req.body.poids_kg) : undefined,
-      stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined
+      stock: req.body.stock !== undefined ? Number(req.body.stock) : undefined,
+      longueur_cm: req.body.longueur_cm !== undefined ? Number(req.body.longueur_cm) : undefined,
+      largeur_cm: req.body.largeur_cm !== undefined ? Number(req.body.largeur_cm) : undefined,
+      hauteur_cm: req.body.hauteur_cm !== undefined ? Number(req.body.hauteur_cm) : undefined
     };
     const validatedData = productSchema.partial().parse(bodyData);
     const files = req.files as Express.Multer.File[];

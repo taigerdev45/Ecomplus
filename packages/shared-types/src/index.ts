@@ -46,6 +46,9 @@ export interface Product {
   thumbnails?: string[]; // URLs des versions 200x200
   stock: number;
   lien_fournisseur?: string;
+  longueur_cm?: number;
+  largeur_cm?: number;
+  hauteur_cm?: number;
   created_at: string;
   updated_at: string;
 }
@@ -64,7 +67,7 @@ export interface CartItem {
   quantity: number;
 }
 
-export type ShippingMethod = 'AIR' | 'SEA';
+export type ShippingMethod = 'AIR_NORMAL' | 'AIR_EXPRESS' | 'SEA';
 
 export interface QuoteRequest {
   items: CartItem[];

@@ -32,22 +32,38 @@ const configSchema = z.object({
   description_services: z.string().min(10, 'La description doit faire au moins 10 caractères'),
   footer_text: z.string().min(5, 'Le footer doit faire au moins 5 caractères'),
   whatsapp_service_1: z.string().min(8, 'Numéro WhatsApp invalide'),
-  whatsapp_service_2: z.string().min(8, 'Numéro WhatsApp invalide')
+  whatsapp_service_2: z.string().min(8, 'Numéro WhatsApp invalide'),
+  exchange_rate: z.number().positive('Le taux de change doit être supérieur à 0'),
+  cbm_rate: z.number().positive('Le tarif CBM doit être supérieur à 0')
 });
 
 export const getConfig = async (req: Request, res: Response) => {
   try {
-    const { data, error } = await supabase
+    const { data: siteConfig, error: siteConfigError } = await supabase
       .from('configuration_site')
       .select('*')
       .eq('id', 1)
       .single();
 
-    if (error) throw error;
+    if (siteConfigError) throw siteConfigError;
+
+    // Fetch exchange rate and CBM rate from configuration table
+    const { data: configData } = await supabase
+      .from('configuration')
+      .select('cle, valeur');
+
+    const configMap = (configData || []).reduce((acc: any, item) => {
+      acc[item.cle] = item.valeur;
+      return acc;
+    }, {});
 
     res.status(200).json({
       success: true,
-      data
+      data: {
+        ...siteConfig,
+        exchange_rate: configMap['TAUX_CHANGE_CNY_XAF'] ? Number(configMap['TAUX_CHANGE_CNY_XAF']) : 95,
+        cbm_rate: configMap['TARIF_CBM_XAF'] ? Number(configMap['TARIF_CBM_XAF']) : 450000
+      }
     });
   } catch (error: any) {
     res.status(500).json({
@@ -61,10 +77,12 @@ export const updateConfig = async (req: Request, res: Response) => {
   try {
     const validatedData = configSchema.parse(req.body);
 
+    const { exchange_rate, cbm_rate, ...siteData } = validatedData;
+
     const { data, error } = await supabase
       .from('configuration_site')
       .update({
-        ...validatedData,
+        ...siteData,
         updated_at: new Date().toISOString()
       })
       .eq('id', 1)
@@ -73,9 +91,28 @@ export const updateConfig = async (req: Request, res: Response) => {
 
     if (error) throw error;
 
+    // Parallel configuration key updates
+    if (exchange_rate !== undefined) {
+      await supabase
+        .from('configuration')
+        .update({ valeur: String(exchange_rate) })
+        .eq('cle', 'TAUX_CHANGE_CNY_XAF');
+    }
+
+    if (cbm_rate !== undefined) {
+      await supabase
+        .from('configuration')
+        .update({ valeur: String(cbm_rate) })
+        .eq('cle', 'TARIF_CBM_XAF');
+    }
+
     res.status(200).json({
       success: true,
-      data,
+      data: {
+        ...data,
+        exchange_rate,
+        cbm_rate
+      },
       message: 'Configuration mise à jour avec succès'
     });
   } catch (error: any) {

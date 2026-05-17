@@ -21,7 +21,10 @@ export default function AdminProductsPage() {
     poids_kg: '',
     categorie_id: '',
     stock: '1',
-    lien_fournisseur: ''
+    lien_fournisseur: '',
+    longueur_cm: '0',
+    largeur_cm: '0',
+    hauteur_cm: '0'
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
@@ -98,7 +101,16 @@ export default function AdminProductsPage() {
       toast.success('Produit ajouté avec succès');
       setIsModalOpen(false);
       setFormData({
-        nom: '', description: '', prix_fcfa: '', poids_kg: '', categorie_id: '', stock: '1', lien_fournisseur: ''
+        nom: '',
+        description: '',
+        prix_fcfa: '',
+        poids_kg: '',
+        categorie_id: '',
+        stock: '1',
+        lien_fournisseur: '',
+        longueur_cm: '0',
+        largeur_cm: '0',
+        hauteur_cm: '0'
       });
       setImageFiles([]);
       fetchProducts();
@@ -276,6 +288,21 @@ export default function AdminProductsPage() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lien fournisseur (Optionnel)</label>
                   <input type="url" name="lien_fournisseur" value={formData.lien_fournisseur} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="https://1688.com/..." />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longueur (cm)</label>
+                    <input type="number" min="0" name="longueur_cm" value={formData.longueur_cm} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="0" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Largeur (cm)</label>
+                    <input type="number" min="0" name="largeur_cm" value={formData.largeur_cm} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="0" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hauteur (cm)</label>
+                    <input type="number" min="0" name="hauteur_cm" value={formData.hauteur_cm} onChange={handleInputChange} className="w-full rounded-lg border border-slate-300 p-2.5 dark:border-slate-700 dark:bg-slate-800" placeholder="0" />
+                  </div>
                 </div>
 
                 <div>

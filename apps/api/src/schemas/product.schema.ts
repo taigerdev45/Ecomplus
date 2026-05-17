@@ -9,6 +9,9 @@ export const productSchema = z.object({
   images: z.array(z.string()).optional(),
   stock: z.number().int().nonnegative().default(0),
   lien_fournisseur: z.string().url().optional().or(z.literal('')),
+  longueur_cm: z.number().nonnegative().optional().default(0),
+  largeur_cm: z.number().nonnegative().optional().default(0),
+  hauteur_cm: z.number().nonnegative().optional().default(0),
 });
 
 export const categorySchema = z.object({

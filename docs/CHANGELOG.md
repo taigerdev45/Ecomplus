@@ -9,6 +9,26 @@
 
 ---
 
+### [1.7.0] - Règles de Transport Dynamiques, Configurations Financières Admin & Sécurisation de Production
+
+#### Added
+- Implémentation des règles dynamiques de calcul des estimations de livraison :
+  - **Aérien Normal** : 10 000 FCFA / KG (Durée : 7-15 jours).
+  - **Aérien Express** : 15 000 FCFA / KG (Durée : 4-5 jours).
+  - **Maritime CBM** : Volume en mètres cubes `(longueur * largeur * hauteur) / 1 000 000 * Tarif CBM`.
+- Création d'une interface d'administration financière dans `/admin/config` permettant d'ajuster dynamiquement le taux de change CNY en XAF (`TAUX_CHANGE_CNY_XAF`) et le tarif maritime CBM (`TARIF_CBM_XAF`).
+- Ajout de la gestion des dimensions optionnelles (`longueur_cm`, `largeur_cm`, `hauteur_cm`) dans les schémas Zod, l'API backend, et l'interface utilisateur de création et modification de produits dans l'espace admin `/admin/products`.
+- Refonte visuelle de la sélection du mode de transport dans le panier utilisateur `/panier` avec l'intégration d'icônes descriptives (`Plane`, `Zap`, `Ship`), d'une mise en page en 3 colonnes et d'un bandeau jaune d'avertissement légal sur le caractère estimatif des frais.
+
+#### Changed
+- Harmonisation locale : correction du port par défaut de l'URL d'API de secours dans `apps/web/src/lib/axios.ts` à 4000 (au lieu de 5000) pour correspondre au port par défaut configuré sur le backend Node/Express.
+
+#### Security
+- Suppression définitive de tous les scripts temporaires scratch contenant des identifiants et clés de base de données en clair pour éliminer tout risque de fuite de données avant le déploiement en production.
+- Création d'un guide de déploiement premium complet pour Render (Backend API) et Vercel (Frontend Next.js) dans `docs/DEPLOYMENT_GUIDE.md` détaillant les variables d'environnement, les commandes Turborepo de build et les bonnes pratiques de sécurité.
+
+---
+
 ### [1.6.0] - Intégration identité visuelle Ecom Plus & Résolution CRUD Produits
 
 #### Added

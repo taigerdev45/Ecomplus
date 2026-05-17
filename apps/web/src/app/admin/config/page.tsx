@@ -11,6 +11,8 @@ interface SiteConfig {
   footer_text: string;
   whatsapp_service_1: string;
   whatsapp_service_2: string;
+  exchange_rate?: number;
+  cbm_rate?: number;
 }
 
 import api from '@/lib/axios';
@@ -21,7 +23,9 @@ export default function AdminConfig() {
     description_services: '',
     footer_text: '',
     whatsapp_service_1: '',
-    whatsapp_service_2: ''
+    whatsapp_service_2: '',
+    exchange_rate: 95,
+    cbm_rate: 450000
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,7 +44,9 @@ export default function AdminConfig() {
           description_services: '',
           footer_text: '',
           whatsapp_service_1: '',
-          whatsapp_service_2: ''
+          whatsapp_service_2: '',
+          exchange_rate: 95,
+          cbm_rate: 450000
         });
       }
     } catch (error) {
@@ -194,6 +200,49 @@ export default function AdminConfig() {
                       placeholder="241YYYYYYYY"
                     />
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rates & Shipping Config */}
+            <div className="rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h3 className="mb-6 flex items-center gap-2 text-lg font-bold">
+                <Globe className="h-5 w-5 text-amber-500" />
+                Tarification & Devis
+              </h3>
+              
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300">
+                    Taux de change (1 CNY en XAF)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-slate-800 dark:bg-slate-950"
+                      value={config.exchange_rate}
+                      onChange={(e) => setConfig({ ...config, exchange_rate: Number(e.target.value) })}
+                      placeholder="95"
+                    />
+                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">FCFA</span>
+                  </div>
+                  <p className="mt-2 text-xs text-slate-400">Utilisé pour convertir les prix des produits depuis le Yuan (CNY).</p>
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300">
+                    Tarif Transport Maritime (par CBM)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-slate-800 dark:bg-slate-950"
+                      value={config.cbm_rate}
+                      onChange={(e) => setConfig({ ...config, cbm_rate: Number(e.target.value) })}
+                      placeholder="450000"
+                    />
+                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">FCFA / m³</span>
+                  </div>
+                  <p className="mt-2 text-xs text-slate-400">Tarif au mètre cube (CBM) configuré pour la livraison maritime.</p>
                 </div>
               </div>
             </div>

@@ -13,22 +13,50 @@ export const calculateCommission = (subtotal: number): CommissionInfo => {
   return { taux: 20, montant: Math.round(subtotal * 0.20) };
 };
 
-export const calculateShipping = (method: ShippingMethod, totalWeight: number): ShippingInfo => {
-  // Grille tarifaire simplifiée (Air: 10000 FCFA/kg, Sea: 2500 FCFA/kg)
-  const rate = method === 'AIR' ? 10000 : 2500;
-  const delai = method === 'AIR' ? '7-10 jours' : '30-45 jours';
-  
+export const calculateShipping = (
+  method: ShippingMethod, 
+  totalWeight: number,
+  totalVolumeCbm: number,
+  cbmRate: number
+): ShippingInfo => {
+  let rate = 10000;
+  let delai = '7-15 jours';
+  let montant = 0;
+
+  if (method === 'AIR_EXPRESS') {
+    rate = 15000;
+    delai = '4-5 jours';
+    montant = Math.round(totalWeight * rate);
+  } else if (method === 'AIR_NORMAL') {
+    rate = 10000;
+    delai = '7-15 jours';
+    montant = Math.round(totalWeight * rate);
+  } else if (method === 'SEA') {
+    delai = '30-45 jours';
+    montant = Math.round(totalVolumeCbm * cbmRate);
+  }
+
   return {
     method,
-    montant: Math.round(totalWeight * rate),
+    montant,
     delai
   };
 };
 
 export const calculateQuote = (
-  items: { product: { prix_cny: number, poids_kg: number }, quantity: number }[], 
+  items: { 
+    product: { 
+      prix_cny: number; 
+      poids_kg: number; 
+      longueur_cm?: number | null; 
+      largeur_cm?: number | null; 
+      hauteur_cm?: number | null;
+    }; 
+    quantity: number; 
+  }[], 
   method: ShippingMethod, 
-  exchangeRate: number
+  exchangeRate: number,
+  cbmRate: number = 450000
 ): DevisPreview => {
   // 1. Sous-total produits en XAF
   const subtotalProducts = items.reduce((acc, item) => {
@@ -39,9 +67,19 @@ export const calculateQuote = (
   // 2. Commission
   const commission = calculateCommission(subtotalProducts);
 
-  // 3. Livraison (poids total)
+  // 3. Livraison (poids total et volume CBM total)
   const totalWeight = items.reduce((acc, item) => acc + (item.product.poids_kg * item.quantity), 0);
-  const shipping = calculateShipping(method, totalWeight);
+  
+  const totalVolumeCbm = items.reduce((acc, item) => {
+    // Si dimensions manquantes ou égales à 0, valeur par défaut de 10x10x10 cm
+    const l = item.product.longueur_cm || 10;
+    const w = item.product.largeur_cm || 10;
+    const h = item.product.hauteur_cm || 10;
+    const itemVolumeCbm = (Number(l) * Number(w) * Number(h)) / 1000000;
+    return acc + (itemVolumeCbm * item.quantity);
+  }, 0);
+
+  const shipping = calculateShipping(method, totalWeight, totalVolumeCbm, cbmRate);
 
   // 4. Total TTC
   const total_ttc = subtotalProducts + commission.montant + shipping.montant;

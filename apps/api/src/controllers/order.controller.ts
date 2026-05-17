@@ -8,19 +8,24 @@ export const getQuotePreview = async (req: Request, res: Response) => {
   try {
     const validatedData = quotePreviewSchema.parse(req.body);
     
-    // Get current exchange rate from DB
-    const { data: rateData } = await supabase
+    // Get current configurations from DB
+    const { data: configData } = await supabase
       .from('configuration')
-      .select('valeur')
-      .eq('cle', 'TAUX_CHANGE_CNY_XAF')
-      .single();
+      .select('cle, valeur');
     
-    const exchangeRate = rateData ? Number(rateData.valeur) : 95;
+    const configMap = (configData || []).reduce((acc: Record<string, string>, item) => {
+      acc[item.cle] = item.valeur;
+      return acc;
+    }, {});
+    
+    const exchangeRate = configMap['TAUX_CHANGE_CNY_XAF'] ? Number(configMap['TAUX_CHANGE_CNY_XAF']) : 95;
+    const cbmRate = configMap['TARIF_CBM_XAF'] ? Number(configMap['TARIF_CBM_XAF']) : 450000;
 
     const quote = orderService.calculateQuote(
       validatedData.items,
       validatedData.shippingMethod,
-      exchangeRate
+      exchangeRate,
+      cbmRate
     );
 
     res.json(quote);
@@ -36,19 +41,25 @@ export const submitQuoteRequest = async (req: AuthRequest, res: Response) => {
     const validatedData = quoteRequestSchema.parse(req.body);
     const userId = req.user!.id;
 
-    // 1. Get exchange rate
-    const { data: rateData } = await supabase
+    // 1. Get configurations from DB
+    const { data: configData } = await supabase
       .from('configuration')
-      .select('valeur')
-      .eq('cle', 'TAUX_CHANGE_CNY_XAF')
-      .single();
-    const exchangeRate = rateData ? Number(rateData.valeur) : 95;
+      .select('cle, valeur');
+    
+    const configMap = (configData || []).reduce((acc: Record<string, string>, item) => {
+      acc[item.cle] = item.valeur;
+      return acc;
+    }, {});
+    
+    const exchangeRate = configMap['TAUX_CHANGE_CNY_XAF'] ? Number(configMap['TAUX_CHANGE_CNY_XAF']) : 95;
+    const cbmRate = configMap['TARIF_CBM_XAF'] ? Number(configMap['TARIF_CBM_XAF']) : 450000;
 
     // 2. Calculate totals
     const quoteData = orderService.calculateQuote(
       validatedData.items,
       validatedData.shippingMethod,
-      exchangeRate
+      exchangeRate,
+      cbmRate
     );
 
     // 3. Save to DB

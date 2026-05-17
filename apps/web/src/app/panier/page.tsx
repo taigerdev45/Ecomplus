@@ -5,7 +5,7 @@ import { useCart } from '@/store/useCart';
 import { useProduct } from '@/store/useProduct';
 import { useAuth } from '@/store/useAuth';
 import { Devis, ShippingMethod } from '@ecom/types';
-import { Trash2, Plus, Minus, Calculator, Send, Truck, Info, Loader2, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, Calculator, Send, Truck, Info, Loader2, ShoppingBag, Plane, Zap, Ship } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -17,7 +17,7 @@ export default function CartPage() {
   
   const { user, isAuthenticated } = useAuth();
   
-  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('AIR');
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('AIR_NORMAL');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [quote, setQuote] = useState<Devis | null>(null);
@@ -180,30 +180,44 @@ export default function CartPage() {
                   <div className="space-y-4">
                     <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mode de livraison</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setShippingMethod('AIR')}
-                      className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-                        shippingMethod === 'AIR' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
-                      }`}
-                      aria-label="Sélectionner la livraison par air"
-                      title="Livraison par air"
-                    >
-                      <Truck className="h-6 w-6" />
-                      <span className="text-xs font-bold">AIR (Rapide)</span>
-                    </button>
-                    <button
-                      onClick={() => setShippingMethod('SEA')}
-                      className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-                        shippingMethod === 'SEA' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
-                      }`}
-                      aria-label="Sélectionner la livraison par mer"
-                      title="Livraison par mer"
-                    >
-                      <Info className="h-6 w-6" />
-                      <span className="text-xs font-bold">MER (Éco)</span>
-                    </button>
-                  </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => setShippingMethod('AIR_NORMAL')}
+                        className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all ${
+                          shippingMethod === 'AIR_NORMAL' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
+                        }`}
+                        type="button"
+                        aria-label="Sélectionner la livraison par air normal"
+                        title="Livraison Aérienne Normale"
+                      >
+                        <Plane className="h-5 w-5" />
+                        <span className="text-[10px] font-bold text-center">AIR Normal (7-15j)</span>
+                      </button>
+                      <button
+                        onClick={() => setShippingMethod('AIR_EXPRESS')}
+                        className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all ${
+                          shippingMethod === 'AIR_EXPRESS' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
+                        }`}
+                        type="button"
+                        aria-label="Sélectionner la livraison par air express"
+                        title="Livraison Aérienne Express"
+                      >
+                        <Zap className="h-5 w-5" />
+                        <span className="text-[10px] font-bold text-center">AIR Express (4-5j)</span>
+                      </button>
+                      <button
+                        onClick={() => setShippingMethod('SEA')}
+                        className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all ${
+                          shippingMethod === 'SEA' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-100 hover:border-slate-200'
+                        }`}
+                        type="button"
+                        aria-label="Sélectionner la livraison par mer"
+                        title="Livraison Maritime"
+                      >
+                        <Ship className="h-5 w-5" />
+                        <span className="text-[10px] font-bold text-center">MER Volume (30-45j)</span>
+                      </button>
+                    </div>
                 </div>
 
                 <div className="space-y-3 pt-4">
