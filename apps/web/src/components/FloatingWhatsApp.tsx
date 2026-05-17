@@ -13,7 +13,7 @@ export default function FloatingWhatsApp() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`)
       .then(res => {
         if (!res.ok) throw new Error('Config not found');
         return res.json();

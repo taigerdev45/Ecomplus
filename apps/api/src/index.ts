@@ -25,11 +25,37 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 // Security Middlewares
-app.use(helmet());
-app.use(cors({
-  origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:3000',
-  credentials: true
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
+
+const ALLOWED_ORIGINS = [
+  'https://ecomplus-web.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(s => s.trim()) : []),
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (server-to-server, mobile, Postman…)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    // Allow any vercel.app preview deployment of the project
+    if (/^https:\/\/ecomplus-.*\.vercel\.app$/.test(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+// Handle preflight for ALL routes explicitly
+app.options('*', cors(corsOptions));
 app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 const limiter = rateLimit({

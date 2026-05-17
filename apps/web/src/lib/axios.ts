@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace(/\/+$/, '');
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1',
+  baseURL: `${BASE}/api/v1`,
   withCredentials: true,
 });
 
@@ -14,7 +16,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'}/auth/refresh`,
+          `${BASE}/api/v1/auth/refresh`,
           {},
           { withCredentials: true }
         );

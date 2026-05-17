@@ -17,7 +17,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`)
       .then(res => res.json())
       .then(data => {
         if (data.success) setConfig(data.data);
