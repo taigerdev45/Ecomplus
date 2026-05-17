@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { WhatsAppMessageType, WhatsAppPayload } from '@ecom/types';
+import { supabase } from '../lib/supabase';
 
 const WA_API_VERSION = 'v20.0';
 const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID;
@@ -13,7 +14,7 @@ export const sendMessage = async (payload: WhatsAppPayload) => {
   
   if (!WA_PHONE_NUMBER_ID || !WA_CLOUD_API_TOKEN) {
     console.warn('WhatsApp API credentials missing. Falling back to wa.me link generation.');
-    return { fallback: generateWAMeLink(payload) };
+    return { fallback: await generateWAMeLink(payload) };
   }
 
   const url = `https://graph.facebook.com/${WA_API_VERSION}/${WA_PHONE_NUMBER_ID}/messages`;
@@ -93,7 +94,7 @@ export const sendMessage = async (payload: WhatsAppPayload) => {
     // If API fails, provide the fallback link
     return { 
       error: error.response?.data || error.message,
-      fallback: generateWAMeLink(payload) 
+      fallback: await generateWAMeLink(payload) 
     };
   }
 };
@@ -109,22 +110,36 @@ const formatPhoneNumber = (phone: string): string => {
 /**
  * Generate a wa.me link as fallback
  */
-export const generateWAMeLink = (payload: WhatsAppPayload): string => {
-  const { to, type, data } = payload;
-  const phone = formatPhoneNumber(to);
+export const generateWAMeLink = async (payload: WhatsAppPayload): Promise<string> => {
+  const { type, data } = payload;
+  
+  // Fetch dynamic customer service phone number from configuration_site
+  let servicePhone = '24177000000'; // Default fallback
+  try {
+    const { data: config } = await supabase
+      .from('configuration_site')
+      .select('whatsapp_service_1')
+      .eq('id', 1)
+      .single();
+    if (config?.whatsapp_service_1) {
+      servicePhone = config.whatsapp_service_1.replace(/\D/g, '');
+    }
+  } catch (err) {
+    console.error('Failed to fetch service phone number:', err);
+  }
   
   let text = '';
   switch (type) {
     case 'DEVIS_READY':
-      text = `Bonjour ${data.clientName}, votre devis ${data.reference} est prêt. Montant: ${data.amount?.toLocaleString()} F CFA. Voir ici: ${data.link}`;
+      text = `Bonjour, mon devis ${data.reference} de ${data.amount?.toLocaleString()} F CFA est prêt. Voir les détails ici : ${data.link}`;
       break;
     case 'ORDER_CONFIRMED':
-      text = `Bonjour ${data.clientName}, votre commande est confirmée ! N° tracking: ${data.trackingNumber}. Suivez ici: ${data.link}`;
+      text = `Bonjour, j'ai bien pris note de ma commande ${data.trackingNumber}. Suivi : ${data.link}`;
       break;
     case 'STATUS_UPDATE':
-      text = `Mise à jour commande ${data.trackingNumber}: Nouveau statut "${data.status}". Détails: ${data.link}`;
+      text = `Bonjour, concernant ma commande ${data.trackingNumber} au statut "${data.status}". Détails : ${data.link}`;
       break;
   }
 
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${servicePhone}?text=${encodeURIComponent(text)}`;
 };

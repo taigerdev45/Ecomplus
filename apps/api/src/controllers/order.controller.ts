@@ -341,3 +341,18 @@ export const downloadReceiptPdf = async (req: AuthRequest, res: Response) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const deleteOrder = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase
+      .from('commande')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    res.json({ message: "Reçu / Commande supprimé avec succès" });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

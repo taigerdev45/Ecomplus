@@ -17,6 +17,7 @@ import whatsappRoutes from './routes/whatsapp.routes';
 import adminRoutes from './routes/admin.routes';
 import configRoutes from './routes/config.routes';
 import chatRoutes from './routes/chat.routes';
+import notificationRoutes from './routes/notification.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();

@@ -34,7 +34,11 @@ const configSchema = z.object({
   whatsapp_service_1: z.string().nullable().optional().or(z.literal('')),
   whatsapp_service_2: z.string().nullable().optional().or(z.literal('')),
   exchange_rate: z.coerce.number().positive('Le taux de change doit être supérieur à 0'),
-  cbm_rate: z.coerce.number().positive('Le tarif CBM doit être supérieur à 0')
+  cbm_rate: z.coerce.number().positive('Le tarif CBM doit être supérieur à 0'),
+  airtel_money_number: z.string().nullable().optional().or(z.literal('')),
+  airtel_money_name: z.string().nullable().optional().or(z.literal('')),
+  moov_money_number: z.string().nullable().optional().or(z.literal('')),
+  moov_money_name: z.string().nullable().optional().or(z.literal(''))
 });
 
 export const getConfig = async (req: Request, res: Response) => {

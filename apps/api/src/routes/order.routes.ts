@@ -24,6 +24,9 @@ router.get('/', authenticateJWT, checkRole(['agent', 'admin']), orderController.
 // Status update (Agent/Admin)
 router.patch('/:id/status', authenticateJWT, checkRole(['agent', 'admin']), orderController.updateOrderStatus);
 
+// Delete order/receipt (Admin)
+router.delete('/:id', authenticateJWT, checkRole(['admin']), orderController.deleteOrder);
+
 // Public tracking
 router.get('/tracking/:number', orderController.getTrackingDetails);
 

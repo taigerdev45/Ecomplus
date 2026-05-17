@@ -19,7 +19,7 @@ export default function AdminProductsPage() {
   const [formData, setFormData] = useState({
     nom: '',
     description: '',
-    prix_fcfa: '',
+    prix_cny: '',
     poids_kg: '',
     categorie_id: '',
     stock: '1',
@@ -54,11 +54,10 @@ export default function AdminProductsPage() {
 
   const handleEdit = (product: any) => {
     setEditingProduct(product);
-    const exchangeRate = useProduct.getState().exchangeRate || 95;
     setFormData({
       nom: product.nom,
       description: product.description || '',
-      prix_fcfa: Math.round((product.prix_cny / 100) * exchangeRate).toString(),
+      prix_cny: (product.prix_cny / 100).toString(),
       poids_kg: product.poids_kg.toString(),
       categorie_id: product.categorie_id,
       stock: product.stock.toString(),
@@ -78,7 +77,7 @@ export default function AdminProductsPage() {
     setFormData({
       nom: '',
       description: '',
-      prix_fcfa: '',
+      prix_cny: '',
       poids_kg: '',
       categorie_id: '',
       stock: '1',
@@ -124,12 +123,11 @@ export default function AdminProductsPage() {
     }
 
     setIsSubmitting(true);
-    const exchangeRate = useProduct.getState().exchangeRate || 95;
-    const prixCnyCentimes = Math.round((Number(formData.prix_fcfa) / exchangeRate) * 100);
+    const prixCnyCentimes = Math.round(Number(formData.prix_cny) * 100);
 
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (key !== 'prix_fcfa') {
+      if (key !== 'prix_cny') {
         data.append(key, value);
       }
     });
@@ -388,8 +386,8 @@ export default function AdminProductsPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label htmlFor="product-price" className="block text-xs font-black uppercase tracking-wider text-slate-400">Prix (FCFA) *</label>
-                    <input id="product-price" required type="number" min="0" name="prix_fcfa" value={formData.prix_fcfa} onChange={handleInputChange} className="field" placeholder="5000" title="Prix en FCFA" />
+                    <label htmlFor="product-price" className="block text-xs font-black uppercase tracking-wider text-slate-400">Prix (CNY) *</label>
+                    <input id="product-price" required type="number" step="0.01" min="0" name="prix_cny" value={formData.prix_cny} onChange={handleInputChange} className="field" placeholder="10.50" title="Prix en CNY" />
                   </div>
                   <div className="space-y-1.5">
                     <label htmlFor="product-weight" className="block text-xs font-black uppercase tracking-wider text-slate-400">Poids (KG) *</label>

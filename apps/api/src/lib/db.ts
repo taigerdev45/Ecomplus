@@ -16,16 +16,7 @@ const poolConfig: any = {
 };
 
 if (connectionString) {
-  try {
-    const parsedUrl = new URL(connectionString);
-    poolConfig.user = decodeURIComponent(parsedUrl.username);
-    poolConfig.password = decodeURIComponent(parsedUrl.password);
-    poolConfig.host = parsedUrl.hostname;
-    poolConfig.port = parsedUrl.port ? parseInt(parsedUrl.port, 10) : 5432;
-    poolConfig.database = parsedUrl.pathname.substring(1);
-  } catch (err) {
-    poolConfig.connectionString = connectionString;
-  }
+  poolConfig.connectionString = connectionString;
 }
 
 const pool = new Pool(poolConfig);
@@ -95,8 +86,20 @@ export const initDb = async () => {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(client_id, produit_id)
       );
+
+      CREATE TABLE IF NOT EXISTS notification (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID REFERENCES utilisateur(id) ON DELETE CASCADE,
+          client_id UUID REFERENCES utilisateur(id) ON DELETE CASCADE,
+          title TEXT NOT NULL,
+          content TEXT NOT NULL,
+          type TEXT NOT NULL CHECK (type IN ('devis', 'commande', 'paiement', 'chat', 'systeme')),
+          is_read BOOLEAN NOT NULL DEFAULT FALSE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `);
-    console.log('Database tracking, chat tables and product dimensions initialized successfully.');
+    await pool.query("NOTIFY pgrst, 'reload schema';");
+    console.log('Database tracking, chat tables, products, notifications initialized and schema cache reloaded.');
   } catch (error) {
     console.error('Failed to initialize database tables:', error);
   }

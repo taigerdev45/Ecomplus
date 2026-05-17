@@ -147,6 +147,19 @@ export const createOrderFromQuote = async (quoteId: string) => {
       commentaire: 'Commande validée et enregistrée.'
     });
 
+  // 5. Trigger in-app notification for the client
+  try {
+    await supabase.from('notification').insert({
+      client_id: devis.client_id,
+      title: 'Commande validée',
+      content: `Votre devis ${devis.reference} a été transformé en commande. N° tracking temporaire : ${trackingNumber}.`,
+      type: 'devis',
+      is_read: false
+    });
+  } catch (err) {
+    console.error('Failed to create notification for validated quote:', err);
+  }
+
   return order;
 };
 
@@ -214,6 +227,29 @@ export const updateOrderStatus = async (
         link: `${process.env.CLIENT_URL || 'https://ecomplus.ga'}/suivi/${order.numero_tracking}`
       }
     });
+  }
+
+  // 4. Trigger in-app notification for the client
+  try {
+    const statusLabels: Record<string, string> = {
+      valide: 'Validée',
+      paye: 'Payée',
+      en_cours: 'En cours de préparation',
+      expedie: 'Expédiée',
+      livre: 'Livrée',
+      annule: 'Annulée'
+    };
+    const prettyStatus = statusLabels[status] || status;
+
+    await supabase.from('notification').insert({
+      client_id: order.client_id,
+      title: 'Statut de commande mis à jour',
+      content: `Votre commande ${order.numero_tracking || ''} est maintenant : "${prettyStatus}".`,
+      type: 'commande',
+      is_read: false
+    });
+  } catch (err) {
+    console.error('Failed to create order status update notification:', err);
   }
 
   return order;

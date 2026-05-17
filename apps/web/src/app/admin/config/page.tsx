@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Save, Globe, MessageCircle, Image as ImageIcon, CheckCircle, AlertCircle, Eye, Upload, Loader2 } from 'lucide-react';
+import { Save, Globe, MessageCircle, Image as ImageIcon, CreditCard, Eye, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/axios';
 
 interface SiteConfig {
   logo_url: string;
@@ -13,9 +14,11 @@ interface SiteConfig {
   whatsapp_service_2: string;
   exchange_rate?: number;
   cbm_rate?: number;
+  airtel_money_number?: string;
+  airtel_money_name?: string;
+  moov_money_number?: string;
+  moov_money_name?: string;
 }
-
-import api from '@/lib/axios';
 
 export default function AdminConfig() {
   const [config, setConfig] = useState<SiteConfig>({
@@ -25,7 +28,11 @@ export default function AdminConfig() {
     whatsapp_service_1: '',
     whatsapp_service_2: '',
     exchange_rate: 95,
-    cbm_rate: 450000
+    cbm_rate: 450000,
+    airtel_money_number: '',
+    airtel_money_name: '',
+    moov_money_number: '',
+    moov_money_name: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,7 +53,11 @@ export default function AdminConfig() {
           whatsapp_service_1: '',
           whatsapp_service_2: '',
           exchange_rate: 95,
-          cbm_rate: 450000
+          cbm_rate: 450000,
+          airtel_money_number: '',
+          airtel_money_name: '',
+          moov_money_number: '',
+          moov_money_name: ''
         });
       }
     } catch (error) {
@@ -112,7 +123,7 @@ export default function AdminConfig() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white">Configuration du Site</h1>
-            <p className="text-slate-500">Personnalisez l&apos;identité visuelle et les textes publics de votre plateforme.</p>
+            <p className="text-slate-500">Personnalisez l&apos;identité visuelle et les paramètres de votre plateforme.</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -163,7 +174,7 @@ export default function AdminConfig() {
               </div>
             </div>
 
-            {/* WhatsApp Config */}
+            {/* Support WhatsApp */}
             <div className="rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <h3 className="mb-6 flex items-center gap-2 text-lg font-bold">
                 <MessageCircle className="h-5 w-5 text-green-500" />
@@ -199,6 +210,82 @@ export default function AdminConfig() {
                       onChange={(e) => setConfig({ ...config, whatsapp_service_2: e.target.value })}
                       placeholder="241YYYYYYYY"
                     />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Money Gabon Premium Configuration */}
+            <div className="rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h3 className="mb-6 flex items-center gap-2 text-lg font-bold">
+                <CreditCard className="h-5 w-5 text-indigo-500" />
+                Tunnel Mobile Money (Gabon)
+              </h3>
+              
+              <div className="space-y-6">
+                {/* Airtel Money Card */}
+                <div className="p-5 rounded-3xl bg-red-500/5 border border-red-500/10 space-y-4">
+                  <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-500 text-white">
+                    Airtel Money Gabon
+                  </span>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                        Numéro de Dépôt Officiel
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none transition-all focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 text-xs"
+                        value={config.airtel_money_number || ''}
+                        onChange={(e) => setConfig({ ...config, airtel_money_number: e.target.value })}
+                        placeholder="+241 77 00 00 00"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                        Nom du Compte
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none transition-all focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 text-xs"
+                        value={config.airtel_money_name || ''}
+                        onChange={(e) => setConfig({ ...config, airtel_money_name: e.target.value })}
+                        placeholder="ECOM PLUS GABON"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Moov Money Card */}
+                <div className="p-5 rounded-3xl bg-indigo-500/5 border border-indigo-500/10 space-y-4">
+                  <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-600 text-white">
+                    Moov Money Gabon
+                  </span>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                        Numéro de Dépôt Officiel
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none transition-all focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/10 dark:border-slate-800 dark:bg-slate-950 text-xs"
+                        value={config.moov_money_number || ''}
+                        onChange={(e) => setConfig({ ...config, moov_money_number: e.target.value })}
+                        placeholder="+241 66 00 00 00"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                        Nom du Compte
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none transition-all focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/10 dark:border-slate-800 dark:bg-slate-950 text-xs"
+                        value={config.moov_money_name || ''}
+                        onChange={(e) => setConfig({ ...config, moov_money_name: e.target.value })}
+                        placeholder="ECOM PLUS GABON"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -288,7 +375,7 @@ export default function AdminConfig() {
                   <input
                     type="text"
                     className="w-full rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-950"
-                    value={config.logo_url}
+                    value={config.logo_url || ''}
                     onChange={(e) => setConfig({ ...config, logo_url: e.target.value })}
                     placeholder="https://..."
                   />
@@ -324,4 +411,3 @@ export default function AdminConfig() {
     </AdminLayout>
   );
 }
-
