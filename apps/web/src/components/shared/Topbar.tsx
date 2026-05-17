@@ -51,7 +51,7 @@ export default function Topbar({ onMenuClick, isSidebarOpen, rightSlot, showSear
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const res = await api.get('/notifications');
+      const res = await api.get<{ success: boolean; data: any[] }>('/notifications');
       if (res.data.success) {
         setNotifications(res.data.data || []);
       }
