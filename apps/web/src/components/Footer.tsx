@@ -13,8 +13,11 @@ export function Footer() {
   });
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`)
-      .then(res => res.json())
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
+      .then(res => {
+        if (!res.ok) throw new Error('Config not found');
+        return res.json();
+      })
       .then(data => {
         if (data.success) setConfig(data.data);
       })
@@ -56,3 +59,4 @@ export function Footer() {
     </footer>
   );
 }
+

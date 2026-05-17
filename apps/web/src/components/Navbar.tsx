@@ -14,7 +14,10 @@ export function Navbar() {
 
   React.useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/config`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Config not found');
+        return res.json();
+      })
       .then(data => {
         if (data.success && data.data.logo_url) {
           setLogoUrl(data.data.logo_url);

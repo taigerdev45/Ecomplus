@@ -35,13 +35,17 @@ export default function AgentOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/orders`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await res.json();
-      setOrders(data);
+      if (res.ok) {
+        setOrders(Array.isArray(data) ? data : []);
+      } else {
+        toast.error(data.message || 'Erreur lors du chargement des commandes');
+      }
     } catch (err) {
-      toast.error('Erreur lors du chargement des commandes');
+      toast.error('Erreur réseau lors du chargement des commandes');
     } finally {
       setLoading(false);
     }
@@ -51,7 +55,7 @@ export default function AgentOrdersPage() {
     if (!selectedOrder || !newStatus) return;
     setUpdating(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/orders/${selectedOrder.id}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${selectedOrder.id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -215,3 +219,4 @@ export default function AgentOrdersPage() {
     </div>
   );
 }
+

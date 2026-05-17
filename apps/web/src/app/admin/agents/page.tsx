@@ -7,11 +7,13 @@ import { UserPlus, Mail, Phone, Shield, MoreVertical, Trash2, UserCheck } from '
 import { User } from '@ecom/types';
 import { toast } from 'sonner';
 
+import api from '@/lib/axios';
+
 export default function AdminAgentsPage() {
   const [agents, setAgents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newAgent, setNewAgent] = useState({ nom: '', email: '', telephone: '', role: 'agent' });
+  const [newAgent, setNewAgent] = useState({ nom: '', email: '', telephone: '', role: 'agent', password: '' });
 
   useEffect(() => {
     fetchAgents();
@@ -19,13 +21,10 @@ export default function AdminAgentsPage() {
 
   const fetchAgents = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/agents`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      const data = await res.json();
-      setAgents(data);
-    } catch (err) {
-      toast.error('Erreur lors du chargement des agents');
+      const res = await api.get('/admin/agents');
+      setAgents(Array.isArray(res.data) ? res.data : []);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Erreur lors du chargement des agents');
     } finally {
       setLoading(false);
     }
@@ -34,23 +33,13 @@ export default function AdminAgentsPage() {
   const handleAddAgent = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/agents`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(newAgent)
-      });
-
-      if (!res.ok) throw new Error();
-
+      await api.post('/admin/agents', newAgent);
       toast.success('Agent ajouté avec succès');
       setShowAddModal(false);
-      setNewAgent({ nom: '', email: '', telephone: '', role: 'agent' });
+      setNewAgent({ nom: '', email: '', telephone: '', role: 'agent', password: '' });
       fetchAgents();
-    } catch (err) {
-      toast.error('Erreur lors de l&apos;ajout');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Erreur lors de l\'ajout');
     }
   };
 
@@ -82,8 +71,8 @@ export default function AdminAgentsPage() {
                     src={`https://ui-avatars.com/api/?name=${encodeURIComponent(agent.nom)}&background=random&size=64`}
                     alt={`Avatar de ${agent.nom}`}
                     fill
+                    unoptimized
                     className="object-cover"
-                    sizes="64px"
                   />
                 </div>
                 <div className="flex-1">
@@ -193,6 +182,19 @@ export default function AdminAgentsPage() {
                   <option value="admin">Administrateur</option>
                 </select>
               </div>
+              <div>
+                <label htmlFor="agent-password" className="text-sm font-medium">Mot de passe provisoire</label>
+                <input 
+                  id="agent-password"
+                  required
+                  type="text" 
+                  value={newAgent.password}
+                  onChange={e => setNewAgent({...newAgent, password: e.target.value})}
+                  placeholder="Ex: Ecom2026!"
+                  className="mt-1 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-800"
+                />
+                <p className="mt-1 text-[10px] text-slate-500">Ce mot de passe devra être changé par l&apos;agent lors de sa première connexion.</p>
+              </div>
               <div className="mt-8 flex gap-3">
                 <button 
                   type="button"
@@ -215,3 +217,4 @@ export default function AdminAgentsPage() {
     </AdminLayout>
   );
 }
+

@@ -26,6 +26,9 @@ interface DashboardStats {
   chartData: Array<{ date: string; amount: number }>;
 }
 
+import api from '@/lib/axios';
+import { toast } from 'sonner';
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,13 +39,10 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/dashboard-stats`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      const data = await res.json();
-      setStats(data);
+      const res = await api.get<DashboardStats>('/admin/dashboard-stats');
+      setStats(res.data);
     } catch (error) {
-      console.error(error);
+      toast.error('Erreur lors du chargement des statistiques');
     } finally {
       setLoading(false);
     }
@@ -171,3 +171,4 @@ export default function AdminDashboard() {
     </AdminLayout>
   );
 }
+

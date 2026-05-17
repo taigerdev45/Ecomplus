@@ -77,11 +77,11 @@ export const submitQuoteRequest = async (req: Request, res: Response) => {
       type: 'DEVIS',
       data: devis,
       clientName: (req as any).user.nom,
-      whatsapp: validatedData.whatsapp
+      whatsapp: null // DÉSACTIVÉ : On n'envoie plus par WhatsApp
     });
 
     res.status(201).json({ 
-      message: 'Demande de devis enregistrée. Votre PDF sera prêt dans quelques instants.',
+      message: 'Demande de devis enregistrée. Votre PDF sera disponible dans votre espace client sous peu.',
       devis 
     });
   } catch (error: any) {
@@ -148,6 +148,71 @@ export const getOrders = async (req: Request, res: Response) => {
 
     if (error) throw error;
     res.json(orders);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getClientQuotes = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+    const { data: quotes, error } = await supabase
+      .from('devis')
+      .select('*')
+      .eq('client_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.json(quotes);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getClientOrders = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+    const { data: orders, error } = await supabase
+      .from('commande')
+      .select('*')
+      .eq('client_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.json(orders);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const regenerateQuotePdf = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user.id;
+
+    // Check if the quote belongs to the user
+    const { data: devis, error } = await supabase
+      .from('devis')
+      .select('*, utilisateur!client_id(nom)')
+      .eq('id', id)
+      .eq('client_id', userId)
+      .single();
+
+    if (error || !devis) {
+      throw new Error("Devis introuvable ou non autorisé");
+    }
+
+    // Trigger PDF generation job and wait for it or just add to queue and return
+    // Since we need it on demand, it's better to generate it directly or trigger the queue.
+    // We will trigger the queue and tell the user it will be ready.
+    await pdfQueue.add('generate-pdf', {
+      type: 'DEVIS',
+      data: devis,
+      clientName: devis.utilisateur.nom,
+      whatsapp: null // No whatsapp
+    });
+
+    res.json({ message: "La génération du PDF a été lancée. Il sera disponible dans quelques secondes." });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

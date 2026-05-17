@@ -25,4 +25,9 @@ router.patch('/:id/status', authenticateJWT, checkRole(['agent', 'admin']), orde
 // Public tracking
 router.get('/tracking/:number', orderController.getTrackingDetails);
 
+// Client Dashboard Endpoints
+router.get('/client-quotes', authenticateJWT, orderController.getClientQuotes);
+router.get('/client-orders', authenticateJWT, orderController.getClientOrders);
+router.post('/quotes/:id/regenerate-pdf', authenticateJWT, orderController.regenerateQuotePdf);
+
 export default router;

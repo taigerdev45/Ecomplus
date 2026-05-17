@@ -30,20 +30,11 @@ export const pdfWorker = new Worker('pdf-generation', async (job) => {
         .eq('id', data.id);
     }
     
-    // Trigger WhatsApp notification
-    await whatsappQueue.add('send-notification', {
-      to: job.data.whatsapp,
-      type: type === 'DEVIS' ? 'DEVIS_READY' : 'ORDER_CONFIRMED',
-      data: {
-        clientName,
-        reference: data.reference,
-        trackingNumber: data.tracking_number,
-        amount: data.total_ttc,
-        link: pdfUrl
-      }
-    });
+    // DÉSACTIVÉ: Envoi WhatsApp complètement coupé pour les devis et reçus
+    // conformément à la nouvelle logique (Espace Client).
+    // Les utilisateurs se connecteront pour télécharger leurs PDF.
 
-    console.log(`PDF Generated & WhatsApp Triggered: ${pdfUrl}`);
+    console.log(`PDF Generated successfully: ${pdfUrl}`);
     return pdfUrl;
   } catch (error) {
     console.error(`Error in PDF worker:`, error);

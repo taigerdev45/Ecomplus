@@ -13,6 +13,8 @@ interface SiteConfig {
   whatsapp_service_2: string;
 }
 
+import api from '@/lib/axios';
+
 export default function AdminConfig() {
   const [config, setConfig] = useState<SiteConfig>({
     logo_url: '',
@@ -31,10 +33,9 @@ export default function AdminConfig() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`);
-      const data = await res.json();
-      if (data.success) {
-        setConfig(data.data || {
+      const res = await api.get<{ success: boolean; data: SiteConfig }>('/config');
+      if (res.data.success) {
+        setConfig(res.data.data || {
           logo_url: '',
           description_services: '',
           footer_text: '',
@@ -58,22 +59,17 @@ export default function AdminConfig() {
     formData.append('logo', file);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config/logo`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
+      const res = await api.post<{ success: boolean; data: { logo_url: string }; message?: string }>('/config/logo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const data = await res.json();
-      if (data.success) {
-        setConfig({ ...config, logo_url: data.data.logo_url });
+      if (res.data.success) {
+        setConfig({ ...config, logo_url: res.data.data.logo_url });
         toast.success('Logo mis à jour');
       } else {
-        throw new Error(data.message);
+        throw new Error(res.data.message);
       }
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de l\'upload');
+      toast.error(error.response?.data?.message || error.message || 'Erreur lors de l\'upload');
     } finally {
       setUploading(false);
     }
@@ -83,22 +79,14 @@ export default function AdminConfig() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(config)
-      });
-      const data = await res.json();
-      if (data.success) {
+      const res = await api.put<{ success: boolean; message?: string }>('/config', config);
+      if (res.data.success) {
         toast.success('Configuration enregistrée avec succès');
       } else {
-        throw new Error(data.message);
+        throw new Error(res.data.message);
       }
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de l\'enregistrement');
+      toast.error(error.response?.data?.message || error.message || 'Erreur lors de l\'enregistrement');
     } finally {
       setSaving(false);
     }
@@ -287,3 +275,4 @@ export default function AdminConfig() {
     </AdminLayout>
   );
 }
+

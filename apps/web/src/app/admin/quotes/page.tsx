@@ -5,6 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { Search, Filter, FileText, MessageCircle, MoreVertical, ExternalLink } from 'lucide-react';
 import { Devis } from '@ecom/types';
 import { toast } from 'sonner';
+import api from '@/lib/axios';
 
 type QuoteStatus = 'PENDING' | 'VALIDATED' | 'CANCELLED' | 'EXPIRED';
 
@@ -35,22 +36,19 @@ export default function AdminQuotesPage() {
 
   const fetchQuotes = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/quotes`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      const data = await res.json();
-      setQuotes(data);
-    } catch (err) {
-      toast.error('Erreur lors du chargement des devis');
+      const res = await api.get('/admin/quotes');
+      setQuotes(Array.isArray(res.data) ? res.data : []);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Erreur lors du chargement des devis');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredQuotes = quotes.filter(q => 
+  const filteredQuotes = Array.isArray(quotes) ? quotes.filter(q => 
     q.reference.toLowerCase().includes(search.toLowerCase()) ||
     q.client?.nom.toLowerCase().includes(search.toLowerCase())
-  );
+  ) : [];
 
   return (
     <AdminLayout>
@@ -182,3 +180,4 @@ export default function AdminQuotesPage() {
     </AdminLayout>
   );
 }
+

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useCart } from '@/store/useCart';
 import { useProduct } from '@/store/useProduct';
+import { useAuth } from '@/store/useAuth';
 import { Devis, ShippingMethod } from '@ecom/types';
 import { Trash2, Plus, Minus, Calculator, Send, Truck, Info, Loader2, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
@@ -14,10 +15,11 @@ export default function CartPage() {
   const { items, updateQuantity, removeItem, getQuotePreview, getTotalPrice, submitQuoteRequest } = useCart();
   const { exchangeRate, fetchExchangeRate } = useProduct();
   
+  const { user, isAuthenticated } = useAuth();
+  
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('AIR');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
   const [quote, setQuote] = useState<Devis | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
@@ -26,14 +28,15 @@ export default function CartPage() {
   }, [fetchExchangeRate]);
 
   const handleCalculateQuote = async () => {
-    if (!address || !city || !whatsapp) {
+    if (!address || !city) {
       toast.error('Veuillez remplir toutes les coordonnées de livraison');
       return;
     }
     
     setIsCalculating(true);
     try {
-      const data = await getQuotePreview(shippingMethod, address, city, whatsapp);
+      // Pour le preview, le numéro whatsapp n'est plus requis
+      const data = await getQuotePreview(shippingMethod, address, city, '');
       setQuote(data);
       toast.success('Devis mis à jour');
     } catch (error) {
@@ -46,19 +49,20 @@ export default function CartPage() {
   const router = useRouter();
 
   const handleSubmitQuote = async () => {
-    if (!address || !city || !whatsapp) {
+    if (!address || !city) {
       toast.error('Veuillez remplir toutes les coordonnées de livraison');
       return;
     }
 
     setIsCalculating(true);
     try {
-      const res = await submitQuoteRequest(shippingMethod, address, city, whatsapp);
+      // Soumission de la demande sans whatsapp manuel
+      const res = await submitQuoteRequest(shippingMethod, address, city, user?.telephone || '');
       toast.success(res.message);
       setQuote(null); // Clear local quote
       
-      // Redirect to success page with PDF and Ref
-      router.push(`/devis-envoye?pdf=${encodeURIComponent(res.devis.pdf_url || '')}&ref=${res.devis.reference}`);
+      // Redirect to client quotes page
+      router.push('/client/quotes');
     } catch (error) {
       toast.error('Erreur lors de l\'envoi de la demande');
     } finally {
@@ -160,9 +164,25 @@ export default function CartPage() {
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <h2 className="text-xl font-bold mb-6">Récapitulatif & Livraison</h2>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mode de livraison</label>
+              {!isAuthenticated ? (
+                <div className="rounded-xl border-2 border-dashed border-primary/20 bg-primary/5 p-6 text-center">
+                  <Info className="mx-auto h-8 w-8 text-primary mb-3" />
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Connectez-vous pour continuer</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                    Vous devez posséder un compte client pour demander un devis et suivre vos commandes.
+                  </p>
+                  <Link 
+                    href="/login?redirect=/panier" 
+                    className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary/90"
+                  >
+                    Se connecter / Créer un compte
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mode de livraison</label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setShippingMethod('AIR')}
@@ -203,13 +223,6 @@ export default function CartPage() {
                     className="w-full rounded-lg border border-slate-200 p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-800"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Numéro WhatsApp (ex: +241...)"
-                    className="w-full rounded-lg border border-slate-200 p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-800"
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
                   />
                 </div>
 
@@ -254,6 +267,13 @@ export default function CartPage() {
                   </button>
                 </div>
               )}
+              {isAuthenticated && quote && (
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-slate-500">Votre devis sera généré et disponible instantanément dans votre espace client.</p>
+                </div>
+              )}
+            </>
+          )}
             </div>
           </div>
         </div>

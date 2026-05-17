@@ -82,13 +82,17 @@ export const getAgents = async (req: Request, res: Response) => {
 };
 
 export const createAgent = async (req: Request, res: Response) => {
-  // In a real app, this would use Supabase Auth to create the user
-  // For this exercise, we assume the user exists or we insert into table
   try {
-    const { email, nom, telephone, role } = req.body;
+    const { email, nom, telephone, role, password } = req.body;
     const { data: agent, error } = await supabase
       .from('utilisateur')
-      .insert({ email, nom, telephone, role, mot_de_passe: 'temporary-pass' })
+      .insert({ 
+        email, 
+        nom, 
+        telephone, 
+        role, 
+        mot_de_passe: password || 'temporary-pass' 
+      })
       .select()
       .single();
 
