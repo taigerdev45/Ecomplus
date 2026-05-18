@@ -8,6 +8,7 @@ interface AuthState {
   isLoading: boolean;
   login: (data: LoginDTO) => Promise<void>;
   register: (data: RegisterDTO) => Promise<void>;
+  loginAnonymous: () => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -16,6 +17,21 @@ export const useAuth = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+
+  loginAnonymous: async () => {
+    set({ isLoading: true });
+    try {
+      const res = await api.post<{ user: User; accessToken: string }>('/auth/anonymous');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('accessToken', res.data.accessToken);
+        document.cookie = `accessToken=${res.data.accessToken}; path=/; max-age=604800; samesite=lax`;
+      }
+      set({ user: res.data.user, isAuthenticated: true, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
 
   login: async (data) => {
     set({ isLoading: true });

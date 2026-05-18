@@ -306,3 +306,65 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const loginAnonymous = async (req: Request, res: Response) => {
+  try {
+    // 1. Run cleanup of old anonymous sessions (> 3 days)
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const threeDaysAgoISO = threeDaysAgo.toISOString();
+
+    try {
+      // Find all clients starting with 'anonymous_' created more than 3 days ago
+      const { data: oldGuests } = await supabase
+        .from('client')
+        .select('id')
+        .like('email', 'anonymous_%')
+        .lt('created_at', threeDaysAgoISO);
+
+      if (oldGuests && oldGuests.length > 0) {
+        const guestIds = oldGuests.map(g => g.id);
+        // Cascades will delete from conversation, message, favoris, etc.
+        await supabase
+          .from('client')
+          .delete()
+          .in('id', guestIds);
+        
+        console.log(`Successfully cleaned up ${guestIds.length} anonymous accounts older than 3 days.`);
+      }
+    } catch (cleanupErr) {
+      console.error('Failed to cleanup anonymous accounts:', cleanupErr);
+    }
+
+    // 2. Create new anonymous user
+    const uuid = Math.random().toString(36).substring(2, 15);
+    const email = `anonymous_${uuid}_${Date.now()}@ecomplus.ga`;
+    const nom = `Visiteur Anonyme`;
+    const telephone = '00000000';
+    const hashedPassword = await hashPassword('anonymous_guest_password_secure');
+
+    const { data: newGuest, error: insertError } = await supabase
+      .from('client')
+      .insert([{
+        email,
+        mot_de_passe: hashedPassword,
+        nom,
+        telephone
+      }])
+      .select('id, email, nom, telephone, created_at')
+      .single();
+
+    if (insertError) throw insertError;
+
+    const guestUser = { ...newGuest, role: 'client' as any };
+    const { accessToken, refreshToken } = generateTokens(guestUser);
+
+    res.cookie('accessToken', accessToken, getCookieOptions(24 * 60 * 60 * 1000));
+    res.cookie('refreshToken', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
+
+    res.status(201).json({ user: guestUser, accessToken });
+  } catch (error: any) {
+    console.error('Error in loginAnonymous:', error);
+    res.status(500).json({ message: error.message || 'Erreur lors de la création de la session anonyme' });
+  }
+};
+

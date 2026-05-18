@@ -16,9 +16,18 @@ export default function ClientOrders() {
   const [transactionId, setTransactionId] = useState('');
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const { user } = useAuth();
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
     fetchOrders();
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          setConfig(data.data);
+        }
+      })
+      .catch(err => console.error('Failed to load site config in client orders page', err));
   }, []);
 
   const fetchOrders = async () => {
@@ -61,7 +70,7 @@ export default function ClientOrders() {
 
     try {
       setDownloadingId(orderId);
-      await downloadReceiptPDF(order, user?.nom || 'Client Ecom Plus');
+      await downloadReceiptPDF(order, user?.nom || 'Client Ecom Plus', config);
       toast.success('Reçu PDF téléchargé avec succès !');
     } catch (error) {
       console.error(error);
@@ -280,11 +289,11 @@ export default function ClientOrders() {
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-slate-900 dark:text-white">Airtel Money</h3>
-                    <p className="text-[10px] text-slate-500">Nom : ECOM PLUS GABON</p>
+                    <p className="text-[10px] text-slate-500">Nom : {config?.airtel_money_name || 'ECOM PLUS GABON'}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-black text-slate-900 dark:text-white block">+241 77 00 00 00</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white block">{config?.airtel_money_number || '+241 77 00 00 00'}</span>
                   <span className="text-[9px] text-red-600 font-bold bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded">Recommandé</span>
                 </div>
               </div>
@@ -297,11 +306,11 @@ export default function ClientOrders() {
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-slate-900 dark:text-white">Moov Money</h3>
-                    <p className="text-[10px] text-slate-500">Nom : ECOM PLUS GABON</p>
+                    <p className="text-[10px] text-slate-500">Nom : {config?.moov_money_name || 'ECOM PLUS GABON'}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-black text-slate-900 dark:text-white block">+241 66 00 00 00</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white block">{config?.moov_money_number || '+241 66 00 00 00'}</span>
                   <span className="text-[9px] text-blue-600 font-bold bg-blue-100 dark:bg-blue-950 px-1.5 py-0.5 rounded">Disponible</span>
                 </div>
               </div>

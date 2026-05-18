@@ -87,6 +87,7 @@ app.use('/api/v1/webhooks/whatsapp', whatsappRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/config', configRoutes);
 app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 // Error Handling
 app.use(errorHandler);

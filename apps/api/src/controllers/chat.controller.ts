@@ -199,6 +199,26 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
         .single();
       senderName = clientInfo?.nom || 'Client';
       senderRole = 'client';
+
+      // Notify the assigned agent/admin (if agent_id exists, notify him, otherwise notify all staff)
+      try {
+        const { data: conv } = await supabase
+          .from('conversation')
+          .select('agent_id')
+          .eq('id', targetConversationId)
+          .single();
+        
+        await supabase.from('notification').insert({
+          user_id: conv?.agent_id || null,
+          client_id: null,
+          title: 'Nouveau message client',
+          content: `${senderName} : ${content.substring(0, 60)}${content.length > 60 ? '...' : ''}`,
+          type: 'chat',
+          is_read: false
+        });
+      } catch (nErr) {
+        console.error('Failed to trigger chat notification:', nErr);
+      }
     } else {
       const { data: userInfo } = await supabase
         .from('utilisateur')
@@ -207,6 +227,27 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
         .single();
       senderName = userInfo?.nom || 'Admin/Agent';
       senderRole = userInfo?.role || 'agent';
+
+      // Notify the client
+      try {
+        const { data: conv } = await supabase
+          .from('conversation')
+          .select('client_id')
+          .eq('id', targetConversationId)
+          .single();
+        
+        if (conv?.client_id) {
+          await supabase.from('notification').insert({
+            client_id: conv.client_id,
+            title: 'Nouveau message du support',
+            content: `${senderName} : ${content.substring(0, 60)}${content.length > 60 ? '...' : ''}`,
+            type: 'chat',
+            is_read: false
+          });
+        }
+      } catch (nErr) {
+        console.error('Failed to trigger chat notification:', nErr);
+      }
     }
 
     const formattedMessage = {

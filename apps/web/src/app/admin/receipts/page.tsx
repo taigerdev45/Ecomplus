@@ -24,6 +24,7 @@ export default function AdminReceiptsPage() {
   const [search, setSearch] = useState('');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [config, setConfig] = useState<any>(null);
   
   // Details Modal States
   const [selectedReceipt, setSelectedReceipt] = useState<OrderRow | null>(null);
@@ -36,13 +37,19 @@ export default function AdminReceiptsPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [ordersRes, clientsRes] = await Promise.all([
+      const [ordersRes, clientsRes, configRes] = await Promise.all([
         api.get('/orders'),
-        api.get('/admin/clients')
+        api.get('/admin/clients'),
+        api.get('/config')
       ]);
 
       const orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
       const clients = Array.isArray(clientsRes.data) ? clientsRes.data : [];
+      
+      const configData = configRes.data as any;
+      if (configData && configData.success) {
+        setConfig(configData.data);
+      }
 
       const clientMap = new Map<string, string>();
       clients.forEach((c: any) => {
@@ -68,7 +75,7 @@ export default function AdminReceiptsPage() {
   const handleDownloadReceipt = async (rec: OrderRow) => {
     try {
       setDownloadingId(rec.id);
-      await downloadReceiptPDF(rec, rec.clientName || 'Client Ecom Plus');
+      await downloadReceiptPDF(rec, rec.clientName || 'Client Ecom Plus', config);
       toast.success('Reçu PDF téléchargé avec succès !');
     } catch (error) {
       console.error(error);
@@ -99,10 +106,11 @@ export default function AdminReceiptsPage() {
     setIsModalOpen(true);
   };
 
-  const filteredReceipts = receipts.filter(rec => 
-    rec.numero_tracking.toLowerCase().includes(search.toLowerCase()) ||
-    (rec.clientName || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredReceipts = receipts.filter(rec => {
+    const tracking = rec.numero_tracking || '';
+    return tracking.toLowerCase().includes(search.toLowerCase()) ||
+      (rec.clientName || '').toLowerCase().includes(search.toLowerCase());
+  });
 
   return (
     <AdminLayout>
@@ -159,12 +167,13 @@ export default function AdminReceiptsPage() {
                     </tr>
                   ) : (
                     filteredReceipts.map((rec) => {
-                      const reference = `REC-${rec.numero_tracking.replace('ECOM-', '')}`;
+                      const tracking = rec.numero_tracking || '';
+                      const reference = `REC-${tracking.replace('ECOM-', '')}`;
                       return (
                         <tr key={rec.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
                           <td className="px-6 py-4.5 font-mono font-semibold">
                             <span className="text-slate-400 font-normal mr-1">{reference}</span>
-                            <span className="text-slate-950 dark:text-white">({rec.numero_tracking})</span>
+                            <span className="text-slate-950 dark:text-white">({rec.numero_tracking || 'Sans tracking'})</span>
                           </td>
                           <td className="px-6 py-4.5 font-semibold text-slate-900 dark:text-white">{rec.clientName}</td>
                           <td className="px-6 py-4.5 text-slate-500 dark:text-slate-400 text-xs">
@@ -234,13 +243,14 @@ export default function AdminReceiptsPage() {
                 <div className="card p-8 text-center text-xs text-slate-400">Aucun reçu trouvé</div>
               ) : (
                 filteredReceipts.map((rec) => {
-                  const reference = `REC-${rec.numero_tracking.replace('ECOM-', '')}`;
+                  const tracking = rec.numero_tracking || '';
+                  const reference = `REC-${tracking.replace('ECOM-', '')}`;
                   return (
                     <div key={rec.id} className="card p-4 space-y-4">
                       <div className="flex justify-between items-start">
                         <div>
                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{reference}</span>
-                          <h3 className="text-xs font-black text-slate-900 dark:text-white mt-0.5">{rec.numero_tracking}</h3>
+                          <h3 className="text-xs font-black text-slate-900 dark:text-white mt-0.5">{rec.numero_tracking || 'Sans tracking'}</h3>
                         </div>
                         <span className="badge badge-success text-[9px] py-0.5">✓ Payé</span>
                       </div>
@@ -316,9 +326,9 @@ export default function AdminReceiptsPage() {
             <div className="flex items-center justify-between border-b border-slate-100 p-5 dark:border-slate-800">
               <div>
                 <h2 className="text-base font-black text-slate-900 dark:text-white">
-                  Reçu {`REC-${selectedReceipt.numero_tracking.replace('ECOM-', '')}`}
+                  Reçu {`REC-${(selectedReceipt.numero_tracking || '').replace('ECOM-', '')}`}
                 </h2>
-                <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{selectedReceipt.numero_tracking}</p>
+                <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{selectedReceipt.numero_tracking || 'Sans tracking'}</p>
               </div>
               <button 
                 aria-label="Fermer" 

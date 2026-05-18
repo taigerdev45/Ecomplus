@@ -3,7 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Globe, Shield, Truck, Package, Search, ClipboardCheck, Users, CheckCircle, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/store/useAuth';
+import { 
+  ArrowRight, Globe, Shield, Truck, Package, Search, ClipboardCheck, 
+  Users, CheckCircle, ChevronRight, MessageSquare, X, ShieldAlert, Loader2 
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 interface SiteConfig {
   description_services: string;
@@ -15,6 +21,24 @@ export default function Home() {
     description_services: 'Nous sourçons les meilleurs produits, nous négocions pour vous, et nous assurons la logistique jusqu\'à votre porte à Libreville.',
     logo_url: ''
   });
+
+  const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
+  const [isConnectingAnon, setIsConnectingAnon] = useState(false);
+  const { loginAnonymous, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const handleStartAnonymousChat = async () => {
+    setIsConnectingAnon(true);
+    try {
+      await loginAnonymous();
+      toast.success('Session anonyme créée avec succès ! Redirection vers le support...');
+      router.push('/client/chat');
+    } catch (err: any) {
+      toast.error('Impossible d\'initier la session anonyme : ' + (err.message || 'erreur serveur'));
+    } finally {
+      setIsConnectingAnon(false);
+    }
+  };
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/config`)
@@ -195,7 +219,11 @@ export default function Home() {
           
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {services.map((service, index) => (
-              <div key={index} className="card-hover group p-6 flex flex-col justify-between">
+              <div 
+                key={index} 
+                onClick={() => setSelectedService(service)}
+                className="card-hover group p-6 flex flex-col justify-between cursor-pointer active:scale-[0.98] transition-transform"
+              >
                 <div>
                   <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-105 ${service.color}`}>
                     {service.icon}
@@ -234,6 +262,118 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── SERVICE DETAIL MODAL ── */}
+      {selectedService && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm animate-fade-in"
+          onClick={() => setSelectedService(null)}
+        >
+          <div 
+            className="relative w-full max-w-lg rounded-3xl border border-slate-100 bg-white/95 p-6 shadow-2xl backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/95 overflow-hidden animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Background glowing orb */}
+            <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20 shrink-0">
+                  {selectedService.icon}
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">{selectedService.title}</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Expertise Logistique</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedService(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
+                aria-label="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Body Content */}
+            <div className="mt-6 space-y-4 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p className="font-medium text-slate-800 dark:text-slate-100 text-sm">
+                {selectedService.description}
+              </p>
+              
+              {selectedService.title === 'Sourcing Chine' && (
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-100/50 dark:border-slate-800/50 space-y-2">
+                  <p>🔹 <strong>Sélection rigoureuse :</strong> Nous trions sur le volet des usines certifiées ISO en Chine (Yiwu, Shenzhen, Guangzhou).</p>
+                  <p>🔹 <strong>Négociation de prix :</strong> Notre équipe locale négocie les tarifs au plus bas, directement à la source d&apos;usine.</p>
+                  <p>🔹 <strong>Contrôle qualité :</strong> Inspection minutieuse des marchandises avant expédition pour éviter les défauts.</p>
+                </div>
+              )}
+
+              {selectedService.title === 'Livraison Gabon' && (
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-100/50 dark:border-slate-800/50 space-y-2">
+                  <p>✈️ <strong>Fret Aérien (Rapide) :</strong> Expédition en 5 à 9 jours ouvrés pour vos colis urgents ou de haute valeur.</p>
+                  <p>🚢 <strong>Fret Maritime (Économique) :</strong> Idéal pour les gros volumes ou colis lourds, transit de 35 à 45 jours.</p>
+                  <p>📦 <strong>Dédouanement :</strong> Prise en charge intégrale des formalités et taxes. Aucun coût surprise à Libreville.</p>
+                </div>
+              )}
+
+              {selectedService.title === 'Devis Transparent' && (
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-100/50 dark:border-slate-800/50 space-y-2">
+                  <p>💰 <strong>Calcul Instantané :</strong> Notre outil intègre tous les coûts de douane et de fret en temps réel.</p>
+                  <p>🛡️ <strong>Zéro surcoût :</strong> Aucun frais supplémentaire lors de la récupération de vos marchandises.</p>
+                  <p>📄 <strong>Facturation Pro :</strong> Factures détaillées fournies pour votre comptabilité commerciale.</p>
+                </div>
+              )}
+
+              {selectedService.title === 'Suivi Temps Réel' && (
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-100/50 dark:border-slate-800/50 space-y-2">
+                  <p>📸 <strong>Preuves Photos :</strong> Nous prenons des photos de vos colis à chaque étape clé (entrepôt Yiwu, port...).</p>
+                  <p>📲 <strong>Notifications :</strong> Alerte SMS et email pour vous informer de chaque mouvement majeur de votre fret.</p>
+                  <p>📍 <strong>Localisation précise :</strong> Sachez exactement si votre cargaison est en mer, en douane ou disponible.</p>
+                </div>
+              )}
+
+              {/* Warning Alert about Anonymous Chat deletion */}
+              <div className="flex gap-2.5 items-start rounded-2xl bg-amber-500/10 p-3.5 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                <ShieldAlert className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-[10px] uppercase tracking-wider">Sécurité & Confidentialité</p>
+                  <p className="text-[10px] leading-snug mt-0.5">Le chat anonyme est idéal pour poser vos questions à chaud. Par mesure de sécurité, tous les comptes et messages anonymes sont définitivement supprimés après 3 jours.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="mt-6 flex flex-col gap-2.5">
+              <button
+                onClick={isAuthenticated ? () => router.push('/client/chat') : handleStartAnonymousChat}
+                disabled={isConnectingAnon}
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-xs font-bold text-white shadow-md shadow-primary/20 hover:bg-primary/95 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+              >
+                {isConnectingAnon ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Création de la session en cours...
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare className="h-4 w-4" />
+                    {isAuthenticated ? 'Discuter avec le service client' : 'Discuter en anonyme (Effacé sous 3j)'}
+                  </>
+                )}
+              </button>
+              
+              <button
+                onClick={() => setSelectedService(null)}
+                className="w-full py-2 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
