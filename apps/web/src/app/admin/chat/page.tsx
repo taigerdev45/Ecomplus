@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/store/useAuth';
 import api from '@/lib/axios';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Search, Send, Clock, CheckCircle2, MessageSquare, Users, ShieldAlert } from 'lucide-react';
+import { Search, Send, Clock, CheckCircle2, MessageSquare, Users, ShieldAlert, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Conversation {
@@ -196,293 +196,317 @@ export default function AdminChat() {
 
   return (
     <AdminLayout>
-    <div className="flex flex-col h-[calc(100vh-14rem)] bg-white shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl overflow-hidden">
-      
-      {/* Header Tab Selector */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-6 py-2 gap-4">
-        <button
-          onClick={() => {
-            setActiveTab('support');
-            scrollToBottom();
-          }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
-            activeTab === 'support'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <MessageSquare className="h-4 w-4" />
-          Support Client
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab('team');
-            fetchTeamMessages();
-            scrollToTeamBottom();
-          }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
-            activeTab === 'team'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <Users className="h-4 w-4" />
-          {"Chat d'Équipe (Interne)"}
-        </button>
-      </div>
-
-      {/* Main View Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-col h-[calc(100vh-14rem)] bg-white shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl overflow-hidden">
         
-        {activeTab === 'support' ? (
-          // ==========================================
-          // SUPPORT TAB
-          // ==========================================
-          <>
-            {/* Sidebar: Conversations List */}
-            <div className="w-1/3 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Rechercher un client..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
-                  />
+        {/* Header Tab Selector */}
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 px-6 py-3 shrink-0">
+          <div className="flex bg-slate-200/60 dark:bg-slate-850 p-1 rounded-xl gap-1">
+            <button
+              onClick={() => {
+                setActiveTab('support');
+                scrollToBottom();
+              }}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'support'
+                  ? 'bg-white text-primary shadow-sm dark:bg-slate-900'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              Support Client
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('team');
+                fetchTeamMessages();
+                scrollToTeamBottom();
+              }}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'team'
+                  ? 'bg-white text-primary shadow-sm dark:bg-slate-900'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" />
+              {"Chat d'Équipe"}
+            </button>
+          </div>
+          <div className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase hidden sm:block">
+            Messagerie Ecom Plus
+          </div>
+        </div>
+
+        {/* Main View Area */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          
+          {activeTab === 'support' ? (
+            // ==========================================
+            // SUPPORT TAB
+            // ==========================================
+            <>
+              {/* Sidebar: Conversations List */}
+              <div className={`w-full md:w-80 lg:w-96 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 min-h-0 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+                <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Rechercher un client..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-4 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  {isLoadingSupport ? (
+                    <div className="p-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                      <Clock className="h-4 w-4 animate-spin text-primary" />
+                      Chargement des conversations...
+                    </div>
+                  ) : filteredConversations.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 text-xs font-semibold">
+                      Aucune conversation trouvée.
+                    </div>
+                  ) : (
+                    <div className="p-3 space-y-1.5">
+                      {filteredConversations.map(conv => {
+                        const isActive = selectedConversation?.id === conv.id;
+                        return (
+                          <button
+                            key={conv.id}
+                            onClick={() => setSelectedConversation(conv)}
+                            className={`w-full text-left p-3.5 rounded-xl transition-all ${
+                              isActive
+                                ? 'bg-white dark:bg-slate-800 shadow-sm border border-slate-200/60 dark:border-slate-700/60'
+                                : 'hover:bg-slate-200/30 dark:hover:bg-slate-850/30 border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className={`text-xs font-black truncate ${isActive ? 'text-primary' : 'text-slate-800 dark:text-slate-200'}`}>
+                                {conv.client_name || 'Client inconnu'}
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1 shrink-0 ml-2">
+                                <Clock className="h-3 w-3" />
+                                {new Date(conv.updated_at).toLocaleDateString('fr-FR')}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-400 font-semibold truncate">
+                              {conv.client_email}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
-                {isLoadingSupport ? (
-                  <div className="p-8 text-center text-slate-400">Chargement...</div>
-                ) : filteredConversations.length === 0 ? (
-                  <div className="p-8 text-center text-slate-500 text-sm">
-                    Aucune conversation trouvée.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                    {filteredConversations.map(conv => (
-                      <button
-                        key={conv.id}
-                        onClick={() => setSelectedConversation(conv)}
-                        className={`w-full text-left p-4 hover:bg-white dark:hover:bg-slate-800 transition-colors ${
-                          selectedConversation?.id === conv.id ? 'bg-white dark:bg-slate-800 border-l-4 border-primary' : 'border-l-4 border-transparent'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-slate-900 dark:text-white truncate">
-                            {conv.client_name || 'Client inconnu'}
-                          </span>
-                          <span className="text-xs text-slate-400 flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {new Date(conv.updated_at).toLocaleDateString()}
-                          </span>
+              {/* Main Chat Content */}
+              <div className={`flex-1 flex flex-col bg-white dark:bg-slate-900 relative min-h-0 ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+                {selectedConversation ? (
+                  <>
+                    {/* Chat Header */}
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10 shrink-0">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setSelectedConversation(null)}
+                          className="md:hidden p-2 -ml-2 text-slate-500 hover:text-slate-950 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          aria-label="Retour à la liste"
+                        >
+                          <ArrowLeft className="h-5 w-5" />
+                        </button>
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-sm">
+                          {selectedConversation.client_name?.charAt(0).toUpperCase()}
                         </div>
-                        <div className="text-xs text-slate-500 truncate">
-                          {conv.client_email}
+                        <div>
+                          <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                            {selectedConversation.client_name}
+                          </h3>
+                          <p className="text-xs text-slate-400 font-semibold">
+                            {selectedConversation.client_email}
+                          </p>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Main Chat Content */}
-            <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 relative">
-              {selectedConversation ? (
-                <>
-                  {/* Chat Header */}
-                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                        {selectedConversation.client_name?.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <h3 className="font-bold text-slate-900 dark:text-white">
-                          {selectedConversation.client_name}
-                        </h3>
-                        <p className="text-xs text-slate-500">
-                          {selectedConversation.client_email}
-                        </p>
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 rounded-full">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Ouvert
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-medium px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Discussion ouverte
-                    </div>
-                  </div>
 
-                  {/* Messages Flow */}
-                  <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
-                    {messages.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                        <MessageSquare className="h-12 w-12 mb-3 opacity-20" />
-                        <p>Aucun message dans cette conversation.</p>
-                      </div>
-                    ) : (
-                      messages.map((msg, idx) => {
-                        const isMe = msg.sender_id === user?.id;
-                        const isClient = msg.sender_role === 'client';
-                        
-                        return (
-                          <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`flex max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                              <div className={`h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
-                                isClient 
-                                  ? 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400' 
-                                  : 'bg-primary/10 text-primary'
-                              }`}>
-                                {msg.sender_name?.charAt(0).toUpperCase()}
-                              </div>
-                              
-                              <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                <span className="text-[10px] text-slate-400 mb-1 px-1">
-                                  {msg.sender_name} • {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                </span>
-                                <div className={`px-4 py-3 rounded-2xl ${
-                                  isMe 
-                                    ? 'bg-primary text-white rounded-br-sm' 
-                                    : 'bg-white border border-slate-200 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded-bl-sm'
+                    {/* Messages Flow */}
+                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50 dark:bg-slate-950/20 min-h-0">
+                      {messages.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                          <MessageSquare className="h-12 w-12 mb-3 opacity-20" />
+                          <p className="text-xs">Aucun message dans cette conversation.</p>
+                        </div>
+                      ) : (
+                        messages.map((msg, idx) => {
+                          const isMe = msg.sender_id === user?.id;
+                          const isClient = msg.sender_role === 'client';
+                          
+                          return (
+                            <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`flex max-w-[85%] md:max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2.5`}>
+                                <div className={`h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black ${
+                                  isClient 
+                                    ? 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400' 
+                                    : 'bg-primary/20 text-primary'
                                 }`}>
-                                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                  {msg.sender_name?.charAt(0).toUpperCase()}
+                                </div>
+                                
+                                <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                                  <span className="text-[9px] font-semibold text-slate-400 mb-1 px-1">
+                                    {msg.sender_name} • {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                  </span>
+                                  <div className={`px-4 py-3 rounded-2xl ${
+                                    isMe 
+                                      ? 'bg-primary text-white rounded-br-sm shadow-sm' 
+                                      : 'bg-white border border-slate-200/80 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded-bl-sm shadow-sm'
+                                  }`}>
+                                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })
-                    )
-                    }
-                  </div>
+                          );
+                        })
+                      )}
+                    </div>
 
-                  {/* Input Area */}
-                  <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-                    <form onSubmit={handleSendMessage} className="flex gap-2 relative">
-                      <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Écrivez votre message..."
-                        className="flex-1 rounded-full border border-slate-200 bg-slate-50 py-3 pl-6 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
-                      />
-                      <button
-                        type="submit"
-                        disabled={!newMessage.trim()}
-                        aria-label="Envoyer le message"
-                        title="Envoyer le message"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-                      >
-                        <Send className="h-4 w-4" />
-                      </button>
-                    </form>
+                    {/* Input Area */}
+                    <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+                      <form onSubmit={handleSendMessage} className="flex gap-2 relative">
+                        <input
+                          type="text"
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          placeholder="Écrivez votre message..."
+                          className="flex-1 rounded-full border border-slate-200 bg-slate-50 py-3 pl-6 pr-12 text-xs outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
+                        />
+                        <button
+                          type="submit"
+                          disabled={!newMessage.trim()}
+                          aria-label="Envoyer le message"
+                          title="Envoyer le message"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-sm"
+                        >
+                          <Send className="h-4 w-4" />
+                        </button>
+                      </form>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/30 dark:bg-slate-950/10 p-6">
+                    <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center dark:bg-slate-800 mb-4 shadow-inner">
+                      <MessageSquare className="h-8 w-8 text-primary/60" />
+                    </div>
+                    <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 mb-1">Centre de Messagerie Support</h2>
+                    <p className="text-xs text-slate-400 max-w-xs text-center leading-relaxed">
+                      Sélectionnez une conversation dans le panneau de gauche pour commencer à échanger en direct avec vos clients.
+                    </p>
                   </div>
-                </>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-                  <MessageSquare className="h-16 w-16 mb-4 opacity-20" />
-                  <h2 className="text-xl font-bold text-slate-600 dark:text-slate-300 mb-2">Centre de Messagerie Support</h2>
-                  <p className="text-sm max-w-sm text-center">
-                    Sélectionnez une conversation dans le panneau de gauche pour commencer à discuter avec un client.
-                  </p>
+                )}
+              </div>
+            </>
+          ) : (
+            // ==========================================
+            // TEAM CHAT TAB
+            // ==========================================
+            <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 min-h-0">
+              {/* Team Chat Header */}
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">{"Canal Général d'Équipe"}</h3>
+                    <p className="text-xs text-slate-400 font-semibold">Discussion confidentielle réservée aux administrateurs et agents</p>
+                  </div>
                 </div>
-              )}
-            </div>
-          </>
-        ) : (
-          // ==========================================
-          // TEAM CHAT TAB
-          // ==========================================
-          <div className="flex-1 flex flex-col bg-white dark:bg-slate-900">
-            {/* Team Chat Header */}
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <Users className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white">{"Canal Général d'Équipe"}</h3>
-                  <p className="text-xs text-slate-500">Espace de discussion confidentiel réservé aux administrateurs et agents</p>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 rounded-full">
+                  <ShieldAlert className="h-3.5 w-3.5" />
+                  Discussion Interne
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400 rounded-full">
-                <ShieldAlert className="h-3.5 w-3.5" />
-                Discussion Interne
-              </div>
-            </div>
 
-            {/* Team Messages Flow */}
-            <div ref={teamChatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 dark:bg-slate-950/30">
-              {isLoadingTeam && teamMessages.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-slate-400">Chargement du canal...</div>
-              ) : teamMessages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                  <Users className="h-12 w-12 mb-3 opacity-20" />
-                  <p className="text-center">{"Bienvenue sur le chat d'équipe !"}</p>
-                  <p className="text-xs text-slate-500 mt-1">{"Commencez la discussion en écrivant le premier message."}</p>
-                </div>
-              ) : (
-                teamMessages.map((msg, idx) => {
-                  const isMe = msg.sender_id === user?.id;
-                  
-                  return (
-                    <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`flex max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                        <div className={`h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
-                          isMe 
-                            ? 'bg-primary text-white' 
-                            : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                        }`}>
-                          {msg.sender_name?.charAt(0).toUpperCase()}
-                        </div>
-                        
-                        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                          <span className="text-[10px] text-slate-400 mb-1 px-1">
-                            {msg.sender_name} ({msg.sender_role}) • {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </span>
-                          <div className={`px-4 py-3 rounded-2xl ${
+              {/* Team Messages Flow */}
+              <div ref={teamChatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50 dark:bg-slate-950/20 min-h-0">
+                {isLoadingTeam && teamMessages.length === 0 ? (
+                  <div className="h-full flex items-center justify-center text-xs text-slate-400 gap-2">
+                    <Clock className="h-4 w-4 animate-spin text-primary" />
+                    Chargement du canal...
+                  </div>
+                ) : teamMessages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                    <Users className="h-12 w-12 mb-3 opacity-20" />
+                    <p className="text-xs font-bold">{"Bienvenue sur le chat d'équipe !"}</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Commencez la discussion en écrivant le premier message.</p>
+                  </div>
+                ) : (
+                  teamMessages.map((msg, idx) => {
+                    const isMe = msg.sender_id === user?.id;
+                    
+                    return (
+                      <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`flex max-w-[85%] md:max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2.5`}>
+                          <div className={`h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black ${
                             isMe 
-                              ? 'bg-primary text-white rounded-br-sm shadow-sm' 
-                              : 'bg-white border border-slate-200 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded-bl-sm shadow-sm'
+                              ? 'bg-primary text-white' 
+                              : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                           }`}>
-                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                            {msg.sender_name?.charAt(0).toUpperCase()}
+                          </div>
+                          
+                          <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                            <span className="text-[9px] font-semibold text-slate-400 mb-1 px-1">
+                              {msg.sender_name} ({msg.sender_role}) • {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </span>
+                            <div className={`px-4 py-3 rounded-2xl ${
+                              isMe 
+                                ? 'bg-primary text-white rounded-br-sm shadow-sm' 
+                                : 'bg-white border border-slate-200 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded-bl-sm shadow-sm'
+                            }`}>
+                              <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                    );
+                  })
+                )}
+              </div>
 
-            {/* Team Message Input Area */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-              <form onSubmit={handleSendTeamMessage} className="flex gap-2 relative">
-                <input
-                  type="text"
-                  value={newTeamMessage}
-                  onChange={(e) => setNewTeamMessage(e.target.value)}
-                  placeholder="Envoyez un message à l'équipe..."
-                  className="flex-1 rounded-full border border-slate-200 bg-slate-50 py-3 pl-6 pr-12 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
-                />
-                <button
-                  type="submit"
-                  disabled={!newTeamMessage.trim()}
-                  aria-label="Envoyer le message à l'équipe"
-                  title="Envoyer le message à l'équipe"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  <Send className="h-4 w-4" />
-                </button>
-              </form>
+              {/* Team Message Input Area */}
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+                <form onSubmit={handleSendTeamMessage} className="flex gap-2 relative">
+                  <input
+                    type="text"
+                    value={newTeamMessage}
+                    onChange={(e) => setNewTeamMessage(e.target.value)}
+                    placeholder="Envoyez un message à l'équipe..."
+                    className="flex-1 rounded-full border border-slate-200 bg-slate-50 py-3 pl-6 pr-12 text-xs outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:border-slate-800"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newTeamMessage.trim()}
+                    aria-label="Envoyer le message à l'équipe"
+                    title="Envoyer le message à l'équipe"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-primary text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-sm"
+                  >
+                    <Send className="h-4 w-4" />
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
+        </div>
       </div>
-    </div>
     </AdminLayout>
   );
 }
