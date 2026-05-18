@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/store/useAuth';
 import { toast } from 'sonner';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, User, Phone, Package, ShieldCheck, Truck } from 'lucide-react';
@@ -14,7 +14,7 @@ const features = [
   { icon: ShieldCheck, label: 'Suivi en temps réel sécurisé' },
 ];
 
-export default function RegisterPage() {
+function RegisterContent() {
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
@@ -28,6 +28,8 @@ export default function RegisterPage() {
   
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,7 +51,7 @@ export default function RegisterPage() {
         role: 'client'
       });
       toast.success('Compte créé avec succès !');
-      router.push('/');
+      router.push(redirect);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de l\'inscription');
     } finally {
@@ -255,12 +257,24 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Déjà un compte ?{' '}
-            <Link href="/login" className="font-semibold text-primary hover:underline">
+            <Link href={redirect !== '/' ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"} className="font-semibold text-primary hover:underline">
               Se connecter
             </Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }

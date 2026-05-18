@@ -7,7 +7,7 @@ import Link from 'next/link';
 import api from '@/lib/axios';
 
 export default function ClientDashboard() {
-  const { user } = useAuth();
+  const { user, checkAuth } = useAuth();
   const [stats, setStats] = useState({
     pendingQuotes: 0,
     activeOrders: 0,
@@ -18,6 +18,13 @@ export default function ClientDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        // Fetch latest profile first to get fresh balance
+        try {
+          await checkAuth();
+        } catch (authErr) {
+          console.error("Failed to refresh user profile data", authErr);
+        }
+
         const [quotesRes, ordersRes] = await Promise.all([
           api.get('/orders/client-quotes'),
           api.get('/orders/client-orders')
@@ -47,7 +54,7 @@ export default function ClientDashboard() {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [checkAuth]);
 
   if (isLoading) {
     return (
@@ -99,7 +106,7 @@ export default function ClientDashboard() {
     <div className="space-y-8 animate-fade-in">
       
       {/* ── Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 via-primary/95 to-indigo-950 p-8 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 via-primary/95 to-indigo-950 p-8 text-white shadow-lg flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 10% 20%, #ffffff 0%, transparent 40%)' }} />
         <div className="relative z-10 max-w-xl space-y-2">
           <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white/90 backdrop-blur-sm">
@@ -109,6 +116,13 @@ export default function ClientDashboard() {
           <p className="text-sm text-white/70">
             Bienvenue sur votre espace client Ecom Plus Gabon. Suivez vos devis, factures et colis importés de Chine.
           </p>
+        </div>
+        
+        {/* Dynamic App Balance Wallet */}
+        <div className="relative z-10 bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 min-w-[220px] flex flex-col justify-between shadow-lg self-start md:self-auto">
+          <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Solde de votre application</span>
+          <span className="text-2xl font-black mt-2">{(Number(user?.solde) || 0).toLocaleString()} F</span>
+          <span className="text-[9px] text-white/50 font-semibold mt-1">Géré en direct chine</span>
         </div>
       </div>
 

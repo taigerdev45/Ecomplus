@@ -24,6 +24,7 @@ interface DashboardStats {
     avgOrderValue: number;
     totalVisits?: number;
   };
+  soldeAdmin?: number;
   chartData: Array<{ date: string; amount: number }>;
   dailyVisits?: Array<{ date: string; count: number }>;
   dailyLogins?: Array<{ date: string; count: number }>;
@@ -31,6 +32,7 @@ interface DashboardStats {
 
 import api from '@/lib/axios';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -76,7 +78,7 @@ export default function AdminDashboard() {
         {/* Welcome Admin banner */}
         <div className="relative overflow-hidden rounded-[2.2rem] bg-gradient-to-br from-slate-900 via-primary/95 to-indigo-950 p-6 md:p-8 text-white shadow-xl">
           <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 40%, #ffffff 0%, transparent 40%)' }} />
-          <div className="relative z-10 flex flex-col justify-between h-full gap-4 md:flex-row md:items-center">
+          <div className="relative z-10 flex flex-col justify-between h-full gap-6 md:flex-row md:items-center">
             <div className="space-y-2 max-w-xl">
               <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white/95 backdrop-blur-sm inline-flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3" /> Espace Administration
@@ -87,9 +89,18 @@ export default function AdminDashboard() {
               </p>
             </div>
             
-            {/* Animated avatar / graphic */}
-            <div className="relative h-28 w-28 shrink-0 self-center hidden md:block animate-float">
-              <Image src="/icons/logo_ecomplus.jpeg" alt="EcomPlus Logo" fill className="object-cover rounded-2xl border-2 border-white/20 shadow-md" />
+            <div className="flex items-center gap-6 self-start md:self-auto">
+              {/* Premium Glassmorphic Admin Balance Wallet */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 min-w-[220px] flex flex-col justify-between shadow-lg">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Solde Compte Admin</span>
+                <span className="text-2xl font-black mt-2">{(Number(stats?.soldeAdmin) || 0).toLocaleString()} F</span>
+                <span className="text-[9px] text-white/50 font-semibold mt-1">Total commissions &amp; devis spéciaux</span>
+              </div>
+
+              {/* Animated avatar / graphic */}
+              <div className="relative h-24 w-24 shrink-0 hidden md:block animate-float">
+                <Image src="/icons/logo_ecomplus.jpeg" alt="EcomPlus Logo" fill className="object-cover rounded-2xl border-2 border-white/20 shadow-md" />
+              </div>
             </div>
           </div>
         </div>
@@ -244,11 +255,3 @@ export default function AdminDashboard() {
     </AdminLayout>
   );
 }
-
-// Inline Loader2 mock if missing
-const Loader2 = ({ className }: { className?: string }) => (
-  <svg className={`animate-spin ${className}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-  </svg>
-);

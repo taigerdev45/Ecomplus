@@ -84,6 +84,14 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       count
     }));
 
+    // Fetch main admin balance
+    const { data: adminUser } = await supabase
+      .from('utilisateur')
+      .select('solde')
+      .eq('email', 'siataiger7@gmail.com')
+      .single();
+    const soldeAdmin = Number(adminUser?.solde || 0);
+
     res.json({
       kpis: {
         totalOrders: ordersCount || 0,
@@ -92,6 +100,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         avgOrderValue: ordersCount ? Math.round(totalRevenue / ordersCount) : 0,
         totalVisits: totalVisits || 0
       },
+      soldeAdmin,
       chartData: formattedChartData,
       dailyVisits,
       dailyLogins
@@ -365,5 +374,148 @@ export const deleteClient = async (req: Request, res: Response) => {
     res.json({ message: 'Client supprimé avec succès' });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+export const createSpecialQuote = async (req: Request, res: Response) => {
+  try {
+    const {
+      client_id,
+      quantite,
+      nom,
+      categorie_id,
+      description,
+      prix_cny,
+      poids_kg,
+      moq,
+      lien_fournisseur,
+      longueur_m,
+      largeur_m,
+      hauteur_m,
+      couleurs,
+      image_url
+    } = req.body;
+
+    if (!client_id || !quantite || !nom || !prix_cny) {
+      return res.status(400).json({ message: 'Certains champs requis sont manquants (client_id, quantite, nom, prix_cny).' });
+    }
+
+    // 1. Get configurations
+    const { data: configData } = await supabase
+      .from('configuration_site')
+      .select('cle, valeur');
+      
+    const configMap = (configData || []).reduce((acc: Record<string, string>, item) => {
+      acc[item.cle] = item.valeur;
+      return acc;
+    }, {});
+    
+    const exchangeRate = configMap['TAUX_CHANGE_CNY_XAF'] ? Number(configMap['TAUX_CHANGE_CNY_XAF']) : 95;
+
+    // 2. Compute cost and commission
+    // Subtotal Products in FCFA
+    const subtotal_products = Math.round(Number(prix_cny) * exchangeRate * Number(quantite));
+
+    // Logistic Commission variable grid:
+    // < 350 000 FCFA : 10%
+    // 350 000 - 1 000 000 FCFA : 15%
+    // >= 1 000 000 FCFA : 20%
+    let commission_rate = 0.10;
+    if (subtotal_products >= 350000 && subtotal_products < 1000000) {
+      commission_rate = 0.15;
+    } else if (subtotal_products >= 1000000) {
+      commission_rate = 0.20;
+    }
+
+    const commission_montant = Math.round(subtotal_products * commission_rate);
+    const total_ttc = subtotal_products + commission_montant;
+
+    // 3. Build unique reference and items structure
+    const reference = `DEV-SPEC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const items = [{
+      product: {
+        nom,
+        categorie_id,
+        description,
+        prix_cny: Number(prix_cny),
+        poids_kg: Number(poids_kg || 0),
+        moq: Number(moq || 1),
+        lien_fournisseur,
+        longueur_m: Number(longueur_m || 0),
+        largeur_m: Number(largeur_m || 0),
+        hauteur_m: Number(hauteur_m || 0),
+        couleurs: couleurs || [],
+        images: image_url ? [image_url] : []
+      },
+      quantity: Number(quantite)
+    }];
+
+    // 4. Save Quote
+    const { data: devis, error: devisError } = await supabase
+      .from('devis')
+      .insert({
+        client_id,
+        reference,
+        items,
+        subtotal_products,
+        commission_taux: Math.round(commission_rate * 100),
+        commission_montant,
+        shipping_method: 'AIR_NORMAL',
+        shipping_montant: 0,
+        total_ttc,
+        status: 'PENDING'
+      })
+      .select()
+      .single();
+
+    if (devisError) throw devisError;
+
+    // 5. Update client balance
+    const { data: clientObj } = await supabase
+      .from('client')
+      .select('solde')
+      .eq('id', client_id)
+      .single();
+
+    const currentClientSolde = Number(clientObj?.solde || 0);
+    const newClientSolde = currentClientSolde + total_ttc;
+    
+    await supabase
+      .from('client')
+      .update({ solde: newClientSolde })
+      .eq('id', client_id);
+
+    // 6. Update administrative space balance
+    const { data: adminUser } = await supabase
+      .from('utilisateur')
+      .select('id, solde')
+      .eq('email', 'siataiger7@gmail.com')
+      .single();
+
+    if (adminUser) {
+      const currentAdminSolde = Number(adminUser.solde || 0);
+      const newAdminSolde = currentAdminSolde + total_ttc;
+      await supabase
+        .from('utilisateur')
+        .update({ solde: newAdminSolde })
+        .eq('id', adminUser.id);
+    }
+
+    // 7. Push real-time notification to client
+    await supabase.from('notification').insert({
+      client_id,
+      title: '🔎 Nouveau Devis Spécial',
+      content: `Un devis spécial (${reference}) de ${total_ttc.toLocaleString()} FCFA pour commande spécifique a été généré et ajouté à votre solde.`,
+      type: 'devis',
+      is_read: false
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Devis spécial créé avec succès et soldes mis à jour.',
+      devis
+    });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message || 'Erreur lors de la création du devis spécial.' });
   }
 };

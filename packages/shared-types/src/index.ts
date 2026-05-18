@@ -6,6 +6,7 @@ export interface User {
   nom: string;
   telephone: string;
   role: UserRole;
+  solde?: number;
   created_at: string;
 }
 

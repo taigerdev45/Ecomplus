@@ -1,14 +1,18 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/store/useAuth';
 import { useProduct } from '@/store/useProduct';
 import { ProductCard } from '@/components/ProductCard';
 import {
   Search, Loader2, ChevronLeft, ChevronRight, Package,
-  SlidersHorizontal, X, LayoutGrid, List
+  SlidersHorizontal, X, LayoutGrid, List, Sparkles
 } from 'lucide-react';
 
 export default function CataloguePage() {
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const { products, categories, exchangeRate, isLoading, fetchProducts, fetchCategories, fetchExchangeRate, fetchLikedProducts } = useProduct();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -16,6 +20,14 @@ export default function CataloguePage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const handleCommandeSpecifique = () => {
+    if (isAuthenticated && user) {
+      router.push('/client/chat?commande_specifique=true');
+    } else {
+      router.push('/login?redirect=/client/chat?commande_specifique=true');
+    }
+  };
 
   // Debounce search input
   useEffect(() => {
@@ -73,15 +85,15 @@ export default function CataloguePage() {
             Des milliers d&apos;articles sélectionnés directement depuis la Chine, livrés à Libreville.
           </p>
 
-          {/* Search bar */}
-          <div className="mt-6 max-w-2xl">
-            <div className="relative">
+          {/* Search bar & Special Order button */}
+          <div className="mt-6 flex flex-wrap gap-4 items-center max-w-4xl">
+            <div className="relative flex-1 min-w-[280px]">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Rechercher un produit..."
                 aria-label="Rechercher un produit"
-                className="w-full rounded-2xl border border-white/10 bg-white/10 py-3.5 pl-12 pr-10 text-white placeholder-slate-400 backdrop-blur-sm outline-none transition focus:border-violet-400/50 focus:ring-2 focus:ring-violet-400/20 focus:bg-white/15"
+                className="w-full rounded-2xl border border-white/10 bg-white/10 py-3.5 pl-12 pr-10 text-white placeholder-slate-400 backdrop-blur-sm outline-none transition focus:border-violet-400/50 focus:ring-2 focus:ring-violet-400/20 focus:bg-white/15 text-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -95,6 +107,14 @@ export default function CataloguePage() {
                 </button>
               )}
             </div>
+            
+            <button
+              onClick={handleCommandeSpecifique}
+              className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs px-6 py-4 shadow-lg hover:shadow-orange-500/20 transition-all flex items-center gap-2 group transform active:scale-95 shrink-0"
+            >
+              <Package className="h-4 w-4 text-white group-hover:animate-bounce" />
+              Commande Spécifique 🔎
+            </button>
           </div>
         </div>
       </section>

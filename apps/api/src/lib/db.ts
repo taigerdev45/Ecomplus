@@ -74,6 +74,9 @@ export const initDb = async () => {
       ALTER TABLE produit ADD COLUMN IF NOT EXISTS moq INTEGER DEFAULT 1;
       ALTER TABLE produit ADD COLUMN IF NOT EXISTS couleurs TEXT[] DEFAULT '{}';
 
+      ALTER TABLE client ADD COLUMN IF NOT EXISTS solde NUMERIC DEFAULT 0;
+      ALTER TABLE utilisateur ADD COLUMN IF NOT EXISTS solde NUMERIC DEFAULT 0;
+
       ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS airtel_money_number TEXT DEFAULT '+241 77 00 00 00';
       ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS airtel_money_name TEXT DEFAULT 'ECOM PLUS GABON';
       ALTER TABLE configuration_site ADD COLUMN IF NOT EXISTS moov_money_number TEXT DEFAULT '+241 66 00 00 00';
