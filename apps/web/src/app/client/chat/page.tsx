@@ -110,17 +110,17 @@ function ChatContent() {
     setNewMessage('');
 
     try {
-      let activeConvId = conversationId;
-      if (!activeConvId) {
-        const createRes = await api.post('/chat/conversations', { message: tempMessage });
-        activeConvId = (createRes.data as any).conversation.id;
-        setConversationId(activeConvId);
-      } else {
-        await api.post(`/chat/conversations/${activeConvId}/messages`, { content: tempMessage });
-      }
+      const res = await api.post<{ success: boolean; message: any }>('/chat/messages', {
+        conversationId: conversationId || undefined,
+        content: tempMessage
+      });
       
-      if (activeConvId) {
-        await loadMessages(activeConvId);
+      if (res.data.success) {
+        const newMsg = res.data.message;
+        if (newMsg && newMsg.conversation_id) {
+          setConversationId(newMsg.conversation_id);
+          await loadMessages(newMsg.conversation_id);
+        }
       }
     } catch (error) {
       toast.error('Erreur lors de l\'envoi du message');
