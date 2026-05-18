@@ -19,13 +19,15 @@ const publicLinks = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
+  const isDashboardRoute = pathname.startsWith('/client') || pathname.startsWith('/admin');
+  
   const { user, logout, isAuthenticated } = useAuth();
   const { getTotalItems } = useCart();
   const cartCount = getTotalItems();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
 
   // Notifications states
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -107,6 +109,8 @@ export function Navbar() {
 
   const userDashboard =
     user?.role === 'admin' || user?.role === 'agent' ? '/admin' : '/client/dashboard';
+
+  if (isDashboardRoute) return null;
 
   return (
     <>

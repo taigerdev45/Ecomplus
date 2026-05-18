@@ -2,12 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface SiteConfig {
   footer_text: string;
 }
 
 export function Footer() {
+  const pathname = usePathname();
+  const isDashboardRoute = pathname.startsWith('/client') || pathname.startsWith('/admin');
+
   const [config, setConfig] = useState<SiteConfig>({
     footer_text: '© 2026 EcomPlus Gabon. Tous droits réservés.'
   });
@@ -23,6 +27,8 @@ export function Footer() {
       })
       .catch(err => console.error('Failed to load Footer config', err));
   }, []);
+
+  if (isDashboardRoute) return null;
 
   return (
     <footer className="border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
