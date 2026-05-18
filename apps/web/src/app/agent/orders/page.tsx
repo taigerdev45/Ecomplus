@@ -36,8 +36,9 @@ export default function AgentOrdersPage() {
 
   const fetchOrders = async () => {
     try {
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       if (res.ok) {
@@ -56,11 +57,12 @@ export default function AgentOrdersPage() {
     if (!selectedOrder || !newStatus) return;
     setUpdating(true);
     try {
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${selectedOrder.id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           statut: newStatus,

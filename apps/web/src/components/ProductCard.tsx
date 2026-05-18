@@ -30,8 +30,8 @@ export function ProductCard({ product, exchangeRate, categoryName, compact }: Pr
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Check if token exists in localStorage to see if user is authenticated
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    // Check if token or accessToken exists in localStorage to see if user is authenticated
+    const token = typeof window !== 'undefined' ? (localStorage.getItem('accessToken') || localStorage.getItem('token')) : null;
     if (!token) {
       return toast.error("Veuillez vous connecter pour aimer ce produit");
     }

@@ -169,17 +169,37 @@ export const getExchangeRate = async (req: Request, res: Response) => {
 
 export const getPublicSettings = async (req: Request, res: Response) => {
   try {
-    const { data, error } = await supabase
+    const { data: kvData, error: kvError } = await supabase
       .from('configuration')
       .select('cle, valeur')
       .in('cle', ['WHATSAPP_SERVICE_CLIENT', 'SITE_LOGO', 'SITE_NAME']);
 
-    if (error) throw error;
+    if (kvError) throw kvError;
     
-    const settings = data.reduce((acc: any, item) => {
+    const settings = kvData.reduce((acc: any, item) => {
       acc[item.cle] = item.valeur;
       return acc;
     }, {});
+
+    // Fetch from new configuration_site table (which holds modern settings)
+    const { data: siteConfig, error: siteConfigError } = await supabase
+      .from('configuration_site')
+      .select('whatsapp_service_1, site_name, site_logo')
+      .eq('id', 1)
+      .single();
+
+    if (!siteConfigError && siteConfig) {
+      if (siteConfig.whatsapp_service_1) {
+        // Crucial: remove any leading "+" or other non-digits to avoid invalid phone number error on WhatsApp!
+        settings.WHATSAPP_SERVICE_CLIENT = siteConfig.whatsapp_service_1.replace(/\D/g, '');
+      }
+      if (siteConfig.site_name) {
+        settings.SITE_NAME = siteConfig.site_name;
+      }
+      if (siteConfig.site_logo) {
+        settings.SITE_LOGO = siteConfig.site_logo;
+      }
+    }
 
     res.json(settings);
   } catch (error: any) {

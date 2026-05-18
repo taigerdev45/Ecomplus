@@ -26,7 +26,7 @@ export default function CataloguePage() {
   useEffect(() => {
     fetchCategories();
     fetchExchangeRate();
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? (localStorage.getItem('accessToken') || localStorage.getItem('token')) : null;
     if (token) {
       fetchLikedProducts();
     }
