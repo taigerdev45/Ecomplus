@@ -44,7 +44,6 @@ export function Footer() {
           <div>
             <h3 className="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Navigation</h3>
             <ul className="mt-2 md:mt-4 space-y-1.5 md:space-y-2">
-              <li><Link href="/" className="text-xs md:text-sm text-slate-500 hover:text-primary dark:text-slate-400">Accueil</Link></li>
               <li><Link href="/catalogue" className="text-xs md:text-sm text-slate-500 hover:text-primary dark:text-slate-400">Catalogue</Link></li>
               <li><Link href="/suivi" className="text-xs md:text-sm text-slate-500 hover:text-primary dark:text-slate-400">Suivre mon colis</Link></li>
             </ul>

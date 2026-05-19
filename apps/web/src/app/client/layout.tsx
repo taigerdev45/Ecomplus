@@ -35,7 +35,6 @@ const sections: NavSection[] = [
       { name: 'Catalogue', href: '/catalogue', icon: ShoppingBag },
       { name: 'Mon Panier', href: '/panier', icon: ShoppingCart },
       { name: 'Suivre un colis', href: '/suivi', icon: Truck },
-      { name: 'Accueil', href: '/', icon: Home, exact: true },
     ],
   },
 ];

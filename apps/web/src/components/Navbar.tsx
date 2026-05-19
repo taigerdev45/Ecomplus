@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 
 const publicLinks = [
-  { name: 'Accueil', href: '/', icon: Home },
   { name: 'Catalogue', href: '/catalogue', icon: Package },
   { name: 'Suivre un colis', href: '/suivi', icon: Truck },
 ];
