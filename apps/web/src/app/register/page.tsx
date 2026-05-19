@@ -137,7 +137,7 @@ function RegisterContent() {
                   placeholder="Jean Dupont"
                   value={formData.nom}
                   onChange={handleChange}
-                  className="field pl-10"
+                  className="field !pl-10"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ function RegisterContent() {
                   placeholder="votre@email.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="field pl-10"
+                  className="field !pl-10"
                 />
               </div>
             </div>
@@ -178,7 +178,7 @@ function RegisterContent() {
                   placeholder="Ex: 066XXXXXX"
                   value={formData.telephone}
                   onChange={handleChange}
-                  className="field pl-10"
+                  className="field !pl-10"
                 />
               </div>
             </div>
@@ -199,7 +199,7 @@ function RegisterContent() {
                   placeholder="Min. 8 caractères"
                   value={formData.password}
                   onChange={handleChange}
-                  className="field pl-10 pr-11"
+                  className="field !pl-10 !pr-11"
                 />
                 <button
                   type="button"
@@ -228,7 +228,7 @@ function RegisterContent() {
                   placeholder="Confirmez votre mot de passe"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="field pl-10 pr-11"
+                  className="field !pl-10 !pr-11"
                 />
                 <button
                   type="button"

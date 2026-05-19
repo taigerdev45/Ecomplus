@@ -116,7 +116,7 @@ function LoginContent() {
                   placeholder="votre@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="field pl-10"
+                  className="field !pl-10"
                 />
               </div>
             </div>
